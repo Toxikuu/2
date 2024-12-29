@@ -1,0 +1,23 @@
+# Project: two
+
+TODO
+
+    Prefer ambiguity checks over verbose repo specification
+
+    Add listing functionality
+
+    Add log4rs or tracing integration (ideally only log to a file)
+
+    Test package installation
+
+    Add manifest checking and logic for package removal
+
+    Add source fetching
+
+WIP
+
+DONEISH
+
+ROADMAP
+
+    Features for daj-1.0.0:
