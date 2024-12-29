@@ -20,12 +20,17 @@ fn all(repo: &str) -> Vec<String> {
     let packages: Vec<String> = entries
         .filter_map(|entry| {
             let entry = entry.unwrap();
-            let file_name = entry.file_name();
-            if file_name.to_string_lossy().starts_with('.') {
-                None
+            if entry.file_type().unwrap().is_dir() {
+                let file_name = entry.file_name();
+                if file_name.to_string_lossy().starts_with('.') {
+                    None
+                } else {
+                    Some(file_name.into_string().unwrap())
+                }
             } else {
-                Some(file_name.into_string().unwrap())
+                None
             }
+            
         })
         .map(|entry| format!("{}/{}", repo, entry)) // remove ambiguity
         .collect();
