@@ -41,9 +41,14 @@ impl PM {
 
     pub fn remove(&self) {
         for package in self.packages.iter() {
-            rl::remove(package);
-            rl::remove_sources(package);
-            rl::remove_dots(package);
+            let mut stopwatch = Stopwatch::new();
+            stopwatch.start();
+
+            if rl::remove(package) {
+                stopwatch.stop();
+                msg!("Removed '{}' in {} s", package, stopwatch.elapsed().as_secs_f32())
+            }
+            stopwatch.reset()
         }
     }
 
