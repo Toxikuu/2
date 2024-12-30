@@ -1,0 +1,25 @@
+[flags]
+force = false
+quiet = false
+verbose = false
+
+[message] # ansi escape codes (\x1b[ is assumed)
+danger = "31;1m  "
+default = "30;3m"
+message = "36;1m  "
+prompt = "35;1m"
+stderr = "31;3;1m"
+stdout = "30;3m"
+verbose = "34;1m"
+
+[startup] # not yet implemented
+splash = "/usr/share/2/splash"
+auto_prune = false
+auto_sync = false
+
+[removal]
+remove_sources = false
+remove_dots = false
+
+[general]
+prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)
