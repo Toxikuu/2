@@ -11,6 +11,13 @@ use crate::remove::logic::remove_dead_files_after_update;
 use super::script;
 use std::path::Path;
 
+// TODO: add similar return enums in the future for all pm logic operations
+// pub enum InstallTristate {
+//     AlreadyInstalled,
+//     DistInstalled,
+//     BuiltAndInstalled,
+// }
+
 pub fn install(package: &Package) -> bool {
     if package.data.installed_version == package.version && !FLAGS.lock().unwrap().force {
         erm!("Already installed '{}'", package);
@@ -38,7 +45,7 @@ pub fn build(package: &Package) -> bool {
 }
 
 fn dist_install(package: &Package) {
-    msg!("Installing '{}'", package);
+msg!("Installing '{}'", package);
     let relpath = format!("{}/{}", package.repo, package.name);
     let command = format!(
     r#"
