@@ -3,7 +3,7 @@
 // logic for package removal
 
 use crate::package::Package;
-use crate::{die, erm, msg, pr};
+use crate::{die, erm, pr};
 use std::fs::{create_dir, remove_dir, remove_dir_all, remove_file};
 use std::path::Path;
 use super::manifest::{find_dead_files, find_unique_paths};
@@ -26,8 +26,11 @@ const KEPT: [&str; 14] = [
     "usr/share/pkgconfig"
 ];
 
-pub fn remove(package: &Package) {
-    if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
+pub fn remove(package: &Package) -> bool {
+    if !package.data.is_installed { 
+        erm!("Not installed: '{}'", package);
+        return false
+    }
 
     let manifest = format!("/usr/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.version);
     let manifest_path = Path::new(&manifest);
@@ -69,17 +72,18 @@ pub fn remove(package: &Package) {
     let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
     remove_file(status_file).unwrap_or_else(|e| { die!("Failed to remove INSTALLED: {} (unreachable)", e) });
 
-    msg!("Removed '{}'", package)
+    if CONFIG.removal.remove_sources { remove_sources(package) }
+    if CONFIG.removal.remove_dots { remove_dots(package) }
+
+    true
 }
 
-pub fn remove_sources(package: &Package) {
-    if !CONFIG.removal.remove_sources { return }
+fn remove_sources(package: &Package) {
     let srcdir = format!("/sources/{}/{}", package.repo, package.name);
     remove_dir_all(srcdir).unwrap_or_else(|e| erm!("Failed to remove sources for '{}': {}", package, e));
 }
 
-pub fn remove_dots(package: &Package) {
-    if !CONFIG.removal.remove_dots { return }
+fn remove_dots(package: &Package) {
     let portdir_str = format!("/usr/ports/{}/{}", package.repo, package.name);
     let portdir = Path::new(&portdir_str);
 
