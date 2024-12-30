@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# build-ni (build ninja install) wraps ninja install
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+DESTDIR="D" ninja install || die "ninja install failed"

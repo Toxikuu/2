@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# m-gen (maintainer generate) generates the info.lock files for a package
+
+set -e
+pushd . > /dev/null
+
+usage() {
+  echo 'Usage: '"$1"'(<repo>/)<package>' >&2
+  exit 2 # syntax exit code
+}
+
+linkhash() {
+  mkdir -p /tmp/twohash
+  rm -f /tmp/twohash/target
+
+  [ -z "$1" ] && return 0 # don't error when no link is provided
+  wget "$1" -q -O /tmp/twohash/target
+
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Failed to download $1" >&2
+    return 1
+  fi
+
+  /usr/share/2/bin/u-hash /tmp/twohash/target
+
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Hashing failed" >&2
+    return 1
+  fi
+}
+
+[ "$#" -ne 1 ] && usage
+
+# NOTE: unsure if i wanna use this
+# blacklist=("#" "$" "%" "&" "*" ";")
+# for char in "${blacklist[@]}"; do
+#   if [[ "$1" == *"$char"* ]]; then
+#     echo "Error: Invalid character in input: $char"
+#     usage
+#   fi
+# done
+
+[[ "$1" == *#*   ]] && usage # options are not supported
+[[ "$1" == */*/* ]] && usage
+[[ "$1" == *=*=* ]] && usage
+
+# parse repo name if passed
+if [[ "$1" == */* ]]; then
+  REPO="${1%%/*}"
+  NAME="${1#*/}"
+else
+  NAME="$1"
+  REPO="${REPO:-testing}"
+fi
+
+VERS="${NAME#*=}"
+NAME="${NAME%%=*}"
+
+echo
+echo " ### VARIABLES ### "
+echo "REPO: $REPO"
+echo "NAME: $NAME"
+echo " ### VARIABLES ### "
+echo
+
+read -p "Press enter to continue..." 
+
+cd "/usr/ports/$REPO/$NAME"
+
+# TODO: Consider sourcing f-core and using die()
+[ -e BUILD ] || { echo 'This package doesn'\''t exist!' >&2 ; exit 1 ;}
+
+source BUILD
+
+EXTRACOUNT=${#EXTRA[@]}
+cat > info.lock << ~fin.
+name = "$NAME"
+version = "$VERS"
+repo = "$REPO"
+
+[data]
+source = { url = "$SOURCE", hash = "$(linkhash "$SOURCE")" }
+extra = [
+~fin.
+
+for ((i = 0; i < EXTRACOUNT; i++)); do
+  echo "  { url = \"${EXTRA[i]}\", hash = \"$(linkhash "${EXTRA[i]}")\" }," >> info.lock
+done
+
+echo ']' >> info.lock
+mkdir -pv .dist .data
+
+popd > /dev/null
+rm -rf /tmp/twohash

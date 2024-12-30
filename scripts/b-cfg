@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# b-cfg (build configure) wraps configure
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+CP="${CP:-.}"
+
+"$CP/configure" --prefix=/usr --disable-static "$@" ||
+die "configure failed"

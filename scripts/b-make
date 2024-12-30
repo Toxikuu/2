@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# b-make (build make) wraps make
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+make "$@" || die "make failed"

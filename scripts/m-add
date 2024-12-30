@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# m-add (maintainer add) adds a package
+
+source /usr/share/2/bin/e-core
+pushd . > /dev/null
+
+usage() {
+  echo 'Usage: m-add (<repo>/)<package>=<version>' >&2
+  exit 2 # syntax exit code
+}
+
+[ "$#" -ne 1 ] && usage
+
+[[ "$1" == *#*   ]] && usage # options are not supported by this script
+[[ "$1" == */*/* ]] && usage
+[[ "$1" == *=*=* ]] && usage
+[[ "$1" == *=*   ]] || usage # version must be specified
+
+# parse repo name if passed
+if [[ "$1" == */* ]]; then
+  REPO="${1%%/*}"
+  NAME="${1#*/}"
+else
+  NAME="$1"
+  REPO="${REPO:-main}"
+fi
+
+VERS="${NAME#*=}"
+NAME="${NAME%%=*}"
+
+echo
+echo " ### VARIABLES ### "
+echo "REPO: $REPO"
+echo "NAME: $NAME"
+echo "VERS: $VERS"
+echo " ### VARIABLES ### "
+echo
+
+read -p "Press enter to continue..." 
+
+[ -e /usr/ports/"$REPO" ] || die "Nonexistent repo: $REPO"
+
+cd "/usr/ports/$REPO"
+mkdir -pv "$NAME" && cd "$NAME"
+
+[ -e BUILD ] && die 'This package already exists!'
+
+mkdir -pv .dist .data
+
+cat > BUILD << EOF
+NAME="$NAME"
+VERS="$VERS"
+DESC=""
+UPST=""
+
+SOURCE=""
+EXTRA=()
+
+2b() {
+
+}
+EOF
+
+nvim BUILD
+
+/usr/share/2/bin/m-gen "$REPO/$NAME"
+
+git status -s
+git add .
+git commit -m "$NAME: added"
+git push
+
+popd > /dev/null

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# f-core (functions core) defines core utility functions
+
+die() {
+  export -f die
+  echo "Death: '$1'" >&2
+  exit 1
+}
+
+warn() {
+  export -f warn
+  local width=80
+
+  echo " ### WARNING ###"       >&2
+  echo "$1" | fold -s -w $width >&2
+  echo " ### WARNING ###"       >&2
+}
+

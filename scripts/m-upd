@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# m-upd (maintainer update) updates a package
+
+source /usr/share/2/bin/e-core
+pushd . > /dev/null
+
+usage() {
+  echo 'Usage: m-add (<repo>/)<package>=<version>' >&2
+  echo 'The version specified becomes the new version'
+  exit 2 # syntax exit code
+}
+
+[ "$#" -ne 1 ] && usage
+
+[[ "$1" == *#*   ]] && usage # options are not supported by this script
+[[ "$1" == */*/* ]] && usage
+[[ "$1" == *=*=* ]] && usage
+[[ "$1" == *=*   ]] || usage # version must be specified
+
+# parse repo name if passed
+if [[ "$1" == */* ]]; then
+  REPO="${1%%/*}"
+  NAME="${1#*/}"
+else
+  NAME="$1"
+  REPO="${REPO:-testing}"
+fi
+
+VERS="${NAME#*=}"
+NAME="${NAME%%=*}"
+
+echo
+echo " ### VARIABLES ### "
+echo "REPO: $REPO"
+echo "NAME: $NAME"
+echo "VERS: $VERS"
+echo " ### VARIABLES ### "
+echo
+
+read -p "Press enter to continue..." 
+
+[ -e /usr/ports/"$REPO" ] || die "Nonexistent repo: $REPO"
+
+cd "/usr/ports/$REPO/$NAME"
+
+NEWVERS="$VERS"
+source BUILD
+OLDVERS="$VERS"
+
+sed -i "0,/^VERS=/s/^VERS=.*/VERS=\"$NEWVERS\"/" BUILD
+nvim BUILD
+source BUILD # in case the user changes $VERS after the sed
+
+/usr/share/2/bin/m-gen "$REPO/$NAME"
+
+git status -s
+git add .
+git commit -m "$NAME: $OLDVERS -> $VERS"
+git push
+
+popd > /dev/null

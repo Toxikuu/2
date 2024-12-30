@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# m-newrepo (maintainer newrepo) adds a new repo
+#
+# to use this, you'll need to create the remote repository first
+# the remote repo name format is: '2-<repo>'
+
+source /usr/share/2/bin/e-core
+pushd . > /dev/null
+
+usage() {
+  echo 'Usage: m-newrepo <repo> <remote>' >&2
+  exit 2 # syntax exit code
+}
+
+REPO="${1:-$REPO}"
+REMOTE="${2:-$REMOTE}"
+[ -z "$REPO" ]    && usage
+[ -z "$REMOTE" ]  && usage
+
+echo
+echo " ### VARIABLES ### "
+echo "REPO: $REPO"
+echo "REMOTE: $REMOTE"
+echo " ### VARIABLES ### "
+echo
+
+read -p "Press enter to continue..." 
+
+[ -e /usr/ports/"$REPO" ] && die 'This repo already exists!'
+
+mkdir -pv "/usr/ports/$REPO"
+cd "/usr/ports/$REPO"
+git init
+
+cat > .gitignore << EOF
+*/.data
+*/.dist
+EOF
+
+cat > README.md << EOF
+# $REPO
+
+## INFO
+$REPO is a package repository for [2](https://github.com/Toxikuu/2)
+EOF
+nvim README.md
+
+# use gpl-3.0 by default, but allow overrides with the LICENSE env var
+curl -o LICENSE "${LICENSE:-https://www.gnu.org/licenses/gpl-3.0.txt}"
+
+git status -s
+read -p "Press enter to continue..." 
+
+git add .
+git commit -m "$REPO: initialized repo"
+
+git remote add origin "$REMOTE"
+git branch -M master
+git push -u origin master
+
+popd > /dev/null
