@@ -8,9 +8,13 @@ TODO
 
 WIP
 
-    Migrate sources to /usr/ports/<repo>/<package>/.sources
+    Expand the main repo
 
 DONEISH
+
+    Migrate build to /usr/ports/<repo>/<package>/.build
+
+    Migrate sources to /usr/ports/<repo>/<package>/.sources
 
     Prefer ambiguity checks over verbose repo specification
 
@@ -25,3 +29,4 @@ DONEISH
 ROADMAP
 
     Features for daj-1.0.0:
+        solid documentation with mdbook
