@@ -8,7 +8,8 @@ use clap::Parser;
 #[command(
     about = "Simple source-based LFS package manager",
     arg_required_else_help = true,
-    after_help = "TODO"
+    after_help = "Complete documentation WILL exist in the future:tm:"
+    // TODO: update the above line once documentation DOES exist
 )]
 pub struct Args {
     // Generic
@@ -54,10 +55,11 @@ pub struct Args {
     #[arg(short = '@', long)]
     pub list_sets: bool,
 
+    // list all repos, no further arguments taken
     #[arg(short = '/', long)]
     pub list_repos: bool,
 
-    #[arg(short = 'S', long)] // TODO: Make this take the positional argument <REPO>
+    #[arg(short = 'S', long)] // TODO: implement this, positional arg <REPO>
     pub sync_repo: bool,
 
     // Positional arguments (packages)
