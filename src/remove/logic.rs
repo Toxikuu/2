@@ -79,7 +79,7 @@ pub fn remove(package: &Package) -> bool {
 }
 
 fn remove_sources(package: &Package) {
-    let srcdir = format!("/sources/{}/{}", package.repo, package.name);
+    let srcdir = format!("/usr/ports/{}/{}/.sources", package.repo, package.name);
     remove_dir_all(srcdir).unwrap_or_else(|e| erm!("Failed to remove sources for '{}': {}", package, e));
 }
 
