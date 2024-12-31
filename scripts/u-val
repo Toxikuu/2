@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# u-val (utility validate) validates the hashes for a file
+
+set -e
+file="$1"
+knownhash="$2"
+
+[ -z "$knownhash" ] && exit 2
+
+testhash="$(u-hash $file)"
+
+if [[ "$knownhash" -ne "$testhash" ]]; then
+  die 'Hashes don'\''t match!'
+fi
