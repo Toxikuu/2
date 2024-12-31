@@ -2,6 +2,10 @@
 
 TODO
 
+    make the scripts recognize $EDITOR
+
+    actually implement pruning
+
     Check whether a package is installed before checking against its manifest when removing a specific package
 
     Add log4rs or tracing integration (ideally only log to a file)
@@ -11,6 +15,8 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    check source hashes during the setup stage
 
     Migrate build to /usr/ports/<repo>/<package>/.build
 
@@ -30,3 +36,4 @@ ROADMAP
 
     Features for daj-1.0.0:
         solid documentation with mdbook
+        make /usr/ports remappable
