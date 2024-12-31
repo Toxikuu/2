@@ -3,7 +3,7 @@
 
 set -e # DONT REMOVE THIS
 
-source /usr/share/2/bin/f-core
+source /usr/share/2/bin/f-core || exit 211
 
 export CFLAGS="-O2 -march=native -pipe"
 export CXXFLAGS="${CFLAGS}"
