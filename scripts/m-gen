@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # m-gen (maintainer generate) generates the info.lock files for a package
+# this is usually run automatically by m-rev, m-add, or m-upd
 
 set -e
 pushd . > /dev/null
+
+source "/usr/share/2/bin/f-core" || exit 211
 
 usage() {
   echo 'Usage: '"$1"'(<repo>/)<package>' >&2
@@ -31,16 +34,6 @@ linkhash() {
 
 [ "$#" -ne 1 ] && usage
 
-# NOTE: unsure if i wanna use this
-# blacklist=("#" "$" "%" "&" "*" ";")
-# for char in "${blacklist[@]}"; do
-#   if [[ "$1" == *"$char"* ]]; then
-#     echo "Error: Invalid character in input: $char"
-#     usage
-#   fi
-# done
-
-[[ "$1" == *#*   ]] && usage # options are not supported
 [[ "$1" == */*/* ]] && usage
 [[ "$1" == *=*=* ]] && usage
 
@@ -50,7 +43,7 @@ if [[ "$1" == */* ]]; then
   NAME="${1#*/}"
 else
   NAME="$1"
-  REPO="${REPO:-testing}"
+  REPO="${REPO:-main}"
 fi
 
 VERS="${NAME#*=}"
@@ -67,8 +60,7 @@ read -p "Press enter to continue..."
 
 cd "/usr/ports/$REPO/$NAME"
 
-# TODO: Consider sourcing f-core and using die()
-[ -e BUILD ] || { echo 'This package doesn'\''t exist!' >&2 ; exit 1 ;}
+[ -e BUILD ] || die 'This package doesn'\''t exist!'
 
 source BUILD
 
@@ -88,7 +80,7 @@ for ((i = 0; i < EXTRACOUNT; i++)); do
 done
 
 echo ']' >> info.lock
-mkdir -pv .dist .data
+mkdir -pv .dist .data .sources .build
 
 popd > /dev/null
 rm -rf /tmp/twohash
