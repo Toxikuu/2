@@ -21,7 +21,7 @@ pub fn download_extra(package: &Package, force: bool) {
     let relpath = format!("{}/{}", package.repo, package.name);
     for source in package.data.extra.iter() {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).unwrap();
-        let out = format!("/sources/{}/{}", relpath, file_name);
+        let out = format!("/usr/ports/{}/.sources/{}", relpath, file_name);
 
         if let Err(e) = download_url(&source.url, &out, force) {
             if !e.to_string().contains("Exists: ") {
@@ -105,7 +105,7 @@ fn download_tarball(package: &Package, force: bool) {
     let file_name = normalize_tarball(package, file_name);
 
     let relpath = format!("{}/{}", package.repo, package.name);
-    let srcpath = format!("/sources/{}", relpath);
+    let srcpath = format!("/usr/ports/{}/.sources/", relpath);
     fs::create_dir_all(&srcpath).unwrap();
     let out = format!("{}/{}", &srcpath, &file_name);
 
