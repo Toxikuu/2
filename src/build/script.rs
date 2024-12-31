@@ -3,10 +3,45 @@
 use crate::shell::cmd::exec;
 use crate::die;
 use crate::package::Package;
+use std::path::Path;
+use crate::fetch::download::normalize_tarball;
+
+// TODO: Add relpath to the package struct
+fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
+    fn core(filename: &str, knownhash: &str, relpath: &str) -> std::io::Result<()> {
+        let command = format!(r#"
+
+        SRC="/usr/ports/{}/.sources"
+        u-val "$SRC/{}" "{}"
+
+        "#,
+        relpath,
+        filename, knownhash
+        );
+
+        exec(&command)
+    }
+
+    if !no_source {
+        let tarball = package.data.source.url.split('/').last().unwrap();
+        let filename = normalize_tarball(package, tarball);
+        let knownhash = &package.data.source.hash;
+        core(&filename, knownhash, relpath).unwrap_or_else(|_| die!("Extra hash didn't match!"));
+    }
+
+    for source in &package.data.extra {
+        let filename = Path::new(&source.url).file_name().unwrap().to_string_lossy();
+        let knownhash = &source.hash;
+        core(&filename, knownhash, relpath).unwrap_or_else(|_| die!("Extra hash didn't match!"));
+    }
+}
 
 fn setup(package: &Package) {
-    let no_source = &package.data.source.url.is_empty();
+    let no_source = package.data.source.url.is_empty();
     let relpath = format!("{}/{}", package.repo, package.name);
+    // TODO: make hash checks configurable
+    check_hashes(package, no_source, &relpath);
+    clean(package);
 
     let command = format!(
     r#"
@@ -14,6 +49,8 @@ fn setup(package: &Package) {
     PORT="/usr/ports/{}"
     BLD="$PORT/.build"
     EXTRACTION_DIR="/tmp/2/extraction"
+    SRC="$PORT/.sources"
+    rm -rf "$EXTRACTION_DIR"
     mkdir -pv "$EXTRACTION_DIR"
 
     if {}; then
@@ -22,13 +59,13 @@ fn setup(package: &Package) {
     fi
 
     # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
-    tar xf '/usr/ports/{}/.sources/{}.tar.'*z* -C $EXTRACTION_DIR
+    tar xf "$SRC/{}.tar."*z* -C $EXTRACTION_DIR
     mv -f $EXTRACTION_DIR/*/* "$BLD"/
 
     "#,
     relpath,
     no_source,
-    relpath, package,
+    package,
     );
 
     exec(&command).unwrap_or_else(|e| die!("Failed to setup for '{}': {}", package, e))
