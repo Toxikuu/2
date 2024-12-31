@@ -9,6 +9,8 @@ knownhash="$2"
 
 testhash="$(u-hash $file)"
 
-if [[ "$knownhash" -ne "$testhash" ]]; then
-  die 'Hashes don'\''t match!'
+if [[ "$knownhash" == "$testhash" ]]; then
+  echo 'Hash is valid'
+else
+  die "Invalid hash '$testhash' does not equal '$knownhash'"'!'
 fi
