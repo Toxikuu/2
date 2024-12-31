@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # m-add (maintainer add) adds a package
 
-source /usr/share/2/bin/e-core || exit 211
+source /usr/share/2/bin/f-core || exit 211
 pushd . > /dev/null
 
 usage() {
