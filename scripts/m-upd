@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # m-upd (maintainer update) updates a package
 
-source /usr/share/2/bin/e-core
+source /usr/share/2/bin/f-core
 pushd . > /dev/null
 
 usage() {
-  echo 'Usage: m-add (<repo>/)<package>=<version>' >&2
+  echo 'Usage: m-upd (<repo>/)<package>=<version>' >&2
   echo 'The version specified becomes the new version'
   exit 2 # syntax exit code
 }
 
 [ "$#" -ne 1 ] && usage
 
-[[ "$1" == *#*   ]] && usage # options are not supported by this script
+[[ "$1" == *#*   ]] && usage
 [[ "$1" == */*/* ]] && usage
 [[ "$1" == *=*=* ]] && usage
 [[ "$1" == *=*   ]] || usage # version must be specified
@@ -23,7 +23,7 @@ if [[ "$1" == */* ]]; then
   NAME="${1#*/}"
 else
   NAME="$1"
-  REPO="${REPO:-testing}"
+  REPO="${REPO:-main}"
 fi
 
 VERS="${NAME#*=}"
@@ -49,13 +49,12 @@ OLDVERS="$VERS"
 
 sed -i "0,/^VERS=/s/^VERS=.*/VERS=\"$NEWVERS\"/" BUILD
 nvim BUILD
-source BUILD # in case the user changes $VERS after the sed
+source BUILD # in case the user changes $VERS while in nvim
 
 /usr/share/2/bin/m-gen "$REPO/$NAME"
 
 git status -s
 git add .
 git commit -m "$NAME: $OLDVERS -> $VERS"
-git push
 
 popd > /dev/null
