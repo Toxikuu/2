@@ -2,6 +2,8 @@
 
 TODO
 
+    add --version flag
+
     make the scripts recognize $EDITOR
 
     actually implement pruning
@@ -35,5 +37,6 @@ DONEISH
 ROADMAP
 
     Features for daj-1.0.0:
+        install script
         solid documentation with mdbook
         make /usr/ports remappable
