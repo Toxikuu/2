@@ -79,7 +79,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
     Ok(file_name.to_string())
 }
 
-fn normalize_tarball(package: &Package, tarball: &str) -> String {
+pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
     let ext = tarball.rsplit_once(".t")
         .map(|(_, ext)| format!(".t{}", ext))
         .unwrap_or_else(|| die!("Unsupported tarball format for '{}'", tarball));
