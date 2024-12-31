@@ -11,26 +11,24 @@ fn setup(package: &Package) {
     let command = format!(
     r#"
 
-    TMPDIR="/var/tmp/2"
-    
-    rm -rf    $TMPDIR/building/{}
-    mkdir -pv $TMPDIR/building/{} $TMPDIR/extraction
+    PORT="/usr/ports/{}"
+    BLD="$PORT/.build"
+    EXTRACTION_DIR="/tmp/2/extraction"
+    mkdir -pv "$EXTRACTION_DIR"
 
     if {}; then
         echo "Package has no tarball; skipping extraction" >&2
         exit 0
     fi
 
-    # example: /sources/testing/tree/tree=2.2.1.tar.bz2
-    tar xf '/sources/{}/{}.tar.'*z* -C $TMPDIR/extraction
-    mv -f $TMPDIR/extraction/*/* $TMPDIR/building/{}
+    # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
+    tar xf '/usr/ports/{}/.sources/{}.tar.'*z* -C $EXTRACTION_DIR
+    mv -f $EXTRACTION_DIR/*/* "$BLD"/
 
     "#,
     relpath,
-    relpath,
     no_source,
     relpath, package,
-    relpath,
     );
 
     exec(&command).unwrap_or_else(|e| die!("Failed to setup for '{}': {}", package, e))
@@ -43,23 +41,25 @@ pub fn build(package: &Package) {
     let command = format!(
     r#"
     
-    source '/usr/ports/{}/BUILD'
-    SRC="/sources/{}"
-    cd '/var/tmp/2/building/{}'
+    # TODO: Consider defining these variables within exec instead
+    PORT="/usr/ports/{}"
+    SRC="$PORT/.sources"
+    BLD="$PORT/.build"
+    source "$PORT/BUILD"
+
+    cd "$BLD"
 
     2b
 
     # TODO: Ensure update logic removes dead files from the previous manifest, and then the manifest
-    find D | cut -dD -f2- | sed '/^$/d' > '/usr/ports/{}/.data/MANIFEST={}'
+    find D | cut -dD -f2- | sed '/^$/d' > "$PORT/.data/MANIFEST={}"
 
     tar cpf D.tar D
-    zstd --rm -f -T0 -19 -o '/usr/ports/{}/.dist/{}.tar.zst' D.tar # TODO: Add a dictionary
+    zstd --rm -f -T0 -19 -o "$PORT/.dist/{}.tar.zst" D.tar # TODO: Add a dictionary
     "#,
     relpath,
-    relpath,
-    relpath,
-    relpath, package.version,
-    relpath, package,
+    package.version,
+    package,
     );
 
     exec(&command).unwrap_or_else(|e| die!("Failed to build '{}': {}", package, e));
@@ -70,14 +70,15 @@ pub fn prep(package: &Package) {
     let command = format!(
     r#"
 
-    source '/usr/ports/{}/BUILD'
-    SRC="/sources/{}"
+    PORT="/usr/ports/{}"
+    SRC="$PORT/.sources"
+    source "$PORT/BUILD"
+
     type -t 2a > /dev/null 2>&1 || exit 0
     
     2a
 
     "#,
-    relpath,
     relpath,
     );
 
@@ -89,16 +90,15 @@ pub fn post(package: &Package) {
     let command = format!(
     r#"
 
-    source '/usr/ports/{}/BUILD'
-    SRC="/sources/{}"
+    PORT="/usr/ports/{}"
+    SRC="$PORT/.sources"
+    source "$PORT/BUILD"
+
     type -t daj_post > /dev/null 2>&1 || exit 0 # finish if post is undefined
-    cd '/var/tmp/2/building/{}'
 
     daj_post
 
     "#,
-    relpath,
-    relpath,
     relpath,
     );
 
@@ -111,7 +111,7 @@ pub fn clean(package: &Package) {
     r#"
 
     # TODO: Make cleanup toggleable in the config
-    rm -rf '/var/tmp/2/building/{}'
+    rm -rf /usr/ports/{}/.build/{{*,.*}}
     "#,
     relpath,
     );
