@@ -3,12 +3,14 @@
 #
 # to use this, you'll need to create the remote repository first
 # the remote repo name format is: '2-<repo>'
+# and the local repo would just be called <repo>
 
-source /usr/share/2/bin/e-core
+source /usr/share/2/bin/f-core
 pushd . > /dev/null
 
 usage() {
   echo 'Usage: m-newrepo <repo> <remote>' >&2
+  # optionally also $LICENSE
   exit 2 # syntax exit code
 }
 
