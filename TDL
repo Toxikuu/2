@@ -2,6 +2,8 @@
 
 TODO
 
+    Check whether a package is installed before checking against its manifest when removing a specific package
+
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
