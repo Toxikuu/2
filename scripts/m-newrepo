@@ -35,6 +35,7 @@ git init
 cat > .gitignore << EOF
 */.data
 */.dist
+*/.sources
 EOF
 
 cat > README.md << EOF
