@@ -45,7 +45,7 @@ mkdir -pv "$NAME" && cd "$NAME"
 
 [ -e BUILD ] && die 'This package already exists!'
 
-mkdir -pv .dist .data
+mkdir -pv .dist .data .sources
 
 cat > BUILD << EOF
 NAME="$NAME"
