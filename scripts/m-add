@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # m-add (maintainer add) adds a package
 
-source /usr/share/2/bin/e-core
+source /usr/share/2/bin/e-core || exit 211
 pushd . > /dev/null
 
 usage() {
@@ -45,7 +45,7 @@ mkdir -pv "$NAME" && cd "$NAME"
 
 [ -e BUILD ] && die 'This package already exists!'
 
-mkdir -pv .dist .data .sources
+mkdir -pv .dist .data .sources .build
 
 cat > BUILD << EOF
 NAME="$NAME"
@@ -68,6 +68,5 @@ nvim BUILD
 git status -s
 git add .
 git commit -m "$NAME: added"
-git push
 
 popd > /dev/null
