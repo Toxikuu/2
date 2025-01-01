@@ -35,6 +35,7 @@ fn main() {
     if args.install { pm.install() }
     if args.update  { pm.update () }
     if args.get     { pm.get    () }
+    if args.prune   { pm.prune  () }
     if args.list    { pm.list   () }
     if args.remove  { pm.remove () }
 }

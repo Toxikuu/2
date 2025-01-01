@@ -3,8 +3,8 @@
 // logic for package removal
 
 use crate::package::Package;
-use crate::{die, erm, pr};
-use std::fs::{create_dir, remove_dir, remove_dir_all, remove_file};
+use crate::{die, erm, pr, vpr};
+use std::fs::{create_dir, read_dir, remove_dir, remove_dir_all, remove_file};
 use std::path::Path;
 use super::manifest::{find_dead_files, find_unique_paths};
 use crate::globals::config::CONFIG;
@@ -132,6 +132,34 @@ pub fn remove_dead_files_after_update(package: &Package) {
 }
 
 // TODO: actually implement pruning lol
-// pub fn prune(package: &Package) {
-//
-// }
+pub fn prune(package: &Package) -> usize {
+    let src = format!("/usr/ports/{}/.sources", package.relpath);
+
+    let extra = &package.data.extra;
+    let extra_files: Vec<String> = extra.iter().map(|s| {
+        let file_name = Path::new(&s.url).file_name().unwrap().to_string_lossy();
+        format!("{}/{}", src, file_name)
+    }).collect();
+    let tarball_approx = format!("{}/{}", src, package);
+
+    let mut count = 0;
+    for entry in read_dir(src).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        let is_tarball = path.to_string_lossy().starts_with(&tarball_approx);
+        let is_extra_file = extra_files.iter().any(|f| Path::new(f) == path);
+
+        vpr!("Is tarball: {}", is_tarball);
+        vpr!("Is extra file: {}", is_extra_file);
+
+        if !is_tarball && !is_extra_file {
+            vpr!("To be removed: {:?}", path);
+            vpr!("Tarball approximation: {:?}", tarball_approx);
+            remove_file(path).fail("Failed to prune file");
+            count += 1;
+        }
+    }
+
+    count
+}

@@ -72,6 +72,19 @@ impl PM {
         }
     }
 
+    pub fn prune(&self) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
+
+        let mut total_count = 0;
+        for package in self.packages.iter() {
+            total_count += rl::prune(package);
+        }
+
+        stopwatch.stop();
+        msg!("Pruned '{}' files for '{}' packages in '{}' s", total_count, self.packages.len(), stopwatch.elapsed().as_secs_f32())
+    }
+
     pub fn list(&mut self) {
         msg!("Packages:");
 
