@@ -47,11 +47,8 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
         return Err(format!("HTTP Status: {}", r.status()).into());
     }
 
-    let length = r.header("Content-Length").and_then(|len| len.parse().ok());
-    let bar = match length {
-        Some(len) => ProgressBar::new(len),
-        _ => ProgressBar::new_spinner(),
-    };
+    let length = r.header("Content-Length").and_then(|len| len.parse().ok()).unwrap_or(8192);
+    let bar = ProgressBar::new(length);
 
     bar.set_message(file_name.clone());
     bar.set_style(
@@ -59,8 +56,8 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
             .unwrap()
             .progress_chars("=>-")
     );
-
-    if let Some(len) = length { bar.set_length(len) }
+    
+    bar.set_length(length);
 
     let mut f = File::create(file_path)?;
     match r.header("Content-Type") {
@@ -73,8 +70,8 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
         }
     }
 
+    bar.set_position(length);
     bar.finish_with_message("Done");
-    bar.finish_using_style();
 
     Ok(file_name.to_string())
 }
