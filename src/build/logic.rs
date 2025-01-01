@@ -3,13 +3,14 @@
 // defines the logic for package builds
 
 use crate::globals::config::CONFIG;
-use crate::{erm, die, msg, cpr};
+use crate::{erm, msg, cpr};
 use crate::globals::flags::FLAGS;
 use crate::package::Package;
 use crate::shell::cmd::exec;
 use crate::remove::logic::remove_dead_files_after_update;
 use super::script;
 use std::path::Path;
+use crate::utils::die::Fail;
 
 // TODO: add similar return enums in the future for all pm logic operations
 // pub enum InstallTristate {
@@ -34,7 +35,7 @@ pub fn install(package: &Package) -> bool {
 
 pub fn build(package: &Package) -> bool {
     if Path::new(&package.data.dist).exists() && !FLAGS.lock().unwrap().force {
-        erm!("Built '{}'", package);
+        erm!("Already built '{}'", package);
         false
     } else {
         msg!("Building '{}'", package);
@@ -46,23 +47,22 @@ pub fn build(package: &Package) -> bool {
 
 fn dist_install(package: &Package) {
 msg!("Installing '{}'", package);
-    let relpath = format!("{}/{}", package.repo, package.name);
     let command = format!(
     r#"
 
     PREFIX={}
 
     mkdir -pv $PREFIX
-    tar xvf /usr/ports/{}/.dist/{}.tar.zst -C $PREFIX --strip-components=1
+    tar xvf {} -C $PREFIX --strip-components=1
     echo "{}" > /usr/ports/{}/.data/INSTALLED
 
     "#,
     CONFIG.general.prefix,
-    relpath, package,
-    package.version, relpath,
+    package.data.dist,
+    package.version, package.relpath,
     );
 
-    exec(&command).unwrap_or_else(|e| die!("Failed to dist-install '{}': {}", package, e));
+    exec(&command).fail("Failed to perform dist install!");
     script::post(package); // TODO: confirm this works
 }
 
