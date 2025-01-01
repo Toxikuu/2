@@ -23,7 +23,8 @@ impl Package {
 
         package.data.is_installed = Path::new(&status_path_str).exists();
         package.data.installed_version = fs::read_to_string(status_path_str).unwrap_or_default().trim().to_string();
-        package.data.dist = format!("/usr/ports/{}/{}/.dist/{}.tar.zst", repo, name, package);
+        package.relpath = format!("{}/{}", repo, name);
+        package.data.dist = format!("/usr/ports/{}/.dist/{}.tar.zst", package.relpath, package);
 
         package
     }
