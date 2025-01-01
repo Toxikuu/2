@@ -78,7 +78,7 @@ macro_rules! select {
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{
         use $crate::shell::cmd::exec;
-        let relpath = format!("{}/{}", $pkg.repo, $pkg.name); // TODO: add relpath field
+        let relpath = &$pkg.relpath;
         let command = format!(
         r#"
         PORT="/usr/ports/{}"
