@@ -1,14 +1,25 @@
 // src/build/script.rs
+//! Interfaces with $PORT/BUILD
 
 use crate::shell::cmd::exec;
-use crate::die;
+use crate::pkgexec;
 use crate::package::Package;
 use std::path::Path;
 use crate::fetch::download::normalize_tarball;
+use crate::utils::die::Fail;
 
-// TODO: Add relpath to the package struct
+/// ### Description
+/// Checks the hashes for package sources, dying if they don't match known ones
+///
+/// Known hashes are sourced from Package which is deserialized from info.toml
+///
+/// The m-gen script is responsible for initializing these hashes
 fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
+    /// ### Description
+    /// Helper subfunction for checking hashes
+    // TODO: consider using a closure instead, capturing relpath
     fn core(filename: &str, knownhash: &str, relpath: &str) -> std::io::Result<()> {
+        // pkgexec is explicitly not used here as it sets more variables than is necessary
         let command = format!(r#"
 
         SRC="/usr/ports/{}/.sources"
@@ -23,35 +34,31 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     }
 
     if !no_source {
-        let tarball = package.data.source.url.split('/').last().unwrap();
+        let tarball = package.data.source.url.split('/').last().fail("Invalid url!");
         let filename = normalize_tarball(package, tarball);
         let knownhash = &package.data.source.hash;
-        core(&filename, knownhash, relpath).unwrap_or_else(|_| die!("Extra hash didn't match!"));
+        core(&filename, knownhash, relpath).fail("Hash checks failed!")
     }
 
     for source in &package.data.extra {
-        let filename = Path::new(&source.url).file_name().unwrap().to_string_lossy();
+        let filename = Path::new(&source.url).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        core(&filename, knownhash, relpath).unwrap_or_else(|_| die!("Extra hash didn't match!"));
+        core(&filename, knownhash, relpath).fail("Hash checks failed!")
     }
 }
 
 fn setup(package: &Package) {
     let no_source = package.data.source.url.is_empty();
-    let relpath = format!("{}/{}", package.repo, package.name);
     // TODO: make hash checks configurable
-    check_hashes(package, no_source, &relpath);
+    check_hashes(package, no_source, &package.relpath);
     clean(package);
 
     let command = format!(
     r#"
 
-    PORT="/usr/ports/{}"
-    BLD="$PORT/.build"
-    EXTRACTION_DIR="/tmp/2/extraction"
-    SRC="$PORT/.sources"
-    rm -rf "$EXTRACTION_DIR"
-    mkdir -pv "$EXTRACTION_DIR"
+    XTR="/tmp/2/extraction"
+    rm -rf "$XTR"
+    mkdir -pv "$XTR"
 
     if {}; then
         echo "Package has no tarball; skipping extraction" >&2
@@ -59,31 +66,23 @@ fn setup(package: &Package) {
     fi
 
     # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
-    tar xf "$SRC/{}.tar."*z* -C $EXTRACTION_DIR
-    mv -f $EXTRACTION_DIR/*/* "$BLD"/
+    tar xf "$SRC/{}.tar."*z* -C $XTR
+    mv -f $XTR/*/* "$BLD"/
 
     "#,
-    relpath,
     no_source,
     package,
     );
 
-    exec(&command).unwrap_or_else(|e| die!("Failed to setup for '{}': {}", package, e))
+    pkgexec!(&command, package).fail("Build died in setup!")
 }
 
 pub fn build(package: &Package) {
     setup(package);
-    let relpath = format!("{}/{}", package.repo, package.name);
-
     let command = format!(
     r#"
     
-    # TODO: Consider defining these variables within exec instead
-    PORT="/usr/ports/{}"
-    SRC="$PORT/.sources"
-    BLD="$PORT/.build"
     source "$PORT/BUILD"
-
     cd "$BLD"
 
     2b
@@ -94,64 +93,52 @@ pub fn build(package: &Package) {
     tar cpf D.tar D
     zstd --rm -f -T0 -19 -o "$PORT/.dist/{}.tar.zst" D.tar # TODO: Add a dictionary
     "#,
-    relpath,
     package.version,
     package,
     );
 
-    exec(&command).unwrap_or_else(|e| die!("Failed to build '{}': {}", package, e));
+    pkgexec!(&command, package).fail("Build died!")
 }
 
 pub fn prep(package: &Package) {
-    let relpath = format!("{}/{}", package.repo, package.name);
-    let command = format!(
+    let command =
     r#"
 
-    PORT="/usr/ports/{}"
-    SRC="$PORT/.sources"
     source "$PORT/BUILD"
 
     type -t 2a > /dev/null 2>&1 || exit 0
     
     2a
 
-    "#,
-    relpath,
-    );
+    "#.to_string();
 
-    exec(&command).unwrap_or_else(|e| die!("Failed to perform preparation steps for '{}': {}", package, e));
+    pkgexec!(&command, package).fail("Build died while performing preparation steps!")
 }
 
 pub fn post(package: &Package) {
-    let relpath = format!("{}/{}", package.repo, package.name);
-    let command = format!(
+    let command =
     r#"
 
-    PORT="/usr/ports/{}"
-    SRC="$PORT/.sources"
     source "$PORT/BUILD"
 
     type -t daj_post > /dev/null 2>&1 || exit 0 # finish if post is undefined
 
     daj_post
 
-    "#,
-    relpath,
-    );
+    "#.to_string();
 
-    exec(&command).unwrap_or_else(|e| die!("Failed to preform post-install steps for '{}': {}", package, e));
+    pkgexec!(&command, package).fail("Build died while performing post-install steps!")
 }
 
 pub fn clean(package: &Package) {
-    let relpath = format!("{}/{}", package.repo, package.name);
     let command = format!(
     r#"
 
     # TODO: Make cleanup toggleable in the config
     rm -rf /usr/ports/{}/.build/{{*,.*}}
     "#,
-    relpath,
+    package.relpath,
     );
 
-    exec(&command).unwrap_or_else(|e| die!("Failed cleanup for '{}': {}", package, e))
+    exec(&command).fail("Build died while performing cleanup steps!")
 }
