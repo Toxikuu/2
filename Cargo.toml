@@ -1,7 +1,8 @@
 [package]
 name = "two"
-version = "0.0.0" # ignored for the moment as 2 isn't ready for its 0.1.0 release
+version = "0.0.1" # ignored for the moment as 2 isn't ready for its 0.1.0 release
 edition = "2024"
+repository = "https://github.com/Toxikuu/2"
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
