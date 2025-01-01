@@ -8,6 +8,7 @@ use std::fs::{self, File};
 use std::path::Path;
 use crate::package::Package;
 use crate::die;
+use crate::utils::die::Fail;
 use indicatif::{ProgressBar, ProgressStyle};
 
 pub const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
@@ -18,10 +19,9 @@ pub fn download(package: &Package, force: bool) {
 }
 
 pub fn download_extra(package: &Package, force: bool) {
-    let relpath = format!("{}/{}", package.repo, package.name);
     for source in package.data.extra.iter() {
-        let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).unwrap();
-        let out = format!("/usr/ports/{}/.sources/{}", relpath, file_name);
+        let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid url");
+        let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
 
         if let Err(e) = download_url(&source.url, &out, force) {
             if !e.to_string().contains("Exists: ") {
@@ -33,7 +33,7 @@ pub fn download_extra(package: &Package, force: bool) {
 
 pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn Error>> {
     let out = if out == "url" { url } else { out };
-    let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).unwrap();
+    let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid url");
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
@@ -41,7 +41,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
         return Err(erm.into())
     }
 
-    let r = ureq::get(url).call().unwrap_or_else(|e| die!("Failed to get '{}': {}", url, e));
+    let r = ureq::get(url).call().fail("Failed to download url");
 
     if r.status() != 200 {
         return Err(format!("HTTP Status: {}", r.status()).into());
@@ -82,7 +82,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
 pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
     let ext = tarball.rsplit_once(".t")
         .map(|(_, ext)| format!(".t{}", ext))
-        .unwrap_or_else(|| die!("Unsupported tarball format for '{}'", tarball));
+        .fail("Unsupported tarball format");
 
     let to = match ext.as_str() {
         ".tar.bz2"  | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{}.tar.bz2",  package),
@@ -104,9 +104,8 @@ fn download_tarball(package: &Package, force: bool) {
     let file_name = url.split('/').last().expect("Invalid url");
     let file_name = normalize_tarball(package, file_name);
 
-    let relpath = format!("{}/{}", package.repo, package.name);
-    let srcpath = format!("/usr/ports/{}/.sources/", relpath);
-    fs::create_dir_all(&srcpath).unwrap();
+    let srcpath = format!("/usr/ports/{}/.sources/", package.relpath);
+    fs::create_dir_all(&srcpath).fail("Failed to create source path"); // UNREACHABLE
     let out = format!("{}/{}", &srcpath, &file_name);
 
     if let Err(e) = download_url(&url, &out, force) {

@@ -8,6 +8,7 @@ use std::fs::{create_dir, remove_dir, remove_dir_all, remove_file};
 use std::path::Path;
 use super::manifest::{find_dead_files, find_unique_paths};
 use crate::globals::config::CONFIG;
+use crate::utils::die::Fail;
 
 const KEPT: [&str; 14] = [
     "/usr",
@@ -53,7 +54,9 @@ pub fn remove(package: &Package) -> bool {
             return erm!("Retaining protected path: {:?}", path);
         }
         
-        if path.is_file() { remove_file(path).unwrap() } // NOTE: should be unreachable as root
+        // TODO: is failing optimal error handling here?
+        // i think yes, since it should be unreachable
+        if path.is_file() { remove_file(path).fail("Failed to remove file") } // NOTE: should be unreachable as root
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
@@ -70,7 +73,7 @@ pub fn remove(package: &Package) -> bool {
 
     // NOTE: the manifest is not removed as prune will handle it
     let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
-    remove_file(status_file).unwrap_or_else(|e| { die!("Failed to remove INSTALLED: {} (unreachable)", e) });
+    remove_file(status_file).fail("Failed to remove the status file!");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
     if CONFIG.removal.remove_dots { remove_dots(package) }
@@ -80,20 +83,20 @@ pub fn remove(package: &Package) -> bool {
 
 fn remove_sources(package: &Package) {
     let srcdir = format!("/usr/ports/{}/{}/.sources", package.repo, package.name);
-    remove_dir_all(srcdir).unwrap_or_else(|e| erm!("Failed to remove sources for '{}': {}", package, e));
+    remove_dir_all(srcdir).fail("Failed to remove sources!")
 }
 
 fn remove_dots(package: &Package) {
     let portdir_str = format!("/usr/ports/{}/{}", package.repo, package.name);
     let portdir = Path::new(&portdir_str);
 
-    // lazy rm -rf .d*/*
-    // unwrapping because these should never fail
-    remove_dir_all(portdir.join(".data")).unwrap();
-    create_dir(portdir.join(".data")).unwrap();
+    // lazy rm -rf .d*/{*,.*}
+    // these should never fail
+    remove_dir_all(portdir.join(".data")).fail("Failed to remove .data");
+    create_dir(portdir.join(".data")).fail("Failed to recreate .data");
 
-    remove_dir_all(portdir.join(".dist")).unwrap();
-    create_dir(portdir.join(".dist")).unwrap();
+    remove_dir_all(portdir.join(".dist")).fail("Failed to remove .dist");
+    create_dir(portdir.join(".dist")).fail("Failed to recreate .dist")
 }
 
 pub fn remove_dead_files_after_update(package: &Package) {
@@ -111,7 +114,8 @@ pub fn remove_dead_files_after_update(package: &Package) {
             return erm!("Retaining protected path: {:?}", path);
         }
         
-        if path.is_file() { remove_file(path).unwrap() } // NOTE: should be unreachable as root
+        // TODO: look at this in the context of the next if statement and decide whether to fail or erm!
+        if path.is_file() { remove_file(path).fail("Failed to remove dead file") } // NOTE: should be unreachable as root
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
@@ -127,6 +131,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
     });
 }
 
+// TODO: actually implement pruning lol
 // pub fn prune(package: &Package) {
 //
 // }

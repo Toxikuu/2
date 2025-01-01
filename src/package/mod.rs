@@ -15,6 +15,8 @@ use serde::Deserialize;
 pub struct Package {
     pub name: String,
     pub repo: String,
+    #[serde(default)]
+    pub relpath: String,
     pub version: String,
     pub data: PackageData,
 }

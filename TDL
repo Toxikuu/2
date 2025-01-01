@@ -2,13 +2,13 @@
 
 TODO
 
-    add --version flag
+    documentation
 
     make the scripts recognize $EDITOR
 
     actually implement pruning
 
-    Check whether a package is installed before checking against its manifest when removing a specific package
+    Check whether another package is installed before checking against its manifest when removing a specific package
 
     Add log4rs or tracing integration (ideally only log to a file)
 
@@ -38,5 +38,5 @@ ROADMAP
 
     Features for daj-1.0.0:
         install script
-        solid documentation with mdbook
+        solid documentation with mdbook and within the code
         make /usr/ports remappable
