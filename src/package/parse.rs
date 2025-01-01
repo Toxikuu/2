@@ -7,6 +7,7 @@ use crate::die;
 use super::Package;
 use super::ambiguity::resolve_ambiguity;
 use super::sets::unravel;
+use crate::utils::die::Fail;
 
 pub fn parse(packages: &[String]) -> Vec<Package> {
     let mut _packages = Vec::new();
@@ -28,7 +29,8 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
             resolve_ambiguity(package)
         };
 
-        let (repo, name) = package.split_once('/').unwrap();
+        // TODO: add an unreachable fail trait, prompting the user to report this as a bug
+        let (repo, name) = package.split_once('/').fail("UNREACHABLE");
         _packages.push(Package::new(repo, name));
     }
 
@@ -36,7 +38,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 }
 
 fn append_set(set: &str, package_list: &mut Vec<Package>) {
-    let packages = unravel(set).unwrap_or_else(|e| die!("Failed to unravel set '{}': {}", set, e));
+    let packages = unravel(set).fail("Failed to unravel set");
 
     let mut _packages = Vec::new();
     for package in packages.iter() {
@@ -48,7 +50,7 @@ fn append_set(set: &str, package_list: &mut Vec<Package>) {
             resolve_ambiguity(package)
         };
 
-        let (repo, name) = package.split_once('/').unwrap();
+        let (repo, name) = package.split_once('/').fail("UNREACHABLE");
         _packages.push(Package::new(repo, name));
     }
 
