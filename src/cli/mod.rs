@@ -3,3 +3,4 @@
 //! Handles command line interactions
 
 pub mod args;
+pub mod version;

@@ -12,6 +12,7 @@ mod shell;
 mod utils;
 
 use cli::args::Args;
+use cli::version as v;
 use globals::flags;
 use package::{parse, sets, repos};
 use pm::PM;
@@ -29,6 +30,7 @@ fn main() {
     let packages = parse::parse(&args.packages);
     let mut pm = PM::new(&packages);
 
+    if args.version { v::display() }
     if args.build   { pm.build  () }
     if args.install { pm.install() }
     if args.update  { pm.update () }
