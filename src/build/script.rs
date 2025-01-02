@@ -121,9 +121,9 @@ pub fn post(package: &Package) {
 
     source "$PORT/BUILD"
 
-    type -t daj_post > /dev/null 2>&1 || exit 0 # finish if post is undefined
+    type -t 2z > /dev/null 2>&1 || exit 0 # finish if post is undefined
 
-    daj_post
+    2z
 
     "#.to_string();
 
