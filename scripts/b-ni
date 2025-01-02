@@ -3,4 +3,4 @@
 
 source "/usr/share/2/bin/f-core" || exit 211
 
-DESTDIR="D" ninja install || die "ninja install failed"
+DESTDIR="D" ninja install "$@" || die "ninja install failed"
