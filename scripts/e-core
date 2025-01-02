@@ -11,4 +11,4 @@ export MAKEFLAGS="-j$(nproc)"
 export FFLAGS="-O2"
 export LDFLAGS="-Wl,--as-needed"
 
-export PATH="/usr/share/2/bin:/usr/bin" # import f-path and use those functions if more paths are needed
+export PATH="/usr/share/2/bin:/usr/bin:/usr/sbin" # import f-path and use those functions if more paths are needed
