@@ -63,7 +63,7 @@ msg!("Installing '{}'", package);
     );
 
     exec(&command).fail("Failed to perform dist install!");
-    script::post(package); // TODO: confirm this works
+    script::post(package);
 }
 
 pub fn update(package: &Package) -> bool {
