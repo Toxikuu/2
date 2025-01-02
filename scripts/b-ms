@@ -3,7 +3,7 @@
 
 source "/usr/share/2/bin/f-core" || exit 211
 
-meson setup .         \
+meson setup ${CP:-.}  \
   --prefix=/usr       \
   --buildtype=release \
   --strip "$@"        ||
