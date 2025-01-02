@@ -56,7 +56,7 @@ pub fn remove(package: &Package) -> bool {
         
         // TODO: is failing optimal error handling here?
         // i think yes, since it should be unreachable
-        if path.is_file() { remove_file(path).fail("Failed to remove file") } // NOTE: should be unreachable as root
+        if path.is_file() || path.is_symlink() { remove_file(path).fail("Failed to remove file") } // NOTE: should be unreachable as root
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
@@ -115,7 +115,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
         }
         
         // TODO: look at this in the context of the next if statement and decide whether to fail or erm!
-        if path.is_file() { remove_file(path).fail("Failed to remove dead file") } // NOTE: should be unreachable as root
+        if path.is_file() || path.is_symlink() { remove_file(path).fail("Failed to remove dead file") } // NOTE: should be unreachable as root
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
@@ -131,7 +131,6 @@ pub fn remove_dead_files_after_update(package: &Package) {
     });
 }
 
-// TODO: actually implement pruning lol
 pub fn prune(package: &Package) -> usize {
     let src = format!("/usr/ports/{}/.sources", package.relpath);
 
@@ -150,16 +149,33 @@ pub fn prune(package: &Package) -> usize {
         let is_tarball = path.to_string_lossy().starts_with(&tarball_approx);
         let is_extra_file = extra_files.iter().any(|f| Path::new(f) == path);
 
-        vpr!("Is tarball: {}", is_tarball);
-        vpr!("Is extra file: {}", is_extra_file);
-
         if !is_tarball && !is_extra_file {
-            vpr!("To be removed: {:?}", path);
-            vpr!("Tarball approximation: {:?}", tarball_approx);
+            vpr!("Pruning: {:?}", path);
+            // path should:tm: never point to a dir since it's reading .sources
             remove_file(path).fail("Failed to prune file");
             count += 1;
         }
     }
 
+    prune_manifests(package); // TODO: make it configurable
+
     count
+}
+
+fn prune_manifests(package: &Package) {
+    let data = format!("/usr/ports/{}/.data", package.relpath);
+    
+    let protected_manifest = format!("{}/MANIFEST={}", data, package.version);
+    for entry in read_dir(data).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        let is_manifest = path.file_name().unwrap().to_string_lossy().starts_with("MANIFEST=");
+        let is_protected = path.to_string_lossy() == protected_manifest;
+
+        if is_manifest && !is_protected {
+            vpr!("Pruning manifest '{:?}'", path);
+            remove_file(path).fail("Failed to prune manifest")
+        }
+    }
 }
