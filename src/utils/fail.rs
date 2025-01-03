@@ -36,7 +36,7 @@ impl fmt::Display for FailType {
 }
 
 pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailType) {
-    if !CONFIG.general.show_bug_report_message {
+    if CONFIG.general.show_bug_report_message {
         let link = match fail_type {
             FailType::Unreachable(_) => {
                 "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
