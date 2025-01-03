@@ -1,6 +1,5 @@
 // src/utils/time.rs
-//
-// utility functions for time
+//! Provides utility functions for dealing with time
 
 use std::time::{Duration, Instant};
 
@@ -64,11 +63,11 @@ impl Stopwatch {
 /// # Description
 /// Adds the pretty() method for Duration
 /// This is used by Stopwatch::display()
-trait PrettyDuration {
+trait Pretty{
     fn pretty(self) -> String;
 }
 
-impl PrettyDuration for Duration {
+impl Pretty for Duration {
     /// # Description
     /// Displays duration in a human-readable, dare I say pretty, format
     fn pretty(self) -> String {
