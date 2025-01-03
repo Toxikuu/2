@@ -2,17 +2,19 @@
 
 TODO
 
+    Add an option to exclude paths from the extraction
+
     documentation
 
     make the scripts recognize $EDITOR
-
-    actually implement pruning
 
     Check whether another package is installed before checking against its manifest when removing a specific package
 
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
+
+    actually implement pruning
 
     Expand the main repo
 
