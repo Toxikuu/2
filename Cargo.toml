@@ -1,6 +1,6 @@
 [package]
 name = "two"
-version = "0.0.7" # stopwatch display, walkdir improvements, fail improvements, exclusions, general refactoring, issue template changes
+version = "0.0.8" # misc tweaks
 edition = "2024"
 repository = "https://github.com/Toxikuu/2"
 
