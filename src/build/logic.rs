@@ -50,7 +50,6 @@ pub fn build(package: &Package) -> bool {
 }
 
 fn dist_install(package: &Package) {
-msg!("Installing '{}'", package);
     let command = format!(
     r#"
 
