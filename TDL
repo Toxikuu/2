@@ -2,23 +2,25 @@
 
 TODO
 
-    Add an option to exclude paths from the extraction
+    Add repo priority and auto_ambiguity
 
     documentation
 
     make the scripts recognize $EDITOR
 
-    Check whether another package is installed before checking against its manifest when removing a specific package
-
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
 
-    actually implement pruning
+    Check whether another package is installed before checking against its manifest when removing a specific package
 
     Expand the main repo
 
 DONEISH
+
+    Add an option to exclude paths from the extraction
+
+    actually implement pruning
 
     check source hashes during the setup stage
 
