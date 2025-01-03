@@ -2,26 +2,51 @@
 //
 // reads the package manifest
 
-use walkdir::WalkDir;
+use crate::vpr;
+use walkdir::{DirEntry, WalkDir};
 use std::path::{Path, PathBuf};
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use crate::package::Package;
 
+fn is_in_wrong_hidden(entry: &DirEntry) -> bool {
+    entry.path()
+        .components()
+        .any(|c| {
+            let component = c.as_os_str().to_string_lossy();
+            component.starts_with('.') && component != ".data"
+        })
+}
+
+fn is_manifest(entry: &DirEntry) -> bool {
+    entry.file_name()
+        .to_str()
+        .unwrap_or("")
+        .contains("MANIFEST=")
+}
+
+// TODO: consider generating manifests from extracted tarballs, instead of from builds
+// probably optimal because distributors would rather not have to ship manifests as well as tarballs
 fn locate(dir: &str) -> Vec<PathBuf> {
     let mut manifests = Vec::new();
 
-    for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
-        if entry.file_type().is_file() {
-            if let Some(filename) = entry.file_name().to_str() {
-                if filename.contains("MANIFEST=") {
-                    manifests.push(entry.into_path())
-                }
+    for entry in WalkDir::new(dir)
+        .max_depth(4)
+        .into_iter()
+        .filter_entry(|e| !is_in_wrong_hidden(e))
+        .filter_map(|e| e.ok())
+    {
+        vpr!("ENTRY: {:?}", entry);
+        if entry.file_type().is_file() && is_manifest(&entry) {
+            let installed_path = entry.path().with_file_name("INSTALLED");
+            if installed_path.exists() {
+                manifests.push(entry.into_path())
             }
         }
     }
 
+    vpr!("Located manifests: {:#?}", manifests);
     manifests
 }
 
@@ -29,7 +54,6 @@ fn read_lines(path: &PathBuf) -> Vec<String> {
     let file = File::open(path).unwrap();
     let reader = BufReader::new(file);
 
-    // reader.lines().filter_map(|l| l.ok()).collect()
     reader.lines().map_while(Result::ok).collect()
 }
 
