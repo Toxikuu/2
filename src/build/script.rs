@@ -2,11 +2,12 @@
 //! Interfaces with $PORT/BUILD
 
 use crate::shell::cmd::exec;
-use crate::pkgexec;
+use crate::{pkgexec, die};
 use crate::package::Package;
+use std::fs::{create_dir, remove_dir_all};
 use std::path::Path;
 use crate::fetch::download::normalize_tarball;
-use crate::utils::die::Fail;
+use crate::utils::fail::Fail;
 
 /// ### Description
 /// Checks the hashes for package sources, dying if they don't match known ones
@@ -34,16 +35,16 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     }
 
     if !no_source {
-        let tarball = package.data.source.url.split('/').last().fail("Invalid url!");
+        let tarball = package.data.source.url.split('/').last().fail("Invalid url");
         let filename = normalize_tarball(package, tarball);
         let knownhash = &package.data.source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed!")
+        core(&filename, knownhash, relpath).fail("Hash checks failed")
     }
 
     for source in &package.data.extra {
         let filename = Path::new(&source.url).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed!")
+        core(&filename, knownhash, relpath).fail("Hash checks failed")
     }
 }
 
@@ -75,7 +76,7 @@ fn setup(package: &Package) {
     package,
     );
 
-    pkgexec!(&command, package).fail("Build died in setup!")
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in setup: {}", package, e))
 }
 
 pub fn build(package: &Package) {
@@ -98,7 +99,7 @@ pub fn build(package: &Package) {
     package,
     );
 
-    pkgexec!(&command, package).fail("Build died!")
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died: {}", package, e))
 }
 
 pub fn prep(package: &Package) {
@@ -128,19 +129,11 @@ pub fn post(package: &Package) {
 
     "#.to_string();
 
-    pkgexec!(&command, package).fail("Build died while performing post-install steps!")
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in post-install: {}", package, e))
 }
 
 pub fn clean(package: &Package) {
-    let command = format!(
-    r#"
-
-    # TODO: Make cleanup toggleable in the config
-    shopt -s dotglob
-    rm -rf /usr/ports/{}/.build/*
-    "#,
-    package.relpath,
-    );
-
-    exec(&command).fail("Build died while performing cleanup steps!")
+    let dir = format!("/usr/ports/{}/.build", package.relpath);
+    remove_dir_all(&dir).unwrap_or_else(|e| die!("Failed to clean '{}': {}", package, e));
+    create_dir(&dir).ufail("Failed to recreate .build");
 }
