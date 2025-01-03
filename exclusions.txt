@@ -1,0 +1,6 @@
+# exclusions.txt
+# Paths to exclude from dist tarball extraction
+# Supports wildcards
+usr/share/doc
+usr/share/info
+usr/share/locale
