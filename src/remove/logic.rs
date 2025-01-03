@@ -8,7 +8,7 @@ use std::fs::{create_dir, read_dir, remove_dir, remove_dir_all, remove_file};
 use std::path::Path;
 use super::manifest::{find_dead_files, find_unique_paths};
 use crate::globals::config::CONFIG;
-use crate::utils::die::Fail;
+use crate::utils::fail::Fail;
 
 const KEPT: [&str; 14] = [
     "/usr",
@@ -54,9 +54,7 @@ pub fn remove(package: &Package) -> bool {
             return erm!("Retaining protected path: {:?}", path);
         }
         
-        // TODO: is failing optimal error handling here?
-        // i think yes, since it should be unreachable
-        if path.is_file() || path.is_symlink() { remove_file(path).fail("Failed to remove file") } // NOTE: should be unreachable as root
+        if path.is_file() || path.is_symlink() { remove_file(path).ufail("Failed to remove file") }
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
@@ -114,8 +112,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
             return erm!("Retaining protected path: {:?}", path);
         }
         
-        // TODO: look at this in the context of the next if statement and decide whether to fail or erm!
-        if path.is_file() || path.is_symlink() { remove_file(path).fail("Failed to remove dead file") } // NOTE: should be unreachable as root
+        if path.is_file() || path.is_symlink() { remove_file(path).ufail("Failed to remove dead file") }
 
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {

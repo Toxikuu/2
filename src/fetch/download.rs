@@ -8,7 +8,7 @@ use std::fs::{self, File};
 use std::path::Path;
 use crate::package::Package;
 use crate::die;
-use crate::utils::die::Fail;
+use crate::utils::fail::Fail;
 use indicatif::{ProgressBar, ProgressStyle};
 
 pub const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
@@ -102,7 +102,7 @@ fn download_tarball(package: &Package, force: bool) {
     let file_name = normalize_tarball(package, file_name);
 
     let srcpath = format!("/usr/ports/{}/.sources/", package.relpath);
-    fs::create_dir_all(&srcpath).fail("Failed to create source path"); // UNREACHABLE
+    fs::create_dir_all(&srcpath).ufail("Failed to create source path");
     let out = format!("{}/{}", &srcpath, &file_name);
 
     if let Err(e) = download_url(&url, &out, force) {
