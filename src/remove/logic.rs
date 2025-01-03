@@ -71,7 +71,7 @@ pub fn remove(package: &Package) -> bool {
 
     // NOTE: the manifest is not removed as prune will handle it
     let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
-    remove_file(status_file).fail("Failed to remove the status file!");
+    remove_file(status_file).fail("Failed to remove the status file");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
     if CONFIG.removal.remove_dots { remove_dots(package) }
@@ -81,7 +81,8 @@ pub fn remove(package: &Package) -> bool {
 
 fn remove_sources(package: &Package) {
     let srcdir = format!("/usr/ports/{}/{}/.sources", package.repo, package.name);
-    remove_dir_all(srcdir).fail("Failed to remove sources!")
+    remove_dir_all(&srcdir).ufail("Failed to remove .sources");
+    create_dir(&srcdir).ufail("Failed to recreate .sources");
 }
 
 fn remove_dots(package: &Package) {
@@ -89,12 +90,12 @@ fn remove_dots(package: &Package) {
     let portdir = Path::new(&portdir_str);
 
     // lazy rm -rf .d*/{*,.*}
-    // these should never fail
-    remove_dir_all(portdir.join(".data")).fail("Failed to remove .data");
-    create_dir(portdir.join(".data")).fail("Failed to recreate .data");
+    // these should never fail (unless maybe .data doesnt exist)
+    remove_dir_all(portdir.join(".data")).ufail("Failed to remove .data");
+    create_dir(portdir.join(".data")).ufail("Failed to recreate .data");
 
-    remove_dir_all(portdir.join(".dist")).fail("Failed to remove .dist");
-    create_dir(portdir.join(".dist")).fail("Failed to recreate .dist")
+    remove_dir_all(portdir.join(".dist")).ufail("Failed to remove .dist");
+    create_dir(portdir.join(".dist")).ufail("Failed to recreate .dist");
 }
 
 pub fn remove_dead_files_after_update(package: &Package) {
