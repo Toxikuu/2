@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# b-pipinstall (build pipinstall) wraps the pip install command
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+pip3 install --no-index --no-user --root="$PWD/D" --ignore-installed --find-links dist "$@" || die "pip install failed"
