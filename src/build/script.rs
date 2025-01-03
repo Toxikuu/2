@@ -67,7 +67,7 @@ fn setup(package: &Package) {
 
     # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
     tar xf "$SRC/{}.tar."*z* -C $XTR
-    mv -f $XTR/*/* "$BLD"/
+    mv -f $XTR/*/{{,.}}* "$BLD"/
 
     "#,
     no_source,
