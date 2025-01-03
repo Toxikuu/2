@@ -77,7 +77,7 @@ impl PM {
         }
 
         stopwatch.stop();
-        msg!("Pruned '{}' files for '{}' packages in {}", total_count, self.packages.len(), stopwatch.display())
+        msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display())
     }
 
     pub fn clean(&self) {
@@ -89,7 +89,7 @@ impl PM {
         }
 
         stopwatch.stop();
-        msg!("Cleaned '{}' packages in {}", self.packages.len(), stopwatch.display())
+        msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display())
     }
 
     pub fn list(&mut self) {
