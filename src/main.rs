@@ -23,7 +23,8 @@ use pm::PM;
 fn main() {
     let args = initialize();
     // TODO: test against args to determine which need root privileges before erroring out
-    if !unsafe { libc::geteuid() == 0 } { die!("2 requires root privileges") } // prolly safe :)
+    // TODO: make the bug reporting message toggleable in the config
+    if !unsafe { libc::geteuid() == 0 } { fail!("2 requires root privileges") } // prolly safe :)
 
     // exit after executing any special argument functions
     if handle_special_args(&args) { return }
