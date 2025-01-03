@@ -1,3 +1,4 @@
+#![feature(duration_millis_float)]
 // src/main.rs
 
 mod build;
