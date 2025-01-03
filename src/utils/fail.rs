@@ -3,6 +3,7 @@
 
 use std::fmt::{self, Display};
 use crate::{die, erm};
+use crate::globals::config::CONFIG;
 use std::panic::Location;
 
 pub enum UnreachableType {
@@ -35,21 +36,24 @@ impl fmt::Display for FailType {
 }
 
 pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailType) {
-    let link = match fail_type {
-        FailType::Unreachable(_) => {
-            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
-        },
-        _ => {
-            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=bug&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
-        },
-    };
+    if !CONFIG.general.show_bug_report_message {
+        let link = match fail_type {
+            FailType::Unreachable(_) => {
+                "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
+            },
+            _ => {
+                "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=bug&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
+            },
+        };
 
-    match fail_type {
-        FailType::Unreachable(_) => erm!("Please report this bug at:"),
-        _ => erm!("If you believe this to be a bug, please report it at:")
+        match fail_type {
+            FailType::Unreachable(_) => erm!("Please report this bug at:"),
+            _ => erm!("If you believe this to be a bug, please report it at:")
+        }
+
+        erm!("{}\n", link);
     }
 
-    erm!("{}\n", link);
     erm!("In {} on line {}, column {}", location.file(), location.line(), location.column());
     die!("[{}] {}", fail_type, msg);
 }
