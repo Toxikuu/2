@@ -21,6 +21,7 @@ pub struct Config {
 pub struct GeneralConfig {
     pub prefix: String,
     pub clean_after_build: bool,
+    pub exclusions: String,
 }
 
 #[derive(Deserialize, Debug)]

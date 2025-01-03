@@ -57,16 +57,16 @@ msg!("Installing '{}'", package);
     PREFIX={}
 
     mkdir -pv $PREFIX
-    tar xvf {} -C $PREFIX --strip-components=1
+    tar xvf {} -C $PREFIX --strip-components=1 --exclude-from='{}'
     echo "{}" > /usr/ports/{}/.data/INSTALLED
 
     "#,
     CONFIG.general.prefix,
-    package.data.dist,
+    package.data.dist, CONFIG.general.exclusions,
     package.version, package.relpath,
     );
 
-    exec(&command).fail("Failed to perform dist install!");
+    exec(&command).fail("Failed to perform dist install");
     script::post(package);
 }
 
