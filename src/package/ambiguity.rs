@@ -9,6 +9,7 @@ fn locate(name: &str) -> Vec<String> {
     let mut matches = Vec::new();
 
     for entry in WalkDir::new("/usr/ports")
+        .max_depth(2)
         .into_iter()
         .flatten()
         .filter(|e| {
@@ -55,7 +56,7 @@ fn locate_set(set: &str) -> Vec<String> {
     let mut matches = Vec::new();
     let pattern = format!(".sets/{}", set);
 
-    for entry in WalkDir::new("/usr/ports").into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new("/usr/ports").max_depth(2).into_iter().filter_map(|e| e.ok()) {
         if entry.file_type().is_file() {
             if let Some(filename) = entry.file_name().to_str() {
                 if filename == pattern {
