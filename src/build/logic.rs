@@ -10,7 +10,7 @@ use crate::shell::cmd::exec;
 use crate::remove::logic::remove_dead_files_after_update;
 use super::script;
 use std::path::Path;
-use crate::utils::die::Fail;
+use crate::utils::fail::Fail;
 
 // TODO: add similar return enums in the future for all pm logic operations
 // pub enum InstallTristate {
@@ -41,6 +41,10 @@ pub fn build(package: &Package) -> bool {
         msg!("Building '{}'", package);
         script::prep(package);
         script::build(package);
+
+        if CONFIG.general.clean_after_build {
+            script::clean(package);
+        }
         true
     }
 }
