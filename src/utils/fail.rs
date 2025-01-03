@@ -2,7 +2,7 @@
 // src/utils/fail.rs
 
 use std::fmt::{self, Display};
-use crate::{die, erm, vpr};
+use crate::{die, erm};
 use std::panic::Location;
 
 pub enum UnreachableType {
@@ -37,10 +37,10 @@ impl fmt::Display for FailType {
 pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailType) {
     let link = match fail_type {
         FailType::Unreachable(_) => {
-            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D"
+            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
         },
         _ => {
-            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=bug&projects=&template=bug.md&title=%5BBUG%5D"
+            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=bug&projects=&template=bug.md&title=%5BBUG%5D%20%3CBrief%20Description%3E"
         },
     };
 
