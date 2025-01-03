@@ -1,11 +1,66 @@
+//! Defines utilities for (bad) error handling (crashes)
 // src/utils/fail.rs
 
-use std::fmt::Display;
-use crate::{die, erm};
+use std::fmt::{self, Display};
+use crate::{die, erm, vpr};
 use std::panic::Location;
 
+pub enum UnreachableType {
+    Option,
+    Result,
+}
+
+pub enum FailType {
+    Unreachable(UnreachableType),
+    Result,
+    Option,
+    Custom(String),
+}
+
+impl fmt::Display for FailType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            FailType::Result => write!(f, "RESULT"),
+            FailType::Option => write!(f, "OPTION"),
+            FailType::Custom(t) => write!(f, "{}", t),
+            FailType::Unreachable(t) => {
+                let t = match t {
+                    UnreachableType::Option => "OPTION",
+                    UnreachableType::Result => "RESULT",
+                };
+                write!(f, "UNREACHABLE {}", t)
+            },
+        }
+    }
+}
+
+pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailType) {
+    let link = match fail_type {
+        FailType::Unreachable(_) => {
+            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=bug.md&title=%5BBUG%5D"
+        },
+        _ => {
+            "https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=bug&projects=&template=bug.md&title=%5BBUG%5D"
+        },
+    };
+
+    match fail_type {
+        FailType::Unreachable(_) => erm!("Please report this bug at:"),
+        _ => erm!("If you believe this to be a bug, please report it at:")
+    }
+
+    erm!("{}\n", link);
+    erm!("In {} on line {}, column {}", location.file(), location.line(), location.column());
+    die!("[{}] {}", fail_type, msg);
+}
+
 pub trait Fail<T, E> {
-    fn fail(self, msg: &str) -> T;
+    fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T;
+
+    #[track_caller]
+    fn fail(self, msg: &str) -> T where Self: Sized {
+        self.fail_with_location(msg, Location::caller())
+    }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T;
 
@@ -19,39 +74,49 @@ impl<T, E> Fail<T, E> for Result<T, E>
 where 
     E: Display,
 {
-    fn fail(self, msg: &str) -> T {
-        self.unwrap_or_else(|_| die!("{}", msg))
+    fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
+        self.unwrap_or_else(|e| {
+            let msg = &format!("{}: {}", msg, e);
+            report(msg, location, FailType::Result);
+            unreachable!()
+        })
     }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|e| {
-            let escaped_message = msg.replace(' ', "%20");
-            erm!("You've managed to reach an unreachable error. Good job! Please report this at:");
-            erm!("https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=unreachable-error.md&title=%5BUNREACHABLE%5D+Reached+%27{}%27\n", escaped_message);
-            erm!("[UNREACHABLE] {}: {}", msg, e);
-            erm!("[UNREACHABLE] In {} on line {}, column {}", location.file(), location.line(), location.column());
-            die!("Unreachable error reached!")
+            let msg = &format!("{}: {}", msg, e);
+            report(msg, location, FailType::Unreachable(UnreachableType::Result));
+            unreachable!()
         })
     }
 }
 
 impl<T> Fail<T, ()> for Option<T> {
-    fn fail(self, msg: &str) -> T {
-        self.unwrap_or_else(|| die!("{}", msg))
+    fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
+        self.unwrap_or_else(|| {
+            report(msg, location, FailType::Option);
+            unreachable!()
+        })
     }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|| {
-            let escaped_message = msg.replace(' ', "%20");
-
-            erm!("You've managed to reach an unreachable option. Good job! Please report this at:");
-            erm!("https://github.com/Toxikuu/2/issues/new?assignees=Toxikuu&labels=unreachable&projects=&template=unreachable-error.md&title=%5BUNREACHABLE%5D+Reached+%27{}%27\n", escaped_message);
-
-            erm!("[UNREACHABLE] {}", msg);
-            erm!("[UNREACHABLE] In {} on line {}, column {}", location.file(), location.line(), location.column());
-            die!("Unreachable option reached!")
+            report(msg, location, FailType::Unreachable(UnreachableType::Option));
+            unreachable!()
         })
     }
+}
+
+#[macro_export]
+macro_rules! fail {
+    ($($arg:tt)*) => {{
+        use $crate::utils::fail::{report, FailType};
+        report(
+            &format!($($arg)*),
+            std::panic::Location::caller(),
+            FailType::Custom("MACRO".to_string())
+        );
+    }};
 }
 
 #[cfg(test)]
@@ -74,21 +139,21 @@ mod tests {
 
 
     #[test]
-    #[should_panic(expected = "option fail test")]
+    #[should_panic]
     fn option_fail() {
         let option: Option<char> = None;
         option.fail("option fail test");
     }
 
     #[test]
-    #[should_panic] // expected not specified bc ufail outputs a lot
+    #[should_panic]
     fn option_ufail() {
         let option: Option<char> = None;
         option.ufail("unreachable option fail test");
     }
 
     #[test]
-    #[should_panic(expected = "error fail test")]
+    #[should_panic]
     fn error_fail() {
         let result: Result<char, Box<dyn Error>> = Err(Box::new(TestError));
         result.fail("error fail test");
