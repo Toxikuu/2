@@ -18,10 +18,8 @@ impl PM {
 
             download(package, false);
             if bl::install(package) {
-                stopwatch.stop();
-                msg!("Installed '{}' in {} s", package, stopwatch.elapsed().as_secs_f32())
+                msg!("Installed '{}' in {}", package, stopwatch.display())
             }
-            stopwatch.reset();
         }
     }
 
@@ -33,9 +31,8 @@ impl PM {
             download(package, false);
             if bl::update(package) {
                 stopwatch.stop();
-                msg!("Updated to '{}' in {} s", package, stopwatch.elapsed().as_secs_f32())
+                msg!("Updated to '{}' in {}", package, stopwatch.display())
             }
-            stopwatch.reset();
         }
     }
 
@@ -46,9 +43,8 @@ impl PM {
 
             if rl::remove(package) {
                 stopwatch.stop();
-                msg!("Removed '{}' in {} s", package, stopwatch.elapsed().as_secs_f32())
+                msg!("Removed '{}' in {}", package, stopwatch.display())
             }
-            stopwatch.reset()
         }
     }
 
@@ -60,9 +56,8 @@ impl PM {
             download(package, false);
             if bl::build(package) {
                 stopwatch.stop();
-                msg!("Built '{}' in {} s", package, stopwatch.elapsed().as_secs_f32())
+                msg!("Built '{}' in {}", package, stopwatch.display())
             }
-            stopwatch.reset();
         }
     }
 
@@ -82,7 +77,7 @@ impl PM {
         }
 
         stopwatch.stop();
-        msg!("Pruned '{}' files for '{}' packages in '{}' s", total_count, self.packages.len(), stopwatch.elapsed().as_secs_f32())
+        msg!("Pruned '{}' files for '{}' packages in {}", total_count, self.packages.len(), stopwatch.display())
     }
 
     pub fn clean(&self) {
@@ -94,7 +89,7 @@ impl PM {
         }
 
         stopwatch.stop();
-        msg!("Cleaned '{}' packages in '{}' s", self.packages.len(), stopwatch.elapsed().as_secs_f32())
+        msg!("Cleaned '{}' packages in {}", self.packages.len(), stopwatch.display())
     }
 
     pub fn list(&mut self) {
