@@ -2,6 +2,8 @@
 
 TODO
 
+    Update the README
+
     Add repo priority and auto_ambiguity
 
     documentation
@@ -40,7 +42,7 @@ DONEISH
 
 ROADMAP
 
-    Features for daj-1.0.0:
+    Features for 2-1.0.0:
         install script
         solid documentation with mdbook and within the code
         make /usr/ports remappable
