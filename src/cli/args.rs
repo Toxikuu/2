@@ -1,5 +1,4 @@
 // src/cli/args.rs
-//! ### Description
 //! Provides definitions for 2's arguments
 
 use clap::Parser;

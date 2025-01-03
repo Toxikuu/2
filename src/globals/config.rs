@@ -1,6 +1,5 @@
 // src/globals/config.rs
-// 
-// define the config struct
+//! Defines 2's config
 
 use lazy_static::lazy_static;
 use serde::Deserialize;

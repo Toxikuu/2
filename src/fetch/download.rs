@@ -1,6 +1,5 @@
 // src/fetch/download.rs
-//
-// defines download functions
+//! Defines download functions
 
 use std::error::Error;
 use std::io::{self, Write};
@@ -95,7 +94,6 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
     to.to_string()
 }
 
-// TODO: Add hash checks
 fn download_tarball(package: &Package, force: bool) {
     let url = package.data.source.url.clone();
     let file_name = url.split('/').last().expect("Invalid url");

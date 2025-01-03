@@ -1,5 +1,5 @@
-//! Defines utilities for (bad) error handling (crashes)
 // src/utils/fail.rs
+//! Defines utilities for (bad) error handling (crashes)
 
 use std::fmt::{self, Display};
 use crate::{die, erm};

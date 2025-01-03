@@ -1,6 +1,5 @@
 // src/build/logic.rs
-//
-// defines the logic for package builds
+//! Defines the logic for package builds
 
 use crate::globals::config::CONFIG;
 use crate::{erm, msg, cpr};
