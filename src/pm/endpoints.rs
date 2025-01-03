@@ -5,7 +5,7 @@
 use crate::globals::flags::FLAGS;
 use crate::{msg, pr};
 use super::PM;
-use crate::build::logic as bl;
+use crate::build::{logic as bl, script};
 use crate::fetch::download::download;
 use crate::remove::logic as rl;
 use crate::utils::time::Stopwatch;
@@ -83,6 +83,18 @@ impl PM {
 
         stopwatch.stop();
         msg!("Pruned '{}' files for '{}' packages in '{}' s", total_count, self.packages.len(), stopwatch.elapsed().as_secs_f32())
+    }
+
+    pub fn clean(&self) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
+
+        for package in self.packages.iter() {
+            script::clean(package);
+        }
+
+        stopwatch.stop();
+        msg!("Cleaned '{}' packages in '{}' s", self.packages.len(), stopwatch.elapsed().as_secs_f32())
     }
 
     pub fn list(&mut self) {

@@ -140,6 +140,14 @@ pub struct Args {
     #[arg(short = 'p', long)]
     pub prune: bool,
 
+    /// ### Type
+    /// Extra
+    ///
+    /// ### Description
+    /// Cleans out the .build folder
+    #[arg(short = 'c', long)]
+    pub clean: bool,
+
     // Type: Special
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2
