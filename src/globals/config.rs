@@ -20,6 +20,7 @@ pub struct Config {
 #[derive(Deserialize, Debug)]
 pub struct GeneralConfig {
     pub prefix: String,
+    pub clean_after_build: bool,
 }
 
 #[derive(Deserialize, Debug)]
