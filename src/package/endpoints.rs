@@ -1,28 +1,28 @@
 // src/package/endpoints.rs
-//
-// defines endpoints for the package struct
+//! Defines endpoints for the package struct
 
 use super::Package;
 use std::fs;
 use std::path::Path;
-use crate::die;
+use crate::{fail, vpr};
+use crate::utils::fail::Fail;
 
 impl Package {
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
-        if name.starts_with('.') {
-            die!("Invalid package name")
-        }
+        if name.starts_with('.') { fail!("Invalid package name") }
 
         let toml_path_str = format!("/usr/ports/{}/{}/info.lock", repo, name);
         let toml_path = Path::new(&toml_path_str);
-        let toml_contents = fs::read_to_string(toml_path).unwrap();
+        if !toml_path.exists() { fail!("{} does not exist", &toml_path_str) }
+        let toml_contents = fs::read_to_string(toml_path).ufail(&format!("Something is very wrong with {}", &toml_path_str));
 
-        let status_path_str = format!("/usr/ports/{}/{}/.data/INSTALLED", repo, name);
-        let mut package: Package = toml::de::from_str(&toml_contents).unwrap();
+        let mut package: Package = toml::de::from_str(&toml_contents).ufail("Invalid syntax in info.lock");
+        let status_path = toml_path.with_file_name(".data/INSTALLED");
 
-        package.data.is_installed = Path::new(&status_path_str).exists();
-        package.data.installed_version = fs::read_to_string(status_path_str).unwrap_or_default().trim().to_string();
+        vpr!("Status path: {:?}", status_path);
+        package.data.is_installed = status_path.exists();
+        package.data.installed_version = fs::read_to_string(status_path).unwrap_or_default().trim().to_string();
         package.relpath = format!("{}/{}", repo, name);
         package.data.dist = format!("/usr/ports/{}/.dist/{}.tar.zst", package.relpath, package);
 
