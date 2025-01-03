@@ -41,7 +41,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
         return Err(erm.into())
     }
 
-    let r = ureq::get(url).call().fail("Failed to download url");
+    let r = ureq::get(url).call().unwrap_or_else(|e| die!("Failed to download url '{}': {}", url, e));
 
     if r.status() != 200 {
         return Err(format!("HTTP Status: {}", r.status()).into());
