@@ -9,6 +9,7 @@ NAME="${NAME:-$1}"
 [ -z "$1" ] || shift
 
 pip3 install --no-index         \
+             --no-deps          \
              --no-user          \
              --root="$PWD/D"    \
              --ignore-installed \
