@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# build-32ms (build m32 meson setup) wraps meson setup for m32
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+PKG_CONFIG_PATH="/usr/lib32/pkgconfig" \
+CC="${CC:-gcc -m32}"    \
+CXX="${CXX:-g++ -m32}"  \
+CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}" \
+CXXFLAGS="${CFLAGS}"    \
+meson setup ${CP:-.}    \
+  --prefix=/usr         \
+  --libdir=/usr/lib32   \
+  --buildtype=release   \
+  --strip "$@"          ||
+die "m32 meson setup failed"
