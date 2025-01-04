@@ -3,7 +3,9 @@
 
 source "/usr/share/2/bin/f-core" || exit 211
 
-[ -z "${NAME:-$1}" ] && die '$NAME is undefined'
+NAME="${NAME:-$1}"
+
+[ -z "$NAME" ] && die '$NAME is undefined'
 [ -z "$1" ] || shift
 
 pip3 install --no-index         \
@@ -11,6 +13,5 @@ pip3 install --no-index         \
              --root="$PWD/D"    \
              --ignore-installed \
              --no-warn-script-location \
-             --find-links dist  \
-             "$NAME" "$@" ||
+             --find-links dist "$NAME" "$@" ||
 die "pip install failed"
