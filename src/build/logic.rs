@@ -62,6 +62,9 @@ fn dist_install(package: &Package) {
     tee /usr/ports/{}/.data/MANIFEST={}
     echo "{}" > /usr/ports/{}/.data/INSTALLED
 
+    # TODO: consider only using ldconfig once after a chain of dist installs, and after building and installing
+    ldconfig
+
     "#,
     CONFIG.general.prefix,
     package.data.dist, CONFIG.general.exclusions,
