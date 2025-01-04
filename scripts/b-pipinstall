@@ -10,7 +10,7 @@ pip3 install --no-index         \
              --no-user          \
              --root="$PWD/D"    \
              --ignore-installed \
-             --find-links dist  \
              --no-warn-script-location \
+             --find-links dist  \
              "$NAME" "$@" ||
 die "pip install failed"
