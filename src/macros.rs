@@ -84,9 +84,9 @@ macro_rules! pkgexec {
         let relpath = &$pkg.relpath;
         let command = format!(
         r#"
-        PORT="/usr/ports/{}"
-        SRC="$PORT/.sources"
-        BLD="$PORT/.build"
+        export PORT="/usr/ports/{}"
+        export SRC="$PORT/.sources"
+        export BLD="$PORT/.build"
 
         {}
         "#,
