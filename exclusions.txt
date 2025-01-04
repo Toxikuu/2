@@ -4,3 +4,4 @@
 usr/share/doc
 usr/share/info
 usr/share/locale
+usr/share/zsh
