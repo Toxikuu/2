@@ -8,9 +8,9 @@ DIRS=(
     "${DIRS[@]}"
 )
 
-make DESTDIR="$PWD/32DEST" "$@" install || die "32DEST make install failed"
+make DESTDIR="$BLD/32DEST" "$@" install || die "32DEST make install failed"
 
 for DIR in "${DIRS[@]}"; do
-  mkdir -pv "D/$DIR"
-  cp -Rv "32DEST/$DIR/"* "D/$DIR"
+  mkdir -pv "$BLD/D/$DIR"
+  cp -Rv "$BLD/32DEST/$DIR/"* "$BLD/D/$DIR"
 done
