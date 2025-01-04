@@ -89,13 +89,9 @@ pub fn build(package: &Package) {
 
     2b
 
-    # TODO: Ensure update logic removes dead files from the previous manifest, and then the manifest
-    find D | cut -dD -f2- | sed '/^$/d' > "$PORT/.data/MANIFEST={}"
-
     tar cpf D.tar D
     zstd --rm -f -T0 -19 -o "$PORT/.dist/{}.tar.zst" D.tar # TODO: Add a dictionary
     "#,
-    package.version,
     package,
     );
 

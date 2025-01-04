@@ -53,14 +53,19 @@ fn dist_install(package: &Package) {
     r#"
 
     PREFIX={}
+    mkdir -pv "$PREFIX"
 
-    mkdir -pv $PREFIX
-    tar xvf {} -C $PREFIX --strip-components=1 --exclude-from='{}'
+    tar xvf {} -C "$PREFIX" --strip-components=1 --exclude-from='{}' |
+    sed -e 's@/$@@' \
+        -e 's@^D@@' \
+        -e '/^$/d'  |
+    tee /usr/ports/{}/.data/MANIFEST={}
     echo "{}" > /usr/ports/{}/.data/INSTALLED
 
     "#,
     CONFIG.general.prefix,
     package.data.dist, CONFIG.general.exclusions,
+    package.relpath, package.version,
     package.version, package.relpath,
     );
 
