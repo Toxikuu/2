@@ -10,7 +10,7 @@ use super::manifest::{find_dead_files, find_unique_paths};
 use crate::globals::config::CONFIG;
 use crate::utils::fail::Fail;
 
-const KEPT: [&str; 14] = [
+const KEPT: [&str; 23] = [
     "/usr",
     "/usr/bin",
     "/bin",
@@ -23,8 +23,17 @@ const KEPT: [&str; 14] = [
     "/sbin",
     "/sys",
     "/dev",
+    "/lib",
+    "/lib32",
+    "/root",
+    "/sys",
+    "/var",
+    "/run",
+    "/proc",
+    "/opt",
+    "/boot",
     "/",
-    "usr/share/pkgconfig"
+    "/usr/share/pkgconfig"
 ];
 
 pub fn remove(package: &Package) -> bool {
