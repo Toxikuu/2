@@ -23,6 +23,7 @@ remove_dots = false
 
 [general]
 prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)
-clean_after_build = true
+clean_after_build = false
 exclusions = "/code/2/exclusions.txt"
 show_bug_report_message = true
+check_hashes = false
