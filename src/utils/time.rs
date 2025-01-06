@@ -38,6 +38,8 @@ impl Stopwatch {
 
     /// # Description
     /// Resets the stopwatch
+    /// UNUSED
+    #[allow(dead_code)]
     pub fn reset(&mut self) {
         self.start_time = None;
         self.elapsed = Duration::ZERO;
