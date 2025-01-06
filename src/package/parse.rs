@@ -5,7 +5,7 @@
 use crate::die;
 
 use super::Package;
-use super::ambiguity::resolve_ambiguity;
+use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
 use super::sets::unravel;
 use crate::utils::fail::Fail;
 
@@ -37,7 +37,8 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 }
 
 fn append_set(set: &str, package_list: &mut Vec<Package>) {
-    let packages = unravel(set).fail("Failed to unravel set");
+    let set = resolve_set_ambiguity(set);
+    let packages = unravel(&set).fail("Failed to unravel set");
 
     let mut _packages = Vec::new();
     for package in packages.iter() {
