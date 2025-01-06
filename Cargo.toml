@@ -1,6 +1,6 @@
 [package]
 name = "two"
-version = "0.0.11" # misc, bugfixes
+version = "0.0.12" # refactoring, ambigious set support
 edition = "2024"
 repository = "https://github.com/Toxikuu/2"
 
