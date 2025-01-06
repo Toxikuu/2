@@ -2,37 +2,32 @@
 //
 // searches for a package among all the installed repos, prompting when extant in multiple repos
 
+use std::fs;
+use crate::utils::fail::Fail;
 use walkdir::WalkDir;
 use crate::{pr, fail, select, erm};
 
 fn locate(name: &str) -> Vec<String> {
-    let mut matches = Vec::new();
-
-    for entry in WalkDir::new("/usr/ports")
+    WalkDir::new("/usr/ports")
         .max_depth(2)
         .into_iter()
         .flatten()
         .filter(|e| {
             !e.path()
-            .components()
-            .any(|component| component.as_os_str().to_string_lossy().starts_with('.'))
+                .components()
+                .any(|c| c.as_os_str().to_string_lossy().starts_with('.'))
         })
-    {
-        if entry.file_type().is_dir() {
-            let filename = entry.file_name().to_string_lossy();
-            if filename == name {
-                matches.push(
-                    entry.path()
-                        .to_string_lossy()
-                        .strip_prefix("/usr/ports/")
-                        .unwrap()
-                        .to_string()
-                )
+        .filter_map(|e| {
+            if e.file_type().is_dir() && e.file_name() == name {
+                e.path()
+                    .strip_prefix("/usr/ports")
+                    .ok()
+                    .map(|p| p.to_string_lossy().to_string())
+            } else {
+                None
             }
-        }
-    }
-
-    matches
+        })
+        .collect()
 }
 
 pub fn resolve_ambiguity(name: &str) -> String {
@@ -61,56 +56,28 @@ pub fn resolve_ambiguity(name: &str) -> String {
     }
 }
 
-// TODO: use these
+/// # Description
+/// Searches across all repos for a given set
+/// Returns an empty vector if no sets are found, otherwise returns a vector of <repo>/@<set>
 fn locate_set(set: &str) -> Vec<String> {
-    let mut matches = Vec::new();
     let pattern = format!(".sets/{}", set);
+    
+    fs::read_dir("/usr/ports")
+        .fail("No repos found")
+        .filter_map(|r| {
+            let repo = r.ok().ufail("Unknown failure in locate_set()").path();
 
-    for entry in WalkDir::new("/usr/ports")
-        .max_depth(2)
-        .into_iter()
-        .flatten()
-        .filter(|e| {
-            !e.path()
-            .components()
-            .any(|component|
-                component.as_os_str().to_string_lossy().starts_with('.')
-            ) && !e.path().is_dir()
+            if repo.join(&pattern).exists() {
+                repo.file_name()
+                    .map(|name| format!("{}/{}", name.to_string_lossy(), set))
+            } else { None }
         })
-    {
-        let filename = entry.file_name().to_string_lossy();
-        if filename == pattern {
-            matches.push(
-                entry.path()
-                    .to_string_lossy()
-                    .strip_prefix("/usr/ports/")
-                    .unwrap()
-                    .replace(".sets/", "")
-                    .to_string()
-            );
-        }
-    }
-
-    matches
+        .collect()
 }
 
-// fn locate_set(set: &str) -> Vec<String> {
-//     let mut matches = Vec::new();
-//     let pattern = format!(".sets/{}", set);
-//
-//     for entry in WalkDir::new("/usr/ports").max_depth(2).into_iter().filter_map(|e| e.ok()) {
-//         if entry.file_type().is_file() {
-//             if let Some(filename) = entry.file_name().to_str() {
-//                 if filename == pattern {
-//                     matches.push(entry.path().to_string_lossy().strip_prefix("/usr/ports/").unwrap().replace(".sets/", "").to_string())
-//                 }
-//             }
-//         }
-//     }
-//
-//     matches
-// }
-
+/// # Description
+/// Given a set, finds its repository
+/// Prompts the user if multiple repositories contain the set
 pub fn resolve_set_ambiguity(set: &str) -> String {
     let matches = locate_set(set);
 
