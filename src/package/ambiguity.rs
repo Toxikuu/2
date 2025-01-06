@@ -44,15 +44,15 @@ pub fn resolve_ambiguity(name: &str) -> String {
     loop {
         let selected = select!("Choose a package");
 
-        if let Ok(num) = selected.parse::<usize>() {
-            if let Some(m) = matches.get(num) {
-                return m.to_string()
-            } else {
-                erm!("Selection out of bounds")
-            }
-        } else {
-            erm!("Invalid input")
+        let Ok(num) = selected.parse::<usize>() else {
+            erm!("Invalid input"); continue
+        };
+
+        if let Some(m) = matches.get(num) {
+            return m.to_string()
         }
+
+        erm!("Selection out of bounds")
     }
 }
 
@@ -92,14 +92,14 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     loop {
         let selected = select!("Choose a set");
 
-        if let Ok(num) = selected.parse::<usize>() {
-            if let Some(m) = matches.get(num) {
-                return m.to_string()
-            } else {
-                erm!("Selection out of bounds")
-            }
-        } else {
-            erm!("Invalid input")
+        let Ok(num) = selected.parse::<usize>() else {
+            erm!("Invalid selection"); continue
+        };
+
+        if let Some(m) = matches.get(num) {
+            return m.to_string()
         }
+
+        erm!("Selection out of bounds")
     }
 }
