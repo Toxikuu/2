@@ -55,7 +55,10 @@ fn dist_install(package: &Package) {
     PREFIX={}
     mkdir -pv "$PREFIX"
 
-    tar xvf {} -C "$PREFIX" --strip-components=1 --exclude-from='{}' |
+    tar xvf {} -C "$PREFIX"         \
+        --strip-components=1        \
+        --keep-directory-symlink    \
+        --exclude-from='{}'         |
     sed -e 's@/$@@' \
         -e 's@^D@@' \
         -e '/^$/d'  |
