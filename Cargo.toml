@@ -1,6 +1,6 @@
 [package]
 name = "two"
-version = "0.0.9" # install-time manifest generation
+version = "0.0.11" # misc, bugfixes
 edition = "2024"
 repository = "https://github.com/Toxikuu/2"
 
