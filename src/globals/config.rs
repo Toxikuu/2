@@ -22,6 +22,7 @@ pub struct GeneralConfig {
     pub clean_after_build: bool,
     pub exclusions: String,
     pub show_bug_report_message: bool,
+    pub check_hashes: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -57,7 +58,7 @@ pub struct StartupConfig {
 
 impl Config {
     pub fn load() -> Result<Self, Box<dyn Error>> {
-        let content = fs::read_to_string("/usr/share/2/config.toml")?;
+        let content = fs::read_to_string("/etc/2/config.toml")?;
         let config: Config = toml::from_str(&content)?;
 
         Ok(config)
@@ -66,6 +67,6 @@ impl Config {
 
 lazy_static! {
     pub static ref CONFIG: Arc<Config> = Arc::new(
-        Config::load().expect("Failed to load config.toml")
+        Config::load().expect("Failed to load /etc/2/config.toml")
     );
 }
