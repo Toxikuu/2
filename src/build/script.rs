@@ -2,6 +2,7 @@
 //! Interfaces with $PORT/BUILD
 
 use crate::shell::cmd::exec;
+use crate::globals::config::CONFIG;
 use crate::{pkgexec, die};
 use crate::package::Package;
 use std::fs::{create_dir, remove_dir_all};
@@ -51,7 +52,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
 fn setup(package: &Package) {
     let no_source = package.data.source.url.is_empty();
     // TODO: make hash checks configurable
-    check_hashes(package, no_source, &package.relpath);
+    if CONFIG.general.check_hashes { check_hashes(package, no_source, &package.relpath) }
     clean(package);
 
     let command = format!(
@@ -63,6 +64,11 @@ fn setup(package: &Package) {
 
     if {}; then
         echo "Package has no tarball; skipping extraction" >&2
+        exit 0
+    fi
+
+    if [ -n "$EXTRACT" ]; then
+        echo "Extraction explicitly disabled" >&2
         exit 0
     fi
 
