@@ -3,4 +3,4 @@
 
 source "/usr/share/2/bin/f-core" || exit 211
 
-make DESTDIR="$PWD/D" "$@" install || die "make install failed"
+make DESTDIR="$D" "$@" install || die "make install failed"

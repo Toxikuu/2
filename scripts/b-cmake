@@ -5,10 +5,10 @@
 source "/usr/share/2/bin/f-core" || exit 211
 
 cmake \
-  -D CMAKE_INSTALL_PREFIX=/usr    \
-  -D CMAKE_BUILD_TYPE=Release     \
-  -D BUILD_SHARED_LIBS=ON         \
-  -D CMAKE_SKIP_INSTALL_RPATH=ON  \
-  "$@"                            \
-  -W no-dev -G Ninja "${CP:-.}"  ||
+    -D CMAKE_INSTALL_PREFIX=/usr    \
+    -D CMAKE_BUILD_TYPE=Release     \
+    -D BUILD_SHARED_LIBS=ON         \
+    -D CMAKE_SKIP_INSTALL_RPATH=ON  \
+    "$@"                            \
+    -W no-dev -G Ninja "${CP:-.}"  ||
 die "make failed"

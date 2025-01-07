@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# b-32mi (build m32 make install) wraps make install for m32
+# b-32ni (build m32 ninja install) wraps ninja install for m32
 
 source "/usr/share/2/bin/f-core" || exit 211
 
@@ -8,7 +8,7 @@ DIRS=(
     "${DIRS[@]}"
 )
 
-make DESTDIR="$BLD/32DEST" "$@" install || die "32DEST make install failed"
+DESTDIR="$BLD/32DEST" ninja "$@" install || die "32DEST ninja install failed"
 
 for DIR in "${DIRS[@]}"; do
   mkdir -pv "$D/$DIR"

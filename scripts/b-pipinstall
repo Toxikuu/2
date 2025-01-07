@@ -11,7 +11,7 @@ NAME="${NAME:-$1}"
 pip3 install --no-index         \
              --no-deps          \
              --no-user          \
-             --root="$PWD/D"    \
+             --root="$D"        \
              --ignore-installed \
              --no-warn-script-location \
              --find-links dist "$NAME" "$@" ||
