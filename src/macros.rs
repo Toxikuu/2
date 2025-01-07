@@ -87,6 +87,7 @@ macro_rules! pkgexec {
         export PORT="/usr/ports/{}"
         export SRC="$PORT/.sources"
         export BLD="$PORT/.build"
+        export D="$BLD/D"
 
         {}
         "#,
