@@ -95,11 +95,12 @@ pub fn build(package: &Package) {
 
     2b
 
+    cd "$BLD"
     ORIG=$(du -sh D | awk '{{print $1}}')
     TB="$PORT/.dist/{}.tar.zst"
 
-    tar cpf "$BLD/D.tar" "$BLD/D"
-    zstd --rm -f -T0 -19 -o "$TB" "$BLD/D.tar" >/dev/null 2>&1 # TODO: Add a dictionary
+    tar cpf D.tar D
+    zstd --rm -f -T0 -19 -o "$TB" D.tar >/dev/null 2>&1 # TODO: Add a dictionary
 
     FINL=$(du -sh "$TB" | awk '{{print $1}}')
     echo -e "\x1b[0;37;1m[ $ORIG ↘ ↘  $FINL ]\x1b[0m" >&2
