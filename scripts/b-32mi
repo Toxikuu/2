@@ -2,6 +2,7 @@
 # b-32mi (build m32 make install) wraps make install for m32
 
 source "/usr/share/2/bin/f-core" || exit 211
+set -e
 
 DIRS=(
     /usr/lib32
@@ -12,5 +13,5 @@ make DESTDIR="$BLD/32DEST" "$@" install || die "32DEST make install failed"
 
 for DIR in "${DIRS[@]}"; do
   mkdir -pv "$D/$DIR"
-  cp -Rv "$BLD/32DEST/$DIR/"* "$D/$DIR"
+  cp -av "$BLD/32DEST/$DIR/"* "$D/$DIR"
 done

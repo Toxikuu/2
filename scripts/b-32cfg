@@ -2,24 +2,24 @@
 # b-32cfg (build m32 configure) wraps configure for m32
 
 source "/usr/share/2/bin/f-core" || exit 211
+set -e
 
 CP="${CP:-.}"
 DS="${DS:-true}"
 
-if "$DS"; then
+if [ "$DS" == true ]; then
     DS="--disable-static"
 else
     unset DS
 fi
 
 CC="${CC:-gcc -m32}"                  \
-CXX="${CXX:-g++ -m32}"                \  
+CXX="${CXX:-g++ -m32}"                \
 CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}" \
 CXXFLAGS="${CFLAGS}"                  \
 PKG_CONFIG_PATH=/usr/lib32/pkgconfig  \
 "$CP/configure" --prefix=/usr \
-    "$DS"                     \
     --libdir=/usr/lib32       \
     --host=i686-pc-linux-gnu  \
-    "$@" ||
+    $DS "$@" ||
 die "m32 configure failed"

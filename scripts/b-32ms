@@ -2,6 +2,7 @@
 # build-32ms (build m32 meson setup) wraps meson setup for m32
 
 source "/usr/share/2/bin/f-core" || exit 211
+set -e
 
 PKG_CONFIG_PATH="/usr/lib32/pkgconfig" \
 CC="${CC:-gcc -m32}"    \
