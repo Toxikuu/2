@@ -1,6 +1,8 @@
 # Project: two
 
 TODO
+
+    Add an install.sh
   
     Fix set ambiguity
 
@@ -21,6 +23,8 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    Migrate to using $D
 
     Add an option to exclude paths from the extraction
 
