@@ -37,7 +37,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 }
 
 fn append_set(set: &str, package_list: &mut Vec<Package>) {
-    let set = resolve_set_ambiguity(set);
+    let set = if ! set.contains("@all") { resolve_set_ambiguity(set) } else { set.to_string() };
     let packages = unravel(&set).fail("Failed to unravel set");
 
     let mut _packages = Vec::new();
