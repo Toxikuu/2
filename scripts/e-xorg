@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# e-xorg (environment xorg) environment for xorg-related builds
+
+source /usr/share/2/bin/f-path
+
+export XORG_CONFIG="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static"
