@@ -2,12 +2,6 @@
 
 TODO
 
-    Add an install.sh
-  
-    Fix set ambiguity
-
-    Update the README
-
     Add repo priority and auto_ambiguity
 
     documentation
@@ -18,11 +12,17 @@ TODO
 
 WIP
 
-    Check whether another package is installed before checking against its manifest when removing a specific package
-
     Expand the main repo
 
 DONEISH
+
+    Check whether another package is installed before checking against its manifest when removing a specific package
+
+    Fix set ambiguity
+
+    Update the README
+
+    Add an install.sh
 
     Migrate to using $D
 
