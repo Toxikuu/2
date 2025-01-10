@@ -20,14 +20,17 @@ ln -sfv scripts bin
 ln -siv "$PWD"/config.toml /etc/2/
 ln -siv "$PWD"/exclusions.txt /etc/2/
 
-if ! cargo build --release; then
-    # wget 'RELEASE URL'
+rustup toolchain install nightly || true
+if ! cargo +nightly build --release; then
+    : # wget 'RELEASE URL'
 fi
 
 cat << EOF > /usr/bin/2
 #!/usr/bin/env bash
 
-sudo -H /usr/share/2/target/release/two "$@"
+sudo -H /usr/share/2/target/release/two "\$@"
 EOF
+
+chmod +x /usr/bin/2
 
 popd
