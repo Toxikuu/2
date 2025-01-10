@@ -12,9 +12,19 @@ TODO
 
 WIP
 
+    Check if the necessary dot dirs exist for the passed package, and create them
+        Would ensure cleaning works properly on first builds
+
     Expand the main repo
 
 DONEISH
+
+    Remove all references to /code
+
+    Fix bugs in install.sh
+        Rustup toolchain handling
+        no op for the currently nonexistent wget command
+        fix /bin/2
 
     Check whether another package is installed before checking against its manifest when removing a specific package
 
