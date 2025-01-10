@@ -12,12 +12,12 @@ TODO
 
 WIP
 
-    Check if the necessary dot dirs exist for the passed package, and create them
-        Would ensure cleaning works properly on first builds
-
     Expand the main repo
 
 DONEISH
+
+    Check if the necessary dot dirs exist for the passed package, and create them
+        Would ensure cleaning works properly on first builds
 
     Remove all references to /code
 
