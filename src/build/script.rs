@@ -116,6 +116,7 @@ pub fn prep(package: &Package) {
     r#"
 
     source "$PORT/BUILD"
+    mkdir -pv "$PORT"/.{data,dist,build}
 
     type -t 2a > /dev/null 2>&1 || exit 0
     
