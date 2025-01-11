@@ -1,12 +1,14 @@
 // src/package/ambiguity.rs
-//
-// searches for a package among all the installed repos, prompting when extant in multiple repos
+//! Responsible for resolving ambiguity in packages and sets
 
 use std::fs;
 use crate::utils::fail::Fail;
 use walkdir::WalkDir;
 use crate::{pr, fail, select, erm};
 
+/// # Description
+/// Searches across all repos for a given package
+/// Returns all packages matching the name in the form 'repo/name'
 fn locate(name: &str) -> Vec<String> {
     WalkDir::new("/usr/ports")
         .max_depth(2)
@@ -30,6 +32,9 @@ fn locate(name: &str) -> Vec<String> {
         .collect()
 }
 
+/// # Description
+/// Given a package, finds its repository
+/// Prompts the user if multiple repositories contain the package
 pub fn resolve_ambiguity(name: &str) -> String {
     let matches = locate(name);
 
@@ -41,6 +46,9 @@ pub fn resolve_ambiguity(name: &str) -> String {
         pr!("{}. {}", i, m)
     }
 
+    // i went for maximum readability with this loop (and the next one)
+    // literally none of the rest of this codebase is readable LOL
+    // i just felt like having fun here :)
     loop {
         let selected = select!("Choose a package");
 
@@ -48,11 +56,11 @@ pub fn resolve_ambiguity(name: &str) -> String {
             erm!("Invalid input"); continue
         };
 
-        if let Some(m) = matches.get(num) {
-            return m.to_string()
-        }
+        let Some(m) = matches.get(num) else {
+            erm!("Selection out of bounds"); continue
+        };
 
-        erm!("Selection out of bounds")
+        return m.to_string()
     }
 }
 
@@ -96,10 +104,10 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
             erm!("Invalid selection"); continue
         };
 
-        if let Some(m) = matches.get(num) {
-            return m.to_string()
-        }
+        let Some(m) = matches.get(num) else {
+            erm!("Selection out of bounds"); continue
+        };
 
-        erm!("Selection out of bounds")
+        return m.to_string();
     }
 }
