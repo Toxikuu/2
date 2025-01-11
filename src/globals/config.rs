@@ -23,6 +23,7 @@ pub struct GeneralConfig {
     pub exclusions: String,
     pub show_bug_report_message: bool,
     pub check_hashes: bool,
+    pub auto_ambiguity: bool,
 }
 
 #[derive(Deserialize, Debug)]

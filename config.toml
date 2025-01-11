@@ -27,3 +27,4 @@ clean_after_build = false
 exclusions = "/etc/2/exclusions.txt"
 show_bug_report_message = true
 check_hashes = false
+auto_ambiguity = true

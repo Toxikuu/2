@@ -2,7 +2,7 @@
 //! Responsible for resolving ambiguity in packages and sets
 
 use std::fs;
-use crate::{package::repos::prioritize, utils::fail::Fail};
+use crate::{globals::config::CONFIG, package::repos::prioritize, utils::fail::Fail};
 use walkdir::WalkDir;
 use crate::{pr, fail, select, erm};
 
@@ -45,6 +45,12 @@ pub fn resolve_ambiguity(name: &str) -> String {
     erm!("Ambiguous: '{}'", name);
     for (i, m) in matches.iter().enumerate() {
         pr!("{}. {}", i, m)
+    }
+
+    if CONFIG.general.auto_ambiguity {
+        let m = matches.first().ufail("Schrodinger's empty vector");
+        pr!("Auto-selected '{}'", m);
+        return m.to_string()
     }
 
     // i went for maximum readability with this loop (and the next one)
@@ -97,6 +103,12 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     erm!("Ambiguous: '{}'", set);
     for (i, m) in matches.iter().enumerate() {
         pr!("{}. {}", i, m)
+    }
+
+    if CONFIG.general.auto_ambiguity {
+        let m = matches.first().ufail("Schrodinger's empty vector");
+        pr!("Auto-selected '{}'", m);
+        return m.to_string()
     }
 
     loop {
