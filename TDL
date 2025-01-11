@@ -6,13 +6,15 @@ TODO
 
     documentation
 
-    make the scripts recognize $EDITOR
-
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
 
+    make the scripts recognize $EDITOR
+
     Expand the main repo
+
+    Fix sourceless package support
 
 DONEISH
 
