@@ -4,8 +4,6 @@ TODO
 
     Figure out how to make documentation not show in --help as it currently does
 
-    Add repo priority and auto_ambiguity
-
     documentation
 
     Add log4rs or tracing integration (ideally only log to a file)
@@ -15,6 +13,8 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    Add repo priority and auto_ambiguity
 
     Fix sourceless package support
         Done; needs testing though
@@ -66,6 +66,8 @@ DONEISH
 IDEAS
 
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
+
+    Rayon everywhere
 
 ROADMAP
 
