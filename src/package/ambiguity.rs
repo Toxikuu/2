@@ -2,7 +2,7 @@
 //! Responsible for resolving ambiguity in packages and sets
 
 use std::fs;
-use crate::utils::fail::Fail;
+use crate::{package::repos::prioritize, utils::fail::Fail};
 use walkdir::WalkDir;
 use crate::{pr, fail, select, erm};
 
@@ -36,7 +36,8 @@ fn locate(name: &str) -> Vec<String> {
 /// Given a package, finds its repository
 /// Prompts the user if multiple repositories contain the package
 pub fn resolve_ambiguity(name: &str) -> String {
-    let matches = locate(name);
+    let mut matches = locate(name);
+    prioritize(&mut matches);
 
     if matches.is_empty() { fail!("Failed to find '{}' in any repo", name) }
     if let [only] = matches.as_slice() { return only.to_string() }
@@ -87,7 +88,8 @@ fn locate_set(set: &str) -> Vec<String> {
 /// Given a set, finds its repository
 /// Prompts the user if multiple repositories contain the set
 pub fn resolve_set_ambiguity(set: &str) -> String {
-    let matches = locate_set(set);
+    let mut matches = locate_set(set);
+    prioritize(&mut matches);
 
     if matches.is_empty() { fail!("Failed to find '{}' in any repo", set) }
     if matches.len() == 1 { return matches.first().unwrap().to_string() }

@@ -1,0 +1,4 @@
+# list repos, highest to lowest priority
+
+main/
+opt/
