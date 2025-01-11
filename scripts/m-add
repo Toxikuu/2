@@ -9,6 +9,8 @@ usage() {
   exit 2 # syntax exit code
 }
 
+EDITOR="${EDITOR:-nvim}"
+
 [ "$#" -ne 1 ] && usage
 
 [[ "$1" == *#*   ]] && usage # options are not supported by this script
@@ -61,7 +63,7 @@ EXTRA=()
 }
 EOF
 
-nvim BUILD
+"$EDITOR" BUILD
 
 /usr/share/2/bin/m-gen "$REPO/$NAME"
 

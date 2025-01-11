@@ -10,6 +10,8 @@ usage() {
   exit 2 # syntax exit code
 }
 
+EDITOR="${EDITOR:-nvim}"
+
 [ "$#" -ne 1 ] && usage
 
 [[ "$1" == *#*   ]] && usage
@@ -48,7 +50,7 @@ source BUILD
 OLDVERS="$VERS"
 
 sed -i "0,/^VERS=/s/^VERS=.*/VERS=\"$NEWVERS\"/" BUILD
-nvim BUILD
+"$EDITOR" BUILD
 source BUILD # in case the user changes $VERS while in nvim
 
 /usr/share/2/bin/m-gen "$REPO/$NAME"

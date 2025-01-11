@@ -14,6 +14,8 @@ usage() {
   exit 2 # syntax exit code
 }
 
+EDITOR="${EDITOR:-nvim}"
+
 REPO="${1:-$REPO}"
 REMOTE="${2:-$REMOTE}"
 [ -z "$REPO" ]    && usage
@@ -46,7 +48,7 @@ cat > README.md << EOF
 ## INFO
 $REPO is a package repository for [2](https://github.com/Toxikuu/2)
 EOF
-nvim README.md
+"$EDITOR" README.md
 
 # use gpl-3.0 by default, but allow overrides with the LICENSE env var
 curl -o LICENSE "${LICENSE:-https://www.gnu.org/licenses/gpl-3.0.txt}"
