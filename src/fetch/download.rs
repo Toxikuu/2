@@ -2,7 +2,7 @@
 //! Defines download functions
 
 use std::error::Error;
-use std::io::{self, Write};
+use std::io::{Write, Read};
 use std::fs::{self, File};
 use std::path::Path;
 use crate::package::Package;
@@ -56,7 +56,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
             .progress_chars("=>-")
     );
     
-    bar.set_length(length);
+    // bar.set_length(length);
 
     let mut f = File::create(file_path)?;
     match r.header("Content-Type") {
@@ -65,7 +65,23 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
             f.write_all(text.as_bytes())?;
         }
         _ => {
-            io::copy(&mut bar.wrap_read(r.into_reader()), &mut f).map(|_| ())?;
+            let mut reader = bar.wrap_read(r.into_reader());
+            let mut buffer = vec![0; 8192];
+            let mut downloaded = 0;
+
+            loop {
+                let bytes_read = reader.read(&mut buffer)?;
+                if bytes_read == 0 { break }
+
+                f.write_all(&buffer[..bytes_read])?;
+                downloaded += bytes_read as u64;
+
+                bar.set_position(downloaded);
+
+                if length < downloaded {
+                    bar.set_length(downloaded)
+                }
+            }
         }
     }
 
