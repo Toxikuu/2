@@ -4,6 +4,7 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
+#[allow(clippy::struct_excessive_bools)]
 #[command(
     about = "Simple source-based LFS package manager",
     arg_required_else_help = true,
@@ -194,7 +195,7 @@ pub struct Args {
 impl Args {
     /// ### Description
     /// Parses command line arguments
-    pub fn init() -> Args {
-        Args::parse()
+    pub fn init() -> Self {
+        Self::parse()
     }
 }

@@ -12,7 +12,7 @@ pub struct Stopwatch {
 }
 
 impl Stopwatch {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             start_time: None,
             elapsed: Duration::ZERO,
@@ -48,11 +48,9 @@ impl Stopwatch {
     /// # Description
     /// Returns the total elapsed time
     pub fn elapsed(&self) -> Duration {
-        if let Some(start_time) = self.start_time {
-            self.elapsed + start_time.elapsed()
-        } else {
-            self.elapsed
-        }
+        self.start_time.map_or(
+            self.elapsed, |start_time| self.elapsed + start_time.elapsed()
+        )
     }
 
     /// # Description
@@ -63,8 +61,8 @@ impl Stopwatch {
 }
 
 /// # Description
-/// Adds the pretty() method for Duration
-/// This is used by Stopwatch::display()
+/// Adds the ``pretty()`` method for Duration
+/// This is used by ``Stopwatch::display()``
 trait Pretty{
     fn pretty(self) -> String;
 }
@@ -77,7 +75,7 @@ impl Pretty for Duration {
         if total_millis < 1. {
             format!("{} ns", self.as_nanos())
         } else if total_millis < 1_000. {
-            format!("{:.3} ms", total_millis)
+            format!("{total_millis:.3} ms")
         } else if total_millis < 60_000. {
             format!("{:.3} s", self.as_secs_f32())
         } else {

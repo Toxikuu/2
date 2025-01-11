@@ -16,7 +16,7 @@ pub struct Flags {
 
 impl Flags {
     pub fn new() -> Self {
-        Flags {
+        Self {
             force: CONFIG.flags.force,
             quiet: CONFIG.flags.quiet,
             verbose: CONFIG.flags.verbose,

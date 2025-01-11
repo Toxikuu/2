@@ -10,16 +10,17 @@ use super::sets::unravel;
 use crate::utils::fail::Fail;
 
 pub fn parse(packages: &[String]) -> Vec<Package> {
-    let mut _packages = Vec::new();
+    let mut parsed_packages = Vec::new();
+
     for package in packages {
         if package.contains('=') { die!("Version control is not supported") }
 
         let package = 
-        if package.ends_with('/') { &format!("{}@all", package) }
+        if package.ends_with('/') { &format!("{package}@all") }
         else { package };
 
         if package.contains('@') {
-            append_set(package, &mut _packages);
+            append_set(package, &mut parsed_packages);
             continue
         }
 
@@ -30,18 +31,18 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
         };
 
         let (repo, name) = package.split_once('/').ufail("Package does not contain '/'");
-        _packages.push(Package::new(repo, name));
+        parsed_packages.push(Package::new(repo, name));
     }
 
-    _packages
+    parsed_packages
 }
 
 fn append_set(set: &str, package_list: &mut Vec<Package>) {
-    let set = if ! set.contains("@all") { resolve_set_ambiguity(set) } else { set.to_string() };
+    let set = if set.contains("@all") { set.to_string() } else { resolve_set_ambiguity(set) };
     let packages = unravel(&set).fail("Failed to unravel set");
 
-    let mut _packages = Vec::new();
-    for package in packages.iter() {
+    let mut unraveled_packages = Vec::new();
+    for package in &packages {
         if package.contains('=') { die!("Version control is not supported") }
 
         let package = if package.contains('/') {
@@ -51,8 +52,8 @@ fn append_set(set: &str, package_list: &mut Vec<Package>) {
         };
 
         let (repo, name) = package.split_once('/').ufail("Package does not contain '/'");
-        _packages.push(Package::new(repo, name));
+        unraveled_packages.push(Package::new(repo, name));
     }
 
-    package_list.append(&mut _packages);
+    package_list.append(&mut unraveled_packages);
 }

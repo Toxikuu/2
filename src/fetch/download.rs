@@ -18,7 +18,7 @@ pub fn download(package: &Package, force: bool) {
 }
 
 pub fn download_extra(package: &Package, force: bool) {
-    for source in package.data.extra.iter() {
+    for source in &package.data.extra {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid url");
         let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
 
@@ -36,7 +36,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
-        let erm = format!("Exists: {:?}", file_path);
+        let erm = format!("Exists: {file_path:?}");
         return Err(erm.into())
     }
 
@@ -79,7 +79,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
                 bar.set_position(downloaded);
 
                 if length < downloaded {
-                    bar.set_length(downloaded)
+                    bar.set_length(downloaded);
                 }
             }
         }
@@ -88,33 +88,33 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
     bar.set_position(length);
     bar.finish_with_message("Done");
 
-    Ok(file_name.to_string())
+    Ok(file_name)
 }
 
 pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
     let ext = tarball.rsplit_once(".t")
-        .map(|(_, ext)| format!(".t{}", ext))
+        .map(|(_, ext)| format!(".t{ext}"))
         .fail("Unsupported tarball format");
 
     let to = match ext.as_str() {
-        ".tar.bz2"  | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{}.tar.bz2",  package),
-        ".tar.gz"   | ".tgz" | ".taz"                    => format!("{}.tar.gz",   package),
-        ".tar.lz"                                        => format!("{}.tar.lz",   package),
-        ".tar.lzma" | ".tlz"                             => format!("{}.tar.lzma", package),
-        ".tar.lzo"                                       => format!("{}.tar.lzo",  package),
-        ".tar.xz"   | ".txz"                             => format!("{}.tar.xz",   package),
-        ".tar.zst"  | ".tzst"                            => format!("{}.tar.zst",  package),
+        ".tar.bz2"  | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2" ),
+        ".tar.gz"   | ".tgz" | ".taz"                    => format!("{package}.tar.gz"  ),
+        ".tar.lz"                                        => format!("{package}.tar.lz"  ),
+        ".tar.lzma" | ".tlz"                             => format!("{package}.tar.lzma"),
+        ".tar.lzo"                                       => format!("{package}.tar.lzo" ),
+        ".tar.xz"   | ".txz"                             => format!("{package}.tar.xz"  ),
+        ".tar.zst"  | ".tzst"                            => format!("{package}.tar.zst" ),
         _ => die!("Unsupported tarball extension: {}", ext),
     };
 
-    to.to_string()
+    to
 }
 
 fn download_tarball(package: &Package, force: bool) {
     let url = package.data.source.url.clone();
     if url.is_empty() { return }
 
-    let file_name = url.split('/').last().expect("Invalid url");
+    let file_name = url.split('/').next_back().expect("Invalid url");
     let file_name = normalize_tarball(package, file_name);
 
     let srcpath = format!("/usr/ports/{}/.sources/", package.relpath);

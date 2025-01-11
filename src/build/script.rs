@@ -24,28 +24,26 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
         // pkgexec is explicitly not used here as it sets more variables than is necessary
         let command = format!(r#"
 
-        SRC="/usr/ports/{}/.sources"
-        u-val "$SRC/{}" "{}"
+        SRC="/usr/ports/{relpath}/.sources"
+        u-val "$SRC/{filename}" "{knownhash}"
 
-        "#,
-        relpath,
-        filename, knownhash
+        "#
         );
 
         exec(&command)
     }
 
     if !no_source {
-        let tarball = package.data.source.url.split('/').last().fail("Invalid url");
+        let tarball = package.data.source.url.split('/').next_back().fail("Invalid url");
         let filename = normalize_tarball(package, tarball);
         let knownhash = &package.data.source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed")
+        core(&filename, knownhash, relpath).fail("Hash checks failed");
     }
 
     for source in &package.data.extra {
         let filename = Path::new(&source.url).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed")
+        core(&filename, knownhash, relpath).fail("Hash checks failed");
     }
 }
 
@@ -62,7 +60,7 @@ fn setup(package: &Package) {
     rm -rf "$XTR"
     mkdir -pv "$XTR"
 
-    if {}; then
+    if {no_source}; then
         echo "Package has no tarball; skipping extraction" >&2
         exit 0
     fi
@@ -73,16 +71,14 @@ fn setup(package: &Package) {
     fi
 
     # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
-    tar xf "$SRC/{}.tar."*z* -C $XTR
+    tar xf "$SRC/{package}.tar."*z* -C $XTR
     shopt -s dotglob
     mv -f $XTR/*/* "$BLD"/
 
-    "#,
-    no_source,
-    package,
+    "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in setup: {}", package, e))
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in setup: {}", package, e));
 }
 
 pub fn build(package: &Package) {
@@ -97,18 +93,17 @@ pub fn build(package: &Package) {
 
     cd "$BLD"
     ORIG=$(du -sh D | awk '{{print $1}}')
-    TB="$PORT/.dist/{}.tar.zst"
+    TB="$PORT/.dist/{package}.tar.zst"
 
     tar cpf D.tar D
     zstd --rm -f -T0 -19 -o "$TB" D.tar >/dev/null 2>&1 # TODO: Add a dictionary
 
     FINL=$(du -sh "$TB" | awk '{{print $1}}')
     echo -e "\x1b[0;37;1m[ $ORIG ↘ ↘  $FINL ]\x1b[0m" >&2
-    "#,
-    package,
+    "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died: {}", package, e))
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died: {}", package, e));
 }
 
 pub fn prep(package: &Package) {
@@ -124,7 +119,7 @@ pub fn prep(package: &Package) {
 
     "#.to_string();
 
-    pkgexec!(&command, package).fail("Build died while performing preparation steps!")
+    pkgexec!(&command, package).fail("Build died while performing preparation steps!");
 }
 
 pub fn post(package: &Package) {
@@ -139,7 +134,7 @@ pub fn post(package: &Package) {
 
     "#.to_string();
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in post-install: {}", package, e))
+    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in post-install: {}", package, e));
 }
 
 pub fn clean(package: &Package) {

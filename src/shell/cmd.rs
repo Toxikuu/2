@@ -10,10 +10,12 @@ use log::{debug, error};
 
 pub fn exec(command: &str) -> io::Result<()> {
     // initialize the bash environment
-    let command = format!(r#"
+    let command = format!(
+    r"
     source /usr/share/2/bin/e-core || exit 211
-    {}
-    "#, command);
+    {command}
+    "
+    );
 
     let mut child = Command::new("bash")
         .arg("-c")
@@ -31,7 +33,7 @@ pub fn exec(command: &str) -> io::Result<()> {
             match line {
                 Ok(line) => {
                     cpr!("{}", line);
-                    debug!("{}", line)
+                    debug!("{}", line);
                 }
                 Err(e) => erm!("Error reading stdout: {}", e),
             }
@@ -44,7 +46,7 @@ pub fn exec(command: &str) -> io::Result<()> {
             match line {
                 Ok(line) => {
                     cpr!("\x1b[{}{}", CONFIG.message.stderr, line);
-                    debug!("[ERR] {}", line)
+                    debug!("[ERR] {}", line);
                 }
                 Err(e) => erm!("Error reading stderr: {}", e),
             }

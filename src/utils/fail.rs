@@ -21,21 +21,21 @@ pub enum FailType {
 impl fmt::Display for FailType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FailType::Result => write!(f, "RESULT"),
-            FailType::Option => write!(f, "OPTION"),
-            FailType::Custom(t) => write!(f, "{}", t),
-            FailType::Unreachable(t) => {
+            Self::Result => write!(f, "RESULT"),
+            Self::Option => write!(f, "OPTION"),
+            Self::Custom(t) => write!(f, "{t}"),
+            Self::Unreachable(t) => {
                 let t = match t {
                     UnreachableType::Option => "OPTION",
                     UnreachableType::Result => "RESULT",
                 };
-                write!(f, "UNREACHABLE {}", t)
+                write!(f, "UNREACHABLE {t}")
             },
         }
     }
 }
 
-pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailType) {
+pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailType) {
     if CONFIG.general.show_bug_report_message {
         let link = match fail_type {
             FailType::Unreachable(_) => {
@@ -46,9 +46,10 @@ pub fn report(msg: &str, location: &'static Location<'static>, fail_type: FailTy
             },
         };
 
-        match fail_type {
-            FailType::Unreachable(_) => erm!("Please report this bug at:"),
-            _ => erm!("If you believe this to be a bug, please report it at:")
+        if let FailType::Unreachable(_) = fail_type {
+            erm!("Please report this bug at:");
+        } else {
+            erm!("If you believe this to be a bug, please report it at:");
         }
 
         erm!("{}\n", link);
@@ -80,16 +81,16 @@ where
 {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|e| {
-            let msg = &format!("{}: {}", msg, e);
-            report(msg, location, FailType::Result);
+            let msg = &format!("{msg}: {e}");
+            report(msg, location, &FailType::Result);
             unreachable!()
         })
     }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|e| {
-            let msg = &format!("{}: {}", msg, e);
-            report(msg, location, FailType::Unreachable(UnreachableType::Result));
+            let msg = &format!("{msg}: {e}");
+            report(msg, location, &FailType::Unreachable(UnreachableType::Result));
             unreachable!()
         })
     }
@@ -98,14 +99,14 @@ where
 impl<T> Fail<T, ()> for Option<T> {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|| {
-            report(msg, location, FailType::Option);
+            report(msg, location, &FailType::Option);
             unreachable!()
         })
     }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|| {
-            report(msg, location, FailType::Unreachable(UnreachableType::Option));
+            report(msg, location, &FailType::Unreachable(UnreachableType::Option));
             unreachable!()
         })
     }
@@ -118,7 +119,7 @@ macro_rules! fail {
         report(
             &format!($($arg)*),
             std::panic::Location::caller(),
-            FailType::Custom("MACRO".to_string())
+            &FailType::Custom("MACRO".to_string())
         );
     }};
 }

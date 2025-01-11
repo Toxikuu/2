@@ -16,6 +16,7 @@ pub struct Config {
     pub general: GeneralConfig,
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Deserialize, Debug)]
 pub struct GeneralConfig {
     pub prefix: String,
@@ -60,7 +61,7 @@ pub struct StartupConfig {
 impl Config {
     pub fn load() -> Result<Self, Box<dyn Error>> {
         let content = fs::read_to_string("/etc/2/config.toml")?;
-        let config: Config = toml::from_str(&content)?;
+        let config: Self = toml::from_str(&content)?;
 
         Ok(config)
     }

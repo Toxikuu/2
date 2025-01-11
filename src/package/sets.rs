@@ -14,7 +14,7 @@ fn is(package: &str) -> bool {
 // unravels the special set '@all'
 // unravels into all packages in that repo
 fn all(repo: &str) -> Vec<String> {
-    let dir = format!("/usr/ports/{}/", repo);
+    let dir = format!("/usr/ports/{repo}/");
     let entries = read_dir(dir).unwrap();
 
     let packages: Vec<String> = entries
@@ -32,7 +32,7 @@ fn all(repo: &str) -> Vec<String> {
             }
             
         })
-        .map(|entry| format!("{}/{}", repo, entry)) // remove ambiguity
+        .map(|entry| format!("{repo}/{entry}")) // remove ambiguity
         .collect();
 
     packages
@@ -52,7 +52,7 @@ pub fn unravel(set: &str) -> Result<Vec<String>, Box<dyn Error>> {
         return Ok(all(&repo));
     }
 
-    let file_path = format!("/usr/ports/{}/.sets/{}", repo, set);
+    let file_path = format!("/usr/ports/{repo}/.sets/{set}");
     let file = File::open(file_path).expect("Nonexistent set");
     let buf = BufReader::new(file);
 
@@ -62,7 +62,7 @@ pub fn unravel(set: &str) -> Result<Vec<String>, Box<dyn Error>> {
         .into_iter()
         .map(|l| {
             if l.contains('/') { l }
-            else { format!("{}/{}", repo, l) }
+            else { format!("{repo}/{l}") }
         })
         .collect();
 
@@ -71,12 +71,9 @@ pub fn unravel(set: &str) -> Result<Vec<String>, Box<dyn Error>> {
 
 // lists available sets for a repo
 pub fn list(repo: &str) {
-    let dir = format!("/usr/ports/{}/.sets", repo);
-    let entries = match read_dir(dir) {
-        Ok(e) => e,
-        Err(_) => {
-            return erm!("No sets available for '{}/'", repo);
-        }
+    let dir = format!("/usr/ports/{repo}/.sets");
+    let Ok(entries) = read_dir(dir) else {
+        return erm!("No sets available for '{}/'", repo);
     };
 
     let available: Vec<String> = entries.map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
@@ -84,5 +81,7 @@ pub fn list(repo: &str) {
         return erm!("No sets available for '{}/'", repo);
     }
 
-    available.iter().for_each(|s| pr!("{}", s));
+    for s in &available {
+        pr!("{}", s);
+    }
 }

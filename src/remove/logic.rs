@@ -52,7 +52,7 @@ pub fn remove(package: &Package) -> bool {
     // false alerts for populated directories
     unique.reverse();
 
-    unique.iter().for_each(|p| {
+    for p in &unique {
         let prefix = Path::new(&CONFIG.general.prefix);
         let p = p.strip_prefix('/').unwrap_or(p);
         // NOTE: the above line is necessary because .join will just use an absolute path instead
@@ -60,7 +60,7 @@ pub fn remove(package: &Package) -> bool {
         let path = prefix.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            return erm!("Retaining protected path: {:?}", path);
+            erm!("Retaining protected path: {:?}", path); continue
         }
         
         if path.is_file() || path.is_symlink() { remove_file(path).ufail("Failed to remove file") }
@@ -68,15 +68,15 @@ pub fn remove(package: &Package) -> bool {
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
                 if e.to_string() == "Directory not empty (os error 39)" {
-                    pr!("Ignoring '{}': populated", path.display())
+                    pr!("Ignoring '{}': populated", path.display());
                 } else {
-                    erm!("Failed to remove '{}': {}", path.display(), e)
+                    erm!("Failed to remove '{}': {}", path.display(), e);
                 }
             }
         }
 
-        pr!("'{}' -x", p)
-    });
+        pr!("'{}' -x", p);
+    }
 
     // NOTE: the manifest is not removed as prune will handle it
     let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
@@ -113,7 +113,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
     let mut dead_files = find_dead_files(package);
     dead_files.reverse();
 
-    dead_files.iter().for_each(|p| {
+    for p in &dead_files {
         let prefix = Path::new(&CONFIG.general.prefix);
         let p = p.strip_prefix('/').unwrap_or(p);
         let path = prefix.join(p);
@@ -127,15 +127,15 @@ pub fn remove_dead_files_after_update(package: &Package) {
         else if path.is_dir() {
             if let Err(e) = remove_dir(&path) {
                 if e.to_string() == "Directory not empty (os error 39)" {
-                    pr!("Ignoring '{}': populated", path.display())
+                    pr!("Ignoring '{}': populated", path.display());
                 } else {
-                    erm!("Failed to remove '{}': {}", path.display(), e)
+                    erm!("Failed to remove '{}': {}", path.display(), e);
                 }
             }
         }
 
-        pr!("'{}' -x", p)
-    });
+        pr!("'{}' -x", p);
+    };
 }
 
 pub fn prune(package: &Package) -> usize {
@@ -144,9 +144,9 @@ pub fn prune(package: &Package) -> usize {
     let extra = &package.data.extra;
     let extra_files: Vec<String> = extra.iter().map(|s| {
         let file_name = Path::new(&s.url).file_name().unwrap().to_string_lossy();
-        format!("{}/{}", src, file_name)
+        format!("{src}/{file_name}")
     }).collect();
-    let tarball_approx = format!("{}/{}", src, package);
+    let tarball_approx = format!("{src}/{package}");
 
     let mut count = 0;
     for entry in read_dir(src).unwrap() {
@@ -182,7 +182,7 @@ fn prune_manifests(package: &Package) {
 
         if is_manifest && !is_protected {
             vpr!("Pruning manifest '{:?}'", path);
-            remove_file(path).fail("Failed to prune manifest")
+            remove_file(path).fail("Failed to prune manifest");
         }
     }
 }

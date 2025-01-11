@@ -7,8 +7,9 @@ const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 pub fn display() {
 println!(
-r#"
-{}={}
-{}
-"#, NAME, VERSION, REPO)
+r"
+{NAME}={VERSION}
+{REPO}
+"
+);
 }

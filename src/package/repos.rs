@@ -15,12 +15,15 @@ pub fn list() {
     let available: Vec<String> = entries.map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
     if available.is_empty() { return erm!("No repos available!") }
 
-    available.iter().for_each(|r| pr!("{}", r));
+    for r in &available {
+        pr!("{}", r);
+    }
+    // available.iter().for_each(|r| pr!("{}", r));
 }
 
 /// # Description
 /// Takes a list of packages in the form repo/name
-/// Orders that list according to priority in /etc/2/repo_priority.txt
+/// Orders that list according to priority in ``/etc/2/repo_priority.txt``
 pub fn prioritize(list: &mut [String]) {
     let priorities = get_ordered_repos();
     let repo_priority: HashMap<&str, usize> = priorities
@@ -38,15 +41,15 @@ pub fn prioritize(list: &mut [String]) {
 
         match (pa, pb) {
             (Some(a), Some(b)) => a.cmp(b),
-            (Some(_), None) => Ordering::Less,
-            (None, Some(_)) => Ordering::Greater,
-            (None, None) => ra.cmp(rb),
+            (Some(_), _) => Ordering::Less,
+            (_, Some(_)) => Ordering::Greater,
+            (_, _) => ra.cmp(rb),
         }
-    })
+    });
 }
 
 /// # Description
-/// Returns the ordered repo priorities from /etc/2/repo_priority.txt
+/// Returns the ordered repo priorities from ``/etc/2/repo_priority.txt``
 /// Formatted as a vector of repo/
 fn get_ordered_repos() -> Vec<String> {
     let contents = read_to_string("/etc/2/repo_priority.txt").fail("Failed to open /etc/2/repo_priority.txt");

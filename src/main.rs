@@ -1,4 +1,9 @@
 #![feature(duration_millis_float)]
+#![warn(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+)]
 // src/main.rs
 
 mod build;

@@ -44,7 +44,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
 
     erm!("Ambiguous: '{}'", name);
     for (i, m) in matches.iter().enumerate() {
-        pr!("{}. {}", i, m)
+        pr!("{}. {}", i, m);
     }
 
     if CONFIG.general.auto_ambiguity {
@@ -75,7 +75,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
 /// Searches across all repos for a given set
 /// Returns an empty vector if no sets are found, otherwise returns a vector of <repo>/@<set>
 fn locate_set(set: &str) -> Vec<String> {
-    let pattern = format!(".sets/{}", set);
+    let pattern = format!(".sets/{set}");
     
     fs::read_dir("/usr/ports")
         .fail("No repos found")
@@ -102,7 +102,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
 
     erm!("Ambiguous: '{}'", set);
     for (i, m) in matches.iter().enumerate() {
-        pr!("{}. {}", i, m)
+        pr!("{}. {}", i, m);
     }
 
     if CONFIG.general.auto_ambiguity {
