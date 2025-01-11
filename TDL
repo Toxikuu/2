@@ -2,6 +2,8 @@
 
 TODO
 
+    Figure out how to make documentation not show in --help as it currently does
+
     Add repo priority and auto_ambiguity
 
     documentation
