@@ -96,6 +96,8 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 
 fn download_tarball(package: &Package, force: bool) {
     let url = package.data.source.url.clone();
+    if url.is_empty() { return }
+
     let file_name = url.split('/').last().expect("Invalid url");
     let file_name = normalize_tarball(package, file_name);
 
