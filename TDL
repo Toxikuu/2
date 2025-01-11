@@ -10,13 +10,16 @@ TODO
 
 WIP
 
-    make the scripts recognize $EDITOR
-
     Expand the main repo
 
-    Fix sourceless package support
-
 DONEISH
+
+    Fix sourceless package support
+        Done; needs testing though
+
+    Make file size update dynamically for unknown sizes
+
+    make the scripts recognize $EDITOR
 
     Check if the necessary dot dirs exist for the passed package, and create them
         Would ensure cleaning works properly on first builds
@@ -57,6 +60,10 @@ DONEISH
     Add manifest checking and logic for package removal
 
     Add source fetching
+
+IDEAS
+
+    Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
 
 ROADMAP
 
