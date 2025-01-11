@@ -19,6 +19,7 @@ fi
 ln -sfv scripts bin
 ln -siv "$PWD"/config.toml /etc/2/
 ln -siv "$PWD"/exclusions.txt /etc/2/
+ln -siv "$PWD"/repo_priority.txt /etc/2/
 
 rustup toolchain install nightly || true
 if ! cargo +nightly build --release; then
