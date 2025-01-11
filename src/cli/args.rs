@@ -7,7 +7,7 @@ use clap::Parser;
 #[command(
     about = "Simple source-based LFS package manager",
     arg_required_else_help = true,
-    after_help = "Complete documentation WILL exist in the future:tm:"
+    after_help = "Complete documentation WILL exist in the future™"
     // TODO: update the above line once documentation DOES exist
 )]
 /// ### Description
