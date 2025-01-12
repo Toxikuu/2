@@ -8,7 +8,7 @@
 
 However, here's a work-in-progress install script:
 ```bash
-curl -fsSL https://github.com/Toxikuu/2/blob/master/install.sh | sudo bash
+curl -fsSL 'https://github.com/Toxikuu/2/raw/refs/heads/master/install.sh' | sudo bash
 ```
 
 ## Credits
