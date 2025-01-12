@@ -41,7 +41,7 @@ fn main() {
     if !unsafe { libc::geteuid() == 0 } { fail!("2 requires root privileges") } // prolly safe :)
 
     // exit after executing any special argument functions
-    if handle_special_args(&args) { return }
+    handle_special_args(&args);
 
     let packages = parse::parse(&args.packages);
     let mut pm = PM::new(&packages);
@@ -71,15 +71,13 @@ fn initialize() -> Args {
 
 /// ### Description
 /// Handles special arguments if any were passed, returning true; otherwise returns false
-fn handle_special_args(args: &Args) -> bool {
-    if args.list_sets { 
-        // here packages is appropriated as the repo argument for listing sets
-        args.packages.iter().for_each(|r| sets::list(r));
-        true
-    } else if args.list_repos { 
+fn handle_special_args(args: &Args) {
+
+    args.add_repos.iter().for_each(|r| repos::add(r));
+    args.sync_repos.iter().for_each(|r| repos::sync(r));
+    args.list_sets.iter().for_each(|r| sets::list(r));
+
+    if args.list_repos {
         repos::list();
-        true
-    } else {
-        false
     }
 }

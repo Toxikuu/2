@@ -156,10 +156,10 @@ pub struct Args {
     /// Special
     ///
     /// ### Description
-    /// Takes positional argument 'repositories' (coopted from packages)
+    /// Takes positional argument 'repositories'
     /// Lists available sets for those repositories
-    #[arg(short = '@', long)]
-    pub list_sets: bool,
+    #[arg(short = '@', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
+    pub list_sets: Vec<String>,
 
     /// ### Type
     /// Special
@@ -170,15 +170,25 @@ pub struct Args {
     #[arg(short = '/', long)]
     pub list_repos: bool,
 
+    
     /// ### Type
     /// Special
     ///
     /// ### Description
-    /// Takes positional argument 'repositories' (coopted from packages)
+    /// Takes positional argument 'repositories'
+    /// Adds one or more repos
+    #[arg(short = 'a', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
+    pub add_repos: Vec<String>,
+
+    /// ### Type
+    /// Special
+    ///
+    /// ### Description
+    /// Takes positional argument 'repositories'
     /// Syncs those repositories
     /// ### CURRENTLY UNIMPLEMENTED
-    #[arg(short = 'S', long)] // TODO: implement this, positional arg <REPO>
-    pub sync_repo: bool,
+    #[arg(short = 's', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
+    pub sync_repos: Vec<String>,
 
     /// ### Type
     /// Positional

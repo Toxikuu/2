@@ -2,8 +2,9 @@
 //
 // some functions for dealing with package repos
 
+use crate::shell::cmd::exec;
 use crate::utils::fail::Fail;
-use crate::{erm, pr};
+use crate::{erm, pr, msg};
 use std::fs::{read_dir, read_to_string};
 use std::collections::HashMap;
 use std::cmp::Ordering;
@@ -59,4 +60,35 @@ fn get_ordered_repos() -> Vec<String> {
         .filter(|l| !l.starts_with('#') && !l.trim().is_empty())
         .map(|s| s.trim_end_matches('/').to_string())
         .collect()
+}
+
+/// # Description
+/// Takes the url of a git repo and adds it to /usr/ports
+/// Requires git to work
+pub fn add(repo_url: &str) {
+    let (_, repo_name) = repo_url
+        .trim_end_matches('/')
+        .trim_end_matches(".git")
+        .rsplit_once('/')
+        .fail("Invalid repo url");
+
+    let (_, repo_name) = repo_name
+        .split_once("2-")
+        .fail("Invalid repo name");
+
+    // TODO: Consider normalizing git urls
+    let command = format!("git clone {repo_url} /usr/ports/{repo_name}");
+
+    exec(&command).fail("Failed to add repo");
+    msg!("Added '{}' to repos", repo_name);
+}
+
+/// # Description
+/// Syncs an installed git repo
+/// Requires git to work
+pub fn sync(repo: &str) {
+    let command = format!("cd /usr/ports/{repo} && git pull");
+
+    exec(&command).fail("Failed to sync repo");
+    msg!("Synced '{}'", repo);
 }
