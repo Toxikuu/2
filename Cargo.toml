@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.17" # replace most unwrap() occurrences with *fail(), misc changes, some documentation
+version = "0.0.18" # repo addition and syncing
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
