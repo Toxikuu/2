@@ -1,12 +1,16 @@
 # Project: two
 
 TODO
-
+  
     Figure out how to make documentation not show in --help as it currently does
 
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
+
+    Add syncing
+
+    Add repo addition
 
     documentation
 
