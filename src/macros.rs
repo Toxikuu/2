@@ -1,4 +1,5 @@
 // src/macros.rs
+//! Defines utility macros for use across 2
 
 #[macro_export]
 macro_rules! msg {

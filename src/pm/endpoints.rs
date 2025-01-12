@@ -9,6 +9,7 @@ use crate::build::{logic as bl, script};
 use crate::fetch::download::download;
 use crate::remove::logic as rl;
 use crate::utils::time::Stopwatch;
+use crate::utils::fail::Fail;
 
 impl PM {
     pub fn install(&self) {
@@ -63,7 +64,7 @@ impl PM {
 
     pub fn get(&self) {
         for package in &self.packages {
-            download(package, FLAGS.lock().unwrap().force);
+            download(package, FLAGS.lock().ufail("Failed to lock flags").force);
         }
     }
 

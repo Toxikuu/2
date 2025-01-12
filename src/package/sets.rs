@@ -6,6 +6,7 @@ use std::error::Error;
 use std::fs::{read_dir, File};
 use std::io::{BufRead, BufReader};
 use crate::{erm, pr};
+use crate::utils::fail::Fail;
 
 fn is(package: &str) -> bool {
     package.contains('@')
@@ -15,17 +16,17 @@ fn is(package: &str) -> bool {
 // unravels into all packages in that repo
 fn all(repo: &str) -> Vec<String> {
     let dir = format!("/usr/ports/{repo}/");
-    let entries = read_dir(dir).unwrap();
+    let entries = read_dir(dir).fail("Nonexistent repo");
 
     let packages: Vec<String> = entries
         .filter_map(|entry| {
-            let entry = entry.unwrap();
-            if entry.file_type().unwrap().is_dir() {
+            let entry = entry.ufail("Invalid entry?");
+            if entry.file_type().ufail("Failed to get entry filetype").is_dir() {
                 let file_name = entry.file_name();
                 if file_name.to_string_lossy().starts_with('.') {
                     None
                 } else {
-                    Some(file_name.into_string().unwrap())
+                    Some(file_name.into_string().ufail("Invalid unicode"))
                 }
             } else {
                 None
@@ -39,7 +40,7 @@ fn all(repo: &str) -> Vec<String> {
 }
 
 fn split_repo(str: &str) -> (String, String) {
-    let (repo, set) = str.split_once('/').unwrap();
+    let (repo, set) = str.split_once('/').ufail("I fucked up with split_repo()");
     (repo.to_string(), set.to_string())
 }
 
@@ -76,7 +77,7 @@ pub fn list(repo: &str) {
         return erm!("No sets available for '{}/'", repo);
     };
 
-    let available: Vec<String> = entries.map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
+    let available: Vec<String> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode")).collect();
     if available.is_empty() {
         return erm!("No sets available for '{}/'", repo);
     }

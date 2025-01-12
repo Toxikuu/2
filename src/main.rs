@@ -1,10 +1,18 @@
 #![feature(duration_millis_float)]
+// src/main.rs
+
 #![warn(
     clippy::all,
     clippy::pedantic,
     clippy::nursery,
+    clippy::unwrap_used,
+    // clippy::cargo,
 )]
-// src/main.rs
+#![deny(
+    clippy::perf,
+    clippy::todo,
+    clippy::complexity,
+)]
 
 mod build;
 mod cli;
@@ -22,6 +30,7 @@ use cli::version as v;
 use globals::flags;
 use package::{parse, sets, repos};
 use pm::PM;
+use utils::fail::Fail;
 
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
@@ -55,7 +64,7 @@ fn initialize() -> Args {
     flags::set(&args);
 
     vpr!("Initialized args: {:#?}", args);
-    vpr!("Initialized flags: {:#?}", FLAGS.lock().unwrap());
+    vpr!("Initialized flags: {:#?}", FLAGS.lock().ufail("Flag lock failure"));
 
     args
 }

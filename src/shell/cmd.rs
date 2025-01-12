@@ -4,6 +4,7 @@
 
 use std::io::{self, BufRead};
 use std::process::{Command, Stdio};
+use crate::utils::fail::Fail;
 use std::thread;
 use crate::{erm, cpr};
 use log::{debug, error};
@@ -24,8 +25,8 @@ pub fn exec(command: &str) -> io::Result<()> {
         .stderr(Stdio::piped())
         .spawn()?;
 
-    let stdout = child.stdout.take().unwrap();
-    let stderr = child.stderr.take().unwrap();
+    let stdout = child.stdout.take().ufail("Failed to take stdout");
+    let stderr = child.stderr.take().ufail("Failed to take stderr");
 
     let stdout_thread = thread::spawn(move || {
         let reader = io::BufReader::new(stdout);
@@ -59,8 +60,8 @@ pub fn exec(command: &str) -> io::Result<()> {
         return Err(io::Error::new(io::ErrorKind::Other, "Command failed"));
     }
 
-    stdout_thread.join().unwrap();
-    stderr_thread.join().unwrap();
+    stdout_thread.join().ufail("Failed to join the stdout thread");
+    stderr_thread.join().ufail("Failed to join the stderr thread");
 
     Ok(())
 }

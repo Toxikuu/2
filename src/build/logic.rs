@@ -19,7 +19,7 @@ use crate::utils::fail::Fail;
 // }
 
 pub fn install(package: &Package) -> bool {
-    if package.data.installed_version == package.version && !FLAGS.lock().unwrap().force {
+    if package.data.installed_version == package.version && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already installed '{}'", package);
         false
     } else if Path::new(&package.data.dist).exists() {
@@ -33,7 +33,7 @@ pub fn install(package: &Package) -> bool {
 }
 
 pub fn build(package: &Package) -> bool {
-    if Path::new(&package.data.dist).exists() && !FLAGS.lock().unwrap().force {
+    if Path::new(&package.data.dist).exists() && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already built '{}'", package);
         false
     } else {
@@ -80,12 +80,13 @@ fn dist_install(package: &Package) {
 }
 
 pub fn update(package: &Package) -> bool {
-    if !package.data.is_installed && !FLAGS.lock().unwrap().force {
+    let force = FLAGS.lock().ufail("Failed to lock flags").force;
+    if !package.data.is_installed && !force {
         erm!("Missing: '{}'", package);
         return false
     }
 
-    if package.version == package.data.installed_version && !FLAGS.lock().unwrap().force {
+    if package.version == package.data.installed_version && !force {
         erm!("Current: '{}'", package);
         return false
     }

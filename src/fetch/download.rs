@@ -52,7 +52,7 @@ pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn
     bar.set_message(file_name.clone());
     bar.set_style(
         ProgressStyle::with_template(BAR)
-            .unwrap()
+            .ufail("Invalid template for indicatif bar")
             .progress_chars("=>-")
     );
     

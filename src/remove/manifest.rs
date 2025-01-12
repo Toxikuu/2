@@ -10,6 +10,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use crate::package::Package;
 use std::result::Result;
+use crate::utils::fail::Fail;
 
 fn is_in_wrong_hidden(entry: &DirEntry) -> bool {
     entry.path()
@@ -52,7 +53,7 @@ fn locate(dir: &str) -> Vec<PathBuf> {
 }
 
 fn read_lines(path: &PathBuf) -> Vec<String> {
-    let file = File::open(path).unwrap();
+    let file = File::open(path).fail("Failed to open file");
     let reader = BufReader::new(file);
 
     reader.lines().map_while(Result::ok).collect()

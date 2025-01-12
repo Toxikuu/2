@@ -98,7 +98,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     prioritize(&mut matches);
 
     if matches.is_empty() { fail!("Failed to find '{}' in any repo", set) }
-    if matches.len() == 1 { return matches.first().unwrap().to_string() }
+    if let [only] = matches.as_slice() { return only.to_string() }
 
     erm!("Ambiguous: '{}'", set);
     for (i, m) in matches.iter().enumerate() {

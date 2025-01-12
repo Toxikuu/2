@@ -12,7 +12,7 @@ pub fn list() {
     let dir = "/usr/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
 
-    let available: Vec<String> = entries.map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
+    let available: Vec<String> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode?")).collect();
     if available.is_empty() { return erm!("No repos available!") }
 
     for r in &available {

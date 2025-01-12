@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 use super::config::CONFIG;
 use crate::cli::args::Args;
+use crate::utils::fail::Fail;
 
 #[derive(Debug)]
 pub struct Flags {
@@ -29,7 +30,7 @@ lazy_static! {
 }
 
 pub fn set(args: &Args) {
-    FLAGS.lock().unwrap().force = args.force;
-    FLAGS.lock().unwrap().quiet = args.quiet;
-    FLAGS.lock().unwrap().verbose = args.verbose;
+    FLAGS.lock().ufail("Failed to lock flags").force = args.force;
+    FLAGS.lock().ufail("Failed to lock flags").quiet = args.quiet;
+    FLAGS.lock().ufail("Failed to lock flags").verbose = args.verbose;
 }

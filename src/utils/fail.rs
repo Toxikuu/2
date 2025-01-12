@@ -1,7 +1,7 @@
 // src/utils/fail.rs
 //! Defines utilities for (bad) error handling (crashes)
 
-use std::fmt::{self, Display};
+use std::fmt;
 use crate::{die, erm};
 use crate::globals::config::CONFIG;
 use std::panic::Location;
@@ -77,11 +77,11 @@ pub trait Fail<T, E> {
 
 impl<T, E> Fail<T, E> for Result<T, E>
 where 
-    E: Display,
+    E: fmt::Debug,
 {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|e| {
-            let msg = &format!("{msg}: {e}");
+            let msg = &format!("{msg}: {e:?}");
             report(msg, location, &FailType::Result);
             unreachable!()
         })
@@ -89,7 +89,7 @@ where
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|e| {
-            let msg = &format!("{msg}: {e}");
+            let msg = &format!("{msg}: {e:?}");
             report(msg, location, &FailType::Unreachable(UnreachableType::Result));
             unreachable!()
         })

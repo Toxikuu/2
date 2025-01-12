@@ -143,14 +143,14 @@ pub fn prune(package: &Package) -> usize {
 
     let extra = &package.data.extra;
     let extra_files: Vec<String> = extra.iter().map(|s| {
-        let file_name = Path::new(&s.url).file_name().unwrap().to_string_lossy();
+        let file_name = Path::new(&s.url).file_name().ufail("Invalid source filename?").to_string_lossy();
         format!("{src}/{file_name}")
     }).collect();
     let tarball_approx = format!("{src}/{package}");
 
     let mut count = 0;
-    for entry in read_dir(src).unwrap() {
-        let entry = entry.unwrap();
+    for entry in read_dir(src).fail("Failed to read sources directory") {
+        let entry = entry.ufail("Invalid source entry");
         let path = entry.path();
 
         let is_tarball = path.to_string_lossy().starts_with(&tarball_approx);
@@ -173,11 +173,11 @@ fn prune_manifests(package: &Package) {
     let data = format!("/usr/ports/{}/.data", package.relpath);
     
     let protected_manifest = format!("{}/MANIFEST={}", data, package.version);
-    for entry in read_dir(data).unwrap() {
-        let entry = entry.unwrap();
+    for entry in read_dir(data).fail("Failed to read data directory") {
+        let entry = entry.ufail("Invalid data entry");
         let path = entry.path();
 
-        let is_manifest = path.file_name().unwrap().to_string_lossy().starts_with("MANIFEST=");
+        let is_manifest = path.file_name().ufail("Invalid file name for manifest??").to_string_lossy().starts_with("MANIFEST=");
         let is_protected = path.to_string_lossy() == protected_manifest;
 
         if is_manifest && !is_protected {

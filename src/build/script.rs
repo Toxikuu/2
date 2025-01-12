@@ -13,7 +13,7 @@ use crate::utils::fail::Fail;
 /// ### Description
 /// Checks the hashes for package sources, dying if they don't match known ones
 ///
-/// Known hashes are sourced from Package which is deserialized from info.toml
+/// Known hashes are sourced from Package which is deserialized from info.lock
 ///
 /// The m-gen script is responsible for initializing these hashes
 fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
@@ -47,9 +47,12 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     }
 }
 
+/// ### Description
+/// Sets up for a build
+///
+/// The setup process involves checking hashes, cleaning, and extracting the sources to the build directory
 fn setup(package: &Package) {
     let no_source = package.data.source.url.is_empty();
-    // TODO: make hash checks configurable
     if CONFIG.general.check_hashes { check_hashes(package, no_source, &package.relpath) }
     clean(package);
 
@@ -81,6 +84,12 @@ fn setup(package: &Package) {
     pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in setup: {}", package, e));
 }
 
+/// ### Description
+/// Evaluates build instructions
+///
+/// Defined in BUILD under ``2b()``
+///
+/// Build instructions should DESTDIR install to "$BLD/D"
 pub fn build(package: &Package) {
     setup(package);
     let command = format!(
@@ -96,7 +105,7 @@ pub fn build(package: &Package) {
     TB="$PORT/.dist/{package}.tar.zst"
 
     tar cpf D.tar D
-    zstd --rm -f -T0 -19 -o "$TB" D.tar >/dev/null 2>&1 # TODO: Add a dictionary
+    zstd --rm -f -T0 -19 -o "$TB" D.tar >/dev/null 2>&1
 
     FINL=$(du -sh "$TB" | awk '{{print $1}}')
     echo -e "\x1b[0;37;1m[ $ORIG ↘ ↘  $FINL ]\x1b[0m" >&2
@@ -106,6 +115,10 @@ pub fn build(package: &Package) {
     pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died: {}", package, e));
 }
 
+/// ### Description
+/// Evaluates pre-install instructions
+///
+/// TODO: Finish writing this
 pub fn prep(package: &Package) {
     let command =
     r#"
@@ -122,6 +135,13 @@ pub fn prep(package: &Package) {
     pkgexec!(&command, package).fail("Build died while performing preparation steps!");
 }
 
+/// ### Description
+/// Evaluates post-install instructions
+///
+/// These instructions are defined in BUILD under the function ``2z()``
+///
+/// The instructions should not interact with the build, but rather should perform any necessary
+/// post-install actions
 pub fn post(package: &Package) {
     let command =
     r#"
@@ -137,6 +157,10 @@ pub fn post(package: &Package) {
     pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in post-install: {}", package, e));
 }
 
+/// ### Description
+/// Cleans a build
+///
+/// Deletes and recreates the .build directory
 pub fn clean(package: &Package) {
     let dir = format!("/usr/ports/{}/.build", package.relpath);
     remove_dir_all(&dir).unwrap_or_else(|e| die!("Failed to clean '{}': {}", package, e));
