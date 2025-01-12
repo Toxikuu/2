@@ -1,8 +1,15 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "two"
-version = "0.0.16" # repo priority, auto ambiguity, code quality, refactoring
+version = "0.0.17" # replace most unwrap() occurrences with *fail(), misc changes, some documentation
 edition = "2024"
+description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
+license = "GPL-3.0"
+categories = ["command line utilities"]
+readme = "README.md"
+keywords = ["two", "2", "package manager"]
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
