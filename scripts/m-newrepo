@@ -21,6 +21,9 @@ REMOTE="${2:-$REMOTE}"
 [ -z "$REPO" ]    && usage
 [ -z "$REMOTE" ]  && usage
 
+[ -z "$GITUSER" ]   && die 'Please set $GITUSER'
+[ -z "$GITEMAIL" ]  && die 'Please set $GITEMAIL'
+
 echo
 echo " ### VARIABLES ### "
 echo "REPO: $REPO"
@@ -37,9 +40,7 @@ cd "/usr/ports/$REPO"
 git init
 
 cat > .gitignore << EOF
-*/.data
-*/.dist
-*/.sources
+*/.*
 EOF
 
 cat > README.md << EOF
@@ -57,6 +58,9 @@ git status -s
 read -p "Press enter to continue..." 
 
 git add .
+git config user.name="$GITUSER"
+git config user.email="$GITEMAIL"
+
 git commit -m "$REPO: initialized repo"
 
 git remote add origin "$REMOTE"
