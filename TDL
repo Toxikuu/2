@@ -1,6 +1,8 @@
 # Project: two
 
 TODO
+
+    Make -l list all packages for all repos
   
     Figure out how to make documentation not show in --help as it currently does
 
@@ -8,15 +10,17 @@ TODO
 
 WIP
 
-    Add syncing
-
-    Add repo addition
-
-    documentation
+    Add more documentation
 
     Expand the main repo
 
 DONEISH
+
+    Add syncing
+
+    Add repo addition
+
+    Remove exclusions from the config.toml
 
     Add repo priority and auto_ambiguity
 
