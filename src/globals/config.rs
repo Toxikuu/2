@@ -21,7 +21,6 @@ pub struct Config {
 pub struct GeneralConfig {
     pub prefix: String,
     pub clean_after_build: bool,
-    pub exclusions: String,
     pub show_bug_report_message: bool,
     pub check_hashes: bool,
     pub auto_ambiguity: bool,

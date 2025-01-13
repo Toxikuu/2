@@ -58,7 +58,7 @@ fn dist_install(package: &Package) {
     tar xvf {} -C "$PREFIX"         \
         --strip-components=1        \
         --keep-directory-symlink    \
-        --exclude-from='{}'         |
+        --exclude-from='/etc/2/exclusions.txt' |
     sed -e 's@/$@@' \
         -e 's@^D@@' \
         -e '/^$/d'  |
@@ -70,7 +70,7 @@ fn dist_install(package: &Package) {
 
     "#,
     CONFIG.general.prefix,
-    package.data.dist, CONFIG.general.exclusions,
+    package.data.dist,
     package.relpath, package.version,
     package.version, package.relpath,
     );
