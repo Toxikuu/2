@@ -2,11 +2,11 @@
 //
 // adds support for sets
 
-use std::error::Error;
 use std::fs::{read_dir, File};
 use std::io::{BufRead, BufReader};
-use crate::{erm, pr};
+use crate::comms::log::{erm, pr};
 use crate::utils::fail::Fail;
+use anyhow::{bail, Context, Result};
 
 fn is(package: &str) -> bool {
     package.contains('@')
@@ -14,19 +14,19 @@ fn is(package: &str) -> bool {
 
 // unravels the special set '@all'
 // unravels into all packages in that repo
-fn all(repo: &str) -> Vec<String> {
+fn all(repo: &str) -> Result<Vec<String>> {
     let dir = format!("/usr/ports/{repo}/");
-    let entries = read_dir(dir).fail("Nonexistent repo");
+    let entries = read_dir(dir).context("Nonexistent repo")?;
 
     let packages: Vec<String> = entries
         .filter_map(|entry| {
-            let entry = entry.ufail("Invalid entry?");
-            if entry.file_type().ufail("Failed to get entry filetype").is_dir() {
+            let entry = entry.fail("Failed to read dir entry");
+            if entry.file_type().fail("Failed to get entry filetype").is_dir() {
                 let file_name = entry.file_name();
                 if file_name.to_string_lossy().starts_with('.') {
                     None
                 } else {
-                    Some(file_name.into_string().ufail("Invalid unicode"))
+                    Some(file_name.into_string().fail("Invalid unicode"))
                 }
             } else {
                 None
@@ -36,7 +36,7 @@ fn all(repo: &str) -> Vec<String> {
         .map(|entry| format!("{repo}/{entry}")) // remove ambiguity
         .collect();
 
-    packages
+    Ok(packages)
 }
 
 fn split_repo(str: &str) -> (String, String) {
@@ -44,13 +44,13 @@ fn split_repo(str: &str) -> (String, String) {
     (repo.to_string(), set.to_string())
 }
 
-pub fn unravel(set: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    if !is(set) { return Err("Not a set".into()) }
+pub fn unravel(set: &str) -> anyhow::Result<Vec<String>> {
+    if !is(set) { bail!("Not a set") }
 
     let (repo, set) = split_repo(set);
 
     if set == "@all" {
-        return Ok(all(&repo));
+        return all(&repo);
     }
 
     let file_path = format!("/usr/ports/{repo}/.sets/{set}");
@@ -77,7 +77,7 @@ pub fn list(repo: &str) {
         return erm!("No sets available for '{}/'", repo);
     };
 
-    let available: Vec<String> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode")).collect();
+    let available: Vec<String> = entries.map(|f| f.fail("Failed to read dir entry").file_name().into_string().fail("Invalid unicode")).collect();
     if available.is_empty() {
         return erm!("No sets available for '{}/'", repo);
     }

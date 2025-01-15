@@ -2,9 +2,13 @@
 //! Responsible for resolving ambiguity in packages and sets
 
 use std::fs;
-use crate::{globals::config::CONFIG, package::repos::prioritize, utils::fail::Fail};
+use crate::globals::config::CONFIG;
+use crate::package::repos::prioritize;
+use crate::utils::fail::Fail;
 use walkdir::WalkDir;
-use crate::{pr, fail, select, erm};
+use crate::comms::log::{pr, erm};
+use crate::comms::r#in::select;
+use crate::fail;
 
 /// # Description
 /// Searches across all repos for a given package
@@ -67,7 +71,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
             erm!("Selection out of bounds"); continue
         };
 
-        return m.to_string()
+        return m.clone()
     }
 }
 
@@ -108,7 +112,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     if CONFIG.general.auto_ambiguity {
         let m = matches.first().ufail("Schrodinger's empty vector");
         pr!("Auto-selected '{}'", m);
-        return m.to_string()
+        return m.clone()
     }
 
     loop {
@@ -122,6 +126,6 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
             erm!("Selection out of bounds"); continue
         };
 
-        return m.to_string();
+        return m.clone()
     }
 }

@@ -18,12 +18,12 @@ mod build;
 mod cli;
 mod fetch;
 mod globals;
-mod macros;
 mod package;
 mod pm;
 mod remove;
 mod shell;
 mod utils;
+mod comms;
 
 use cli::args::Args;
 use cli::version as v;
@@ -37,7 +37,6 @@ use utils::fail::Fail;
 fn main() {
     let args = initialize();
     // TODO: test against args to determine which need root privileges before erroring out
-    // TODO: make the bug reporting message toggleable in the config
     if !unsafe { libc::geteuid() == 0 } { fail!("2 requires root privileges") } // prolly safe :)
 
     // exit after executing any special argument functions

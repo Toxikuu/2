@@ -4,7 +4,7 @@
 
 use crate::shell::cmd::exec;
 use crate::utils::fail::Fail;
-use crate::{erm, pr, msg};
+use crate::comms::log::{erm, pr, msg};
 use std::fs::{read_dir, read_to_string};
 use std::collections::HashMap;
 use std::cmp::Ordering;

@@ -1,14 +1,13 @@
 // src/fetch/download.rs
 //! Defines download functions
 
-use std::error::Error;
 use std::io::{Write, Read};
 use std::fs::{self, File};
 use std::path::Path;
 use crate::package::Package;
-use crate::die;
-use crate::utils::fail::Fail;
+use crate::utils::fail::{fail, ufail, Fail};
 use indicatif::{ProgressBar, ProgressStyle};
+use anyhow::bail;
 
 pub const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
@@ -24,26 +23,25 @@ pub fn download_extra(package: &Package, force: bool) {
 
         if let Err(e) = download_url(&source.url, &out, force) {
             if !e.to_string().contains("Exists: ") {
-                die!("Failed to get extra url '{}': {}", source.url, e)
+                fail!("Failed to get extra url '{}': {}", source.url, e)
             }
         }
     }
 }
 
-pub fn download_url(url: &str, out: &str, force: bool) -> Result<String, Box<dyn Error>> {
+pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String> {
     let out = if out == "url" { url } else { out };
     let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid url");
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
-        let erm = format!("Exists: {file_path:?}");
-        return Err(erm.into())
+        bail!("Exists: {:?}", file_path);
     }
 
-    let r = ureq::get(url).call().unwrap_or_else(|e| die!("Failed to download url '{}': {}", url, e));
+    let r = ureq::get(url).call().unwrap_or_else(|e| fail!("Failed to download url '{}': {}", url, e));
 
     if r.status() != 200 {
-        return Err(format!("HTTP Status: {}", r.status()).into());
+        bail!("HTTP Status: {}", r.status());
     }
 
     let length = r.header("Content-Length").and_then(|len| len.parse().ok()).unwrap_or(8192);
@@ -104,7 +102,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
         ".tar.lzo"                                       => format!("{package}.tar.lzo" ),
         ".tar.xz"   | ".txz"                             => format!("{package}.tar.xz"  ),
         ".tar.zst"  | ".tzst"                            => format!("{package}.tar.zst" ),
-        _ => die!("Unsupported tarball extension: {}", ext),
+        _ => ufail!("Unsupported tarball extension: {}", ext),
     };
 
     to
@@ -123,7 +121,7 @@ fn download_tarball(package: &Package, force: bool) {
 
     if let Err(e) = download_url(&url, &out, force) {
         if !e.to_string().contains("Exists: ") {
-            die!("Failed to download tarball for '{}': {}", package, e)
+            fail!("Failed to download tarball for '{}': {}", package, e)
         }
     }
 }

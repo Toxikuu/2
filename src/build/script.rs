@@ -3,12 +3,13 @@
 
 use crate::shell::cmd::exec;
 use crate::globals::config::CONFIG;
-use crate::{pkgexec, die};
+use crate::shell::cmd::pkgexec;
 use crate::package::Package;
 use std::fs::{create_dir, remove_dir_all};
 use std::path::Path;
 use crate::fetch::download::normalize_tarball;
-use crate::utils::fail::Fail;
+use crate::utils::fail::{fail, Fail};
+use anyhow::Result;
 
 /// ### Description
 /// Checks the hashes for package sources, dying if they don't match known ones
@@ -20,7 +21,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     /// ### Description
     /// Helper subfunction for checking hashes
     // TODO: consider using a closure instead, capturing relpath
-    fn core(filename: &str, knownhash: &str, relpath: &str) -> std::io::Result<()> {
+    fn core(filename: &str, knownhash: &str, relpath: &str) -> Result<()> {
         // pkgexec is explicitly not used here as it sets more variables than is necessary
         let command = format!(r#"
 
@@ -81,7 +82,7 @@ fn setup(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in setup: {}", package, e));
+    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in setup: {}", package, e));
 }
 
 /// ### Description
@@ -112,7 +113,7 @@ pub fn build(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died: {}", package, e));
+    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died: {}", package, e));
 }
 
 /// ### Description
@@ -154,7 +155,7 @@ pub fn post(package: &Package) {
 
     "#.to_string();
 
-    pkgexec!(&command, package).unwrap_or_else(|e| die!("Build for '{}' died in post-install: {}", package, e));
+    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in post-install: {}", package, e));
 }
 
 /// ### Description
@@ -163,6 +164,6 @@ pub fn post(package: &Package) {
 /// Deletes and recreates the .build directory
 pub fn clean(package: &Package) {
     let dir = format!("/usr/ports/{}/.build", package.relpath);
-    remove_dir_all(&dir).unwrap_or_else(|e| die!("Failed to clean '{}': {}", package, e));
+    remove_dir_all(&dir).unwrap_or_else(|e| fail!("Failed to clean '{}': {}", package, e));
     create_dir(&dir).ufail("Failed to recreate .build");
 }

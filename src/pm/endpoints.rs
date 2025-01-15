@@ -3,13 +3,14 @@
 // defines endpoints for PM
 
 use crate::globals::flags::FLAGS;
-use crate::{msg, pr};
+use crate::comms::log::{msg, pr};
 use super::PM;
 use crate::build::{logic as bl, script};
 use crate::fetch::download::download;
 use crate::remove::logic as rl;
 use crate::utils::time::Stopwatch;
 use crate::utils::fail::Fail;
+use crate::package::Package;
 
 impl PM {
     pub fn install(&self) {
@@ -103,10 +104,24 @@ impl PM {
         });
 
         for package in &self.packages {
-            let status = if package.data.is_installed { &format!("\x1b[1;36mInstalled {}", package.data.installed_version) } else { "\x1b[0;30mAvailable" };
+            let status = format_package_status(package);
             let package_info = format!("  \x1b[0;37m{}/{}", package.repo, package);
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", status);
         }
     }
+}
+
+fn format_package_status(package: &Package) -> String {
+    let iv = &package.data.installed_version;
+
+    if !package.data.is_installed {
+        return "\x1b[0;30mAvailable".to_string()
+    }
+
+    if *iv != package.version {
+        return "\x1b[1;31mOutdated".to_string()
+    }
+
+    format!("\x1b[1;36mInstalled {iv}")
 }

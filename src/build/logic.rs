@@ -2,7 +2,7 @@
 //! Defines the logic for package builds
 
 use crate::globals::config::CONFIG;
-use crate::{erm, msg, cpr};
+use crate::comms::log::{erm, msg, cpr};
 use crate::globals::flags::FLAGS;
 use crate::package::Package;
 use crate::shell::cmd::exec;

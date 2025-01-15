@@ -2,7 +2,7 @@
 //
 // reads the package manifest
 
-use crate::vpr;
+use crate::comms::log::vpr;
 use walkdir::{DirEntry, WalkDir};
 use std::path::{Path, PathBuf};
 use std::collections::{HashMap, HashSet};

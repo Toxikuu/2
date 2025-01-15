@@ -2,14 +2,15 @@
 //
 // defines command functions
 
-use std::io::{self, BufRead};
+use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 use crate::utils::fail::Fail;
 use std::thread;
-use crate::{erm, cpr};
+use crate::comms::log::{erm, cpr};
 use log::{debug, error};
+use anyhow::{anyhow, Result, Context};
 
-pub fn exec(command: &str) -> io::Result<()> {
+pub fn exec(command: &str) -> Result<()> {
     // initialize the bash environment
     let command = format!(
     r"
@@ -23,13 +24,14 @@ pub fn exec(command: &str) -> io::Result<()> {
         .arg(&command)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .spawn()?;
+        .spawn()
+        .context("Failed spawn bash")?;
 
-    let stdout = child.stdout.take().ufail("Failed to take stdout");
-    let stderr = child.stderr.take().ufail("Failed to take stderr");
+    let stdout = child.stdout.take().context("Stdout already taken?")?;
+    let stderr = child.stderr.take().context("Stderr already taken?")?;
 
     let stdout_thread = thread::spawn(move || {
-        let reader = io::BufReader::new(stdout);
+        let reader = BufReader::new(stdout);
         for line in reader.lines() {
             match line {
                 Ok(line) => {
@@ -42,7 +44,7 @@ pub fn exec(command: &str) -> io::Result<()> {
     });
 
     let stderr_thread = thread::spawn(move || {
-        let reader = io::BufReader::new(stderr);
+        let reader = BufReader::new(stderr);
         for line in reader.lines() {
             match line {
                 Ok(line) => {
@@ -57,7 +59,7 @@ pub fn exec(command: &str) -> io::Result<()> {
     let status = child.wait()?;
     if !status.success() {
         error!("Command `{}` failed!", command);
-        return Err(io::Error::new(io::ErrorKind::Other, "Command failed"));
+        return Err(anyhow!("Command `{}` failed", command));
     }
 
     stdout_thread.join().ufail("Failed to join the stdout thread");
@@ -65,3 +67,27 @@ pub fn exec(command: &str) -> io::Result<()> {
 
     Ok(())
 }
+
+#[macro_export]
+macro_rules! pkgexec {
+    ($cmd:expr, $pkg:expr) => {{
+        use $crate::shell::cmd::exec;
+        let relpath = &$pkg.relpath;
+        let command = format!(
+        r#"
+        export PORT="/usr/ports/{}"
+        export SRC="$PORT/.sources"
+        export BLD="$PORT/.build"
+        export D="$BLD/D"
+
+        {}
+        "#,
+        relpath,
+        $cmd,
+        );
+
+        exec(&command)
+    }};
+}
+
+pub(crate) use pkgexec;

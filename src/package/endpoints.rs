@@ -4,8 +4,8 @@
 use super::Package;
 use std::fs;
 use std::path::Path;
-use crate::{fail, vpr};
-use crate::utils::fail::Fail;
+use crate::comms::log::vpr;
+use crate::utils::fail::{fail, Fail};
 
 impl Package {
     pub fn new(repo: &str, name: &str) -> Self {

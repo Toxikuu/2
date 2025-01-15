@@ -2,18 +2,16 @@
 //
 // parses the raw package arguments
 
-use crate::die;
-
 use super::Package;
 use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
 use super::sets::unravel;
-use crate::utils::fail::Fail;
+use crate::utils::fail::{fail, Fail};
 
 pub fn parse(packages: &[String]) -> Vec<Package> {
     let mut parsed_packages = Vec::new();
 
     for package in packages {
-        if package.contains('=') { die!("Version control is not supported") }
+        if package.contains('=') { fail!("Version control is not supported") }
 
         let package = 
         if package.ends_with('/') { &format!("{package}@all") }
@@ -43,7 +41,7 @@ fn append_set(set: &str, package_list: &mut Vec<Package>) {
 
     let mut unraveled_packages = Vec::new();
     for package in &packages {
-        if package.contains('=') { die!("Version control is not supported") }
+        if package.contains('=') { fail!("Version control is not supported") }
 
         let package = if package.contains('/') {
             package.to_string()

@@ -2,8 +2,8 @@
 //! Defines 2's config
 
 use lazy_static::lazy_static;
+use anyhow::Result;
 use serde::Deserialize;
-use std::error::Error;
 use std::fs;
 use std::sync::Arc;
 
@@ -58,7 +58,7 @@ pub struct StartupConfig {
 }
 
 impl Config {
-    pub fn load() -> Result<Self, Box<dyn Error>> {
+    pub fn load() -> Result<Self> {
         let content = fs::read_to_string("/etc/2/config.toml")?;
         let config: Self = toml::from_str(&content)?;
 

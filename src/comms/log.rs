@@ -1,5 +1,5 @@
-// src/macros.rs
-//! Defines utility macros for use across 2
+// src/comms/log.rs
+//! Some utility functions for communicating with the user
 
 #[macro_export]
 macro_rules! msg {
@@ -51,51 +51,4 @@ macro_rules! vpr {
     }};
 }
 
-#[macro_export]
-macro_rules! die {
-    ($($arg:tt)*) => {{
-        use $crate::globals::config::CONFIG;
-        println!("\x1b[{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*));
-
-        std::panic::set_hook(Box::new(|_| {})); // suppress all panic output
-        panic!();
-    }};
-}
-
-#[macro_export]
-macro_rules! select {
-    ($($arg:tt)*) => {{
-        use $crate::globals::config::CONFIG;
-        use std::io::{self, Write};
-        let mut input = String::new();
-        
-        print!("\x1b[{}{}: \x1b[0m", CONFIG.message.prompt, format!($($arg)*));
-        io::stdout().flush().unwrap();
-        io::stdin().read_line(&mut input).unwrap();
-
-        let input = input.trim().to_string();
-        input
-    }};
-}
-
-#[macro_export]
-macro_rules! pkgexec {
-    ($cmd:expr, $pkg:expr) => {{
-        use $crate::shell::cmd::exec;
-        let relpath = &$pkg.relpath;
-        let command = format!(
-        r#"
-        export PORT="/usr/ports/{}"
-        export SRC="$PORT/.sources"
-        export BLD="$PORT/.build"
-        export D="$BLD/D"
-
-        {}
-        "#,
-        relpath,
-        $cmd,
-        );
-
-        exec(&command)
-    }};
-}
+pub(crate) use {msg, pr, cpr, erm, vpr};

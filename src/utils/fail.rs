@@ -1,21 +1,25 @@
 // src/utils/fail.rs
 //! Defines utilities for (bad) error handling (crashes)
 
+// TODO: consider adding an erm method that discards an error and sends a message
+
 use std::fmt;
-use crate::{die, erm};
+use crate::comms::log::erm;
 use crate::globals::config::CONFIG;
 use std::panic::Location;
 
+#[allow(dead_code)]
 pub enum UnreachableType {
     Option,
     Result,
+    Explicit,
 }
 
 pub enum FailType {
     Unreachable(UnreachableType),
     Result,
     Option,
-    Custom(String),
+    Explicit,
 }
 
 impl fmt::Display for FailType {
@@ -23,16 +27,27 @@ impl fmt::Display for FailType {
         match self {
             Self::Result => write!(f, "RESULT"),
             Self::Option => write!(f, "OPTION"),
-            Self::Custom(t) => write!(f, "{t}"),
+            Self::Explicit => write!(f, "EXPLICIT"),
             Self::Unreachable(t) => {
                 let t = match t {
                     UnreachableType::Option => "OPTION",
                     UnreachableType::Result => "RESULT",
+                    UnreachableType::Explicit => "EXPLICIT",
                 };
                 write!(f, "UNREACHABLE {t}")
             },
         }
     }
+}
+
+macro_rules! die {
+    ($($arg:tt)*) => {{
+        use $crate::globals::config::CONFIG;
+        println!("\x1b[{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*));
+
+        std::panic::set_hook(Box::new(|_| {})); // suppress all panic output
+        panic!();
+    }};
 }
 
 pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailType) {
@@ -119,31 +134,34 @@ macro_rules! fail {
         report(
             &format!($($arg)*),
             std::panic::Location::caller(),
-            &FailType::Custom("MACRO".to_string())
+            &FailType::Explicit
         );
+        unreachable!()
     }};
 }
+
+#[macro_export]
+macro_rules! ufail {
+    ($($arg:tt)*) => {{
+        use $crate::utils::fail::{report, FailType, UnreachableType};
+        report(
+            &format!($($arg)*),
+            std::panic::Location::caller(),
+            &FailType::Unreachable(UnreachableType::Explicit)
+        );
+        unreachable!()
+    }};
+}
+
+pub(crate) use {fail, ufail};
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::error::Error;
-    use std::fmt;
-
-    /// simple error type for testing
-    #[derive(Debug)]
-    struct TestError;
-
-    impl fmt::Display for TestError {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "test error")
-        }
-    }
-
-    impl Error for TestError {}
-
+    use anyhow::{Result, anyhow};
 
     #[test]
+    #[allow(clippy::should_panic_without_expect)]
     #[should_panic]
     fn option_fail() {
         let option: Option<char> = None;
@@ -151,6 +169,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::should_panic_without_expect)]
     #[should_panic]
     fn option_ufail() {
         let option: Option<char> = None;
@@ -158,16 +177,18 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::should_panic_without_expect)]
     #[should_panic]
     fn error_fail() {
-        let result: Result<char, Box<dyn Error>> = Err(Box::new(TestError));
+        let result: Result<char> = Err(anyhow!("hi mom"));
         result.fail("error fail test");
     }
 
     #[test]
+    #[allow(clippy::should_panic_without_expect)]
     #[should_panic]
     fn error_ufail() {
-        let result: Result<char, Box<dyn Error>> = Err(Box::new(TestError));
+        let result: Result<char> = Err(anyhow!("hi mom"));
         result.ufail("unreachable error fail test");
     }
 
@@ -185,13 +206,13 @@ mod tests {
 
     #[test]
     fn error_success() {
-        let result: Result<char, Box<dyn Error>> = Ok('a');
+        let result: Result<char> = Ok('a');
         assert_eq!(result.fail("shouldn't fail"), 'a');
     }
 
     #[test]
     fn error_usuccess() {
-        let result: Result<char, Box<dyn Error>> = Ok('a');
+        let result: Result<char> = Ok('a');
         assert_eq!(result.ufail("shouldn't fail"), 'a');
     }
 }
