@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.19" # refactors etc
+version = "0.0.20" # rc shenanigans
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
@@ -18,7 +18,7 @@ indicatif = "0.17.9"
 lazy_static = "1.5.0"
 libc = "0.2.169"
 log = "0.4.22"
-serde = { version = "1.0.216", features = ["derive"] }
+serde = { version = "1.0.216", features = ["derive", "rc"] }
 toml = "0.8.19"
 ureq = "2.12.1"
 walkdir = "2.5.0"
