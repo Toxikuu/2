@@ -3,4 +3,5 @@
 
 source /usr/share/2/bin/f-path
 
-export XORG_CONFIG="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static"
+# it is assumed this will be used alongside b-cfg which includes prefix and disable-static
+export XORG_CONFIG="--sysconfdir=/etc --localstatedir=/var"
