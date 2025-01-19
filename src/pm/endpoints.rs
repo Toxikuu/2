@@ -10,7 +10,7 @@ use crate::fetch::download::download;
 use crate::remove::logic as rl;
 use crate::utils::time::Stopwatch;
 use crate::utils::fail::Fail;
-use crate::package::Package;
+use crate::package::{Package, parse::expand_set};
 
 impl PM {
     pub fn install(&self) {
@@ -98,6 +98,7 @@ impl PM {
         msg!("Packages:");
 
         let mut pkgs = self.packages.to_vec();
+        if pkgs.is_empty() { pkgs = expand_set("@every").to_vec(); }
         pkgs.sort_by(|a, b| {
             let a = format!("{}/{}", a.repo, a);
             let b = format!("{}/{}", b.repo, b);
