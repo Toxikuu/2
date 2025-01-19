@@ -8,18 +8,25 @@ use crate::comms::log::{erm, pr, msg};
 use std::fs::{read_dir, read_to_string};
 use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::rc::Rc;
 
-pub fn list() {
+/// # Description
+/// Returns a vector of all repositories under /usr/ports
+pub fn find_all() -> Rc<[String]> {
     let dir = "/usr/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
 
-    let available: Vec<String> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode?")).collect();
-    if available.is_empty() { return erm!("No repos available!") }
-
-    for r in &available {
-        pr!("{}", r);
+    let repos: Rc<[String]> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode?")).collect();
+    if repos.is_empty() {
+        erm!("No repos available!");
     }
-    // available.iter().for_each(|r| pr!("{}", r));
+    repos
+}
+
+/// # Description
+/// Lists all repositories
+pub fn list() {
+    find_all().iter().for_each(|r| pr!("{}", r));
 }
 
 /// # Description
