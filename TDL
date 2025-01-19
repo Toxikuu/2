@@ -2,7 +2,17 @@
 
 TODO
 
-    Add a package log
+    Add per package history tracking
+        These should include a changelog for upstream and an install/build/build-failure local log
+        Allow viewing it with -H
+
+    Add a master package log
+
+    Add logs
+        Master log in /var/log/2/master.log
+        Per-package build logs in /var/log/2/builds/repo/package.log
+
+        Logs should make use of zstd compression
 
     Add --provides (-P) to see what package provides a certain file via searching manifests
 
@@ -87,6 +97,8 @@ IDEAS
     Rayon everywhere
 
     Look into using --dereference with tar
+
+    Dependencies support with a flag '-d' or similar
 
 ROADMAP
 
