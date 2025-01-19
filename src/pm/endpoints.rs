@@ -14,59 +14,59 @@ use crate::package::Package;
 
 impl PM {
     pub fn install(&self) {
-        for package in &self.packages {
+        self.packages.iter().for_each(|p| {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(package, false);
-            if bl::install(package) {
-                msg!("Installed '{}' in {}", package, stopwatch.display());
+            download(p, false);
+            if bl::install(p) {
+                msg!("Installed '{}' in {}", p, stopwatch.display());
             }
-        }
+        });
     }
 
     pub fn update(&self) {
-        for package in &self.packages {
+        self.packages.iter().for_each(|p| {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(package, false);
-            if bl::update(package) {
+            download(p, false);
+            if bl::update(p) {
                 stopwatch.stop();
-                msg!("Updated to '{}' in {}", package, stopwatch.display());
+                msg!("Updated to '{}' in {}", p, stopwatch.display());
             }
-        }
+        });
     }
 
     pub fn remove(&self) {
-        for package in &self.packages {
+        self.packages.iter().for_each(|p| {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            if rl::remove(package) {
+            if rl::remove(p) {
                 stopwatch.stop();
-                msg!("Removed '{}' in {}", package, stopwatch.display());
+                msg!("Removed '{}' in {}", p, stopwatch.display());
             }
-        }
+        });
     }
 
     pub fn build(&self) {
-        for package in &self.packages {
+        self.packages.iter().for_each(|p| {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(package, false);
-            if bl::build(package) {
+            download(p, false);
+            if bl::build(p) {
                 stopwatch.stop();
-                msg!("Built '{}' in {}", package, stopwatch.display());
+                msg!("Built '{}' in {}", p, stopwatch.display());
             }
-        }
+        });
     }
 
     pub fn get(&self) {
-        for package in &self.packages {
-            download(package, FLAGS.lock().ufail("Failed to lock flags").force);
-        }
+        self.packages.iter().for_each(|p| {
+            download(p, FLAGS.lock().ufail("Failed to lock flags").force);
+        });
     }
 
     pub fn prune(&self) {
@@ -74,9 +74,9 @@ impl PM {
         stopwatch.start();
 
         let mut total_count = 0;
-        for package in &self.packages {
-            total_count += rl::prune(package);
-        }
+        self.packages.iter().for_each(|p| {
+            total_count += rl::prune(p);
+        });
 
         stopwatch.stop();
         msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
@@ -86,29 +86,30 @@ impl PM {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        for package in &self.packages {
-            script::clean(package);
-        }
+        self.packages.iter().for_each(|p| {
+            script::clean(p);
+        });
 
         stopwatch.stop();
         msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
-    pub fn list(&mut self) {
+    pub fn list(&self) {
         msg!("Packages:");
 
-        self.packages.sort_by(|a, b| {
+        let mut pkgs = self.packages.to_vec();
+        pkgs.sort_by(|a, b| {
             let a = format!("{}/{}", a.repo, a);
             let b = format!("{}/{}", b.repo, b);
             a.cmp(&b)
         });
 
-        for package in &self.packages {
-            let status = format_package_status(package);
-            let package_info = format!("  \x1b[0;37m{}/{}", package.repo, package);
+        for p in &pkgs {
+            let status = format_package_status(p);
+            let package_info = format!("  \x1b[0;37m{}/{}", p.repo, p);
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", status);
-        }
+        };
     }
 }
 

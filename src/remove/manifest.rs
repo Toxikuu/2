@@ -11,6 +11,7 @@ use std::io::{BufRead, BufReader};
 use crate::package::Package;
 use std::result::Result;
 use crate::utils::fail::Fail;
+use std::rc::Rc;
 
 fn is_in_wrong_hidden(entry: &DirEntry) -> bool {
     entry.path()
@@ -28,9 +29,8 @@ fn is_manifest(entry: &DirEntry) -> bool {
         .contains("MANIFEST=")
 }
 
-// TODO: consider generating manifests from extracted tarballs, instead of from builds
-// probably optimal because distributors would rather not have to ship manifests as well as tarballs
-fn locate(dir: &str) -> Vec<PathBuf> {
+// TODO: Rewrite this without mut vec
+fn locate(dir: &str) -> Rc<[PathBuf]> {
     let mut manifests = Vec::new();
 
     for entry in WalkDir::new(dir)
@@ -49,17 +49,17 @@ fn locate(dir: &str) -> Vec<PathBuf> {
     }
 
     vpr!("Located manifests: {:#?}", manifests);
-    manifests
+    manifests.into()
 }
 
-fn read_lines(path: &PathBuf) -> Vec<String> {
+fn read_lines(path: &PathBuf) -> Rc<[String]> {
     let file = File::open(path).fail("Failed to open file");
     let reader = BufReader::new(file);
 
     reader.lines().map_while(Result::ok).collect()
 }
 
-fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Vec<String>> {
+fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
     let mut data = HashMap::new();
 
     for manifest in manifests {
@@ -70,36 +70,41 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Vec<String>> {
     data
 }
 
-fn find_unique(all_data: &HashMap<PathBuf, Vec<String>>, this_manifest: &PathBuf) -> Vec<String> {
+// TODO: rewrite this without a mutable vec
+fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Rc<[String]> {
     let mut unique = Vec::new();
 
     let this_data = all_data.get(this_manifest).expect("Manifest not found");
     let mut all_other_lines = HashSet::new();
     for (path, lines) in all_data {
         if path != this_manifest {
-            for line in lines {
-                all_other_lines.insert(line);
-            }
+            
+            lines
+                .iter()
+                .for_each(|l| {
+                    all_other_lines.insert(l);
+                });
         }
     }
 
-    for line in this_data {
-        if !all_other_lines.contains(line) {
-            unique.push(line.clone());
+    this_data.iter().for_each(|l| {
+        if !all_other_lines.contains(l) {
+            unique.push(l.clone());
         }
-    }
+    });
 
-    unique
+    unique.reverse();
+    unique.into()
 }
 
-pub fn find_unique_paths(manifest: &PathBuf) -> Vec<String> {
+pub fn find_unique_paths(manifest: &PathBuf) -> Rc<[String]> {
     let manifests = locate("/usr/ports");
     let data = read_all(&manifests);
     find_unique(&data, manifest)
 }
 
 // find unique (dead) files in an old manifest
-pub fn find_dead_files(package: &Package) -> Vec<String> {
+pub fn find_dead_files(package: &Package) -> Rc<[String]> {
     let manifests = locate(&format!("/usr/ports/{}/{}/.data", package.repo, package.name));
     
     let data = read_all(&manifests);

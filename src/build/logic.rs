@@ -22,7 +22,7 @@ pub fn install(package: &Package) -> bool {
     if package.data.installed_version == package.version && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already installed '{}'", package);
         false
-    } else if Path::new(&package.data.dist).exists() {
+    } else if Path::new(package.data.dist.as_str()).exists() {
         dist_install(package);
         true
     } else {
@@ -33,7 +33,7 @@ pub fn install(package: &Package) -> bool {
 }
 
 pub fn build(package: &Package) -> bool {
-    if Path::new(&package.data.dist).exists() && !FLAGS.lock().ufail("Failed to lock flags").force {
+    if Path::new(package.data.dist.as_str()).exists() && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already built '{}'", package);
         false
     } else {
@@ -93,7 +93,7 @@ pub fn update(package: &Package) -> bool {
 
     msg!("Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    if !Path::new(&package.data.dist).exists() {
+    if !Path::new(package.data.dist.as_str()).exists() {
         build(package);
     }
 

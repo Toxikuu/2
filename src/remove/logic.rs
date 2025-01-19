@@ -71,20 +71,15 @@ pub fn remove(package: &Package) -> bool {
 
     if !manifest_path.exists() { fail!("Manifest doesn't exist") }
 
-    let mut unique = find_unique_paths(&manifest_path.to_path_buf());
-    // find finds files in ascending order, but they must be deleted in descending order to avoid
-    // false alerts for populated directories
-    unique.reverse();
+    let unique = find_unique_paths(&manifest_path.to_path_buf());
 
-    for p in &unique {
-        let prefix = Path::new(&CONFIG.general.prefix);
+    unique.iter().for_each(|p| {
+        let pfx = Path::new(&CONFIG.general.prefix);
         let p = p.trim_start_matches('/');
-        // NOTE: the above line is necessary because .join will just use an absolute path instead
-        // of allowing double slashes (really shitty design choice imo??)
-        let path = prefix.join(p);
+        let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            erm!("Retaining protected path: {:?}", path); continue
+            erm!("Retaining protected path: {:?}", path); return
         }
 
         if path.is_symlink() {
@@ -100,7 +95,7 @@ pub fn remove(package: &Package) -> bool {
         }
 
         pr!("'{}' -x", p);
-    }
+    });
 
     // NOTE: the manifest is not removed as prune will handle it
     let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
@@ -134,32 +129,31 @@ fn remove_dots(package: &Package) {
 pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
 
-    let mut dead_files = find_dead_files(package);
-    dead_files.reverse();
+    let dead_files = find_dead_files(package);
 
-    for p in &dead_files {
-        let prefix = Path::new(&CONFIG.general.prefix);
-        let p = p.strip_prefix('/').unwrap_or(p);
-        let path = prefix.join(p);
+    dead_files.iter().for_each(|p| {
+        let pfx = Path::new(&CONFIG.general.prefix);
+        let p = p.trim_start_matches('/');
+        let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            return erm!("Retaining protected path: {:?}", path);
+            erm!("Retaining protected path: {:?}", path); return
+        }
+
+        if path.is_symlink() {
+            rmf(&path).fail("Failed to remove symlink");
         }
         
-        if path.is_file() || path.is_symlink() { remove_file(path).ufail("Failed to remove dead file") }
+        if path.is_file() {
+            rmf(&path).fail("Failed to remove file");
+        }
 
-        else if path.is_dir() {
-            if let Err(e) = remove_dir(&path) {
-                if e.to_string() == "Directory not empty (os error 39)" {
-                    pr!("Ignoring '{}': populated", path.display());
-                } else {
-                    erm!("Failed to remove '{}': {}", path.display(), e);
-                }
-            }
+        if path.is_dir() {
+            rmdir(&path).fail("Failed to remove directory");
         }
 
         pr!("'{}' -x", p);
-    };
+    });
 }
 
 pub fn prune(package: &Package) -> usize {
@@ -167,7 +161,10 @@ pub fn prune(package: &Package) -> usize {
 
     let extra = &package.data.extra;
     let extra_files: Vec<String> = extra.iter().map(|s| {
-        let file_name = Path::new(&s.url).file_name().ufail("File in .sources ends in '..' tf??").to_string_lossy();
+        let file_name = Path::new(s.url.as_str())
+            .file_name()
+            .ufail("File in .sources ends in '..' tf??")
+            .to_string_lossy();
         format!("{src}/{file_name}")
     }).collect();
     let tarball_approx = format!("{src}/{package}");

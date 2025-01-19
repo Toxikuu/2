@@ -3,13 +3,14 @@
 pub mod endpoints;
 
 use crate::package::Package;
+use std::rc::Rc;
 
 pub struct PM {
-    pub packages: Vec<Package>
+    pub packages: Rc<[Package]>
 }
 
 impl PM {
     pub fn new(packages: &[Package]) -> Self {
-        Self { packages: packages.to_vec() }
+        Self { packages: packages.into() }
     }
 }

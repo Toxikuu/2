@@ -7,51 +7,49 @@ use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
 use super::sets::unravel;
 use crate::utils::fail::{fail, Fail};
 
-pub fn parse(packages: &[String]) -> Vec<Package> {
-    let mut parsed_packages = Vec::new();
-
-    for package in packages {
-        if package.contains('=') { fail!("Version control is not supported") }
-
-        let package = 
-        if package.ends_with('/') { &format!("{package}@all") }
-        else { package };
-
-        if package.contains('@') {
-            append_set(package, &mut parsed_packages);
-            continue
+pub fn parse(packages: &[String]) -> Box<[Package]> {
+    packages.iter().flat_map(|p| {
+        if p.contains('=') {
+            fail!("Version control is not supported");
         }
 
-        let package = if package.contains('/') {
-            package.to_string()
+        let p = if p.ends_with('/') {
+            format!("{p}@all")
         } else {
-            resolve_ambiguity(package)
+            p.to_string()
         };
 
-        let (repo, name) = package.split_once('/').ufail("Package does not contain '/'");
-        parsed_packages.push(Package::new(repo, name));
-    }
+        // TODO: test 'main/@lfs'
+        if p.contains('@') {
+            let set = expand_set(&p);
+            return set.into_iter()
+        }
 
-    parsed_packages
+        let p = if p.contains('/') {
+            p
+        } else {
+            resolve_ambiguity(&p)
+        };
+
+        let (repo, name) = p.split_once('/').ufail("Package does not contain '/'");
+        vec![Package::new(repo, name)].into_iter()
+    }).collect::<Vec<_>>().into()
 }
 
-fn append_set(set: &str, package_list: &mut Vec<Package>) {
+fn expand_set(set: &str) -> Box<[Package]> {
     let set = if set.contains("@all") { set.to_string() } else { resolve_set_ambiguity(set) };
     let packages = unravel(&set).fail("Failed to unravel set");
 
-    let mut unraveled_packages = Vec::new();
-    for package in &packages {
-        if package.contains('=') { fail!("Version control is not supported") }
+    packages.iter().map(|p| {
+        if p.contains('=') { fail!("Version control is not supported") }
 
-        let package = if package.contains('/') {
-            package.to_string()
+        let p = if p.contains('/') {
+            p.to_string()
         } else {
-            resolve_ambiguity(package)
+            resolve_ambiguity(p)
         };
 
-        let (repo, name) = package.split_once('/').ufail("Package does not contain '/'");
-        unraveled_packages.push(Package::new(repo, name));
-    }
-
-    package_list.append(&mut unraveled_packages);
+        let (repo, name) = p.split_once('/').ufail("p does not contain '/'");
+        Package::new(repo, name)
+    }).collect()
 }

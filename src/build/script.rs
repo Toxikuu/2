@@ -41,11 +41,11 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
         core(&filename, knownhash, relpath).fail("Hash checks failed");
     }
 
-    for source in &package.data.extra {
-        let filename = Path::new(&source.url).file_name().fail("Invalid file name").to_string_lossy();
+    package.data.extra.iter().for_each(|source| {
+        let filename = Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
         core(&filename, knownhash, relpath).fail("Hash checks failed");
-    }
+    });
 }
 
 /// ### Description

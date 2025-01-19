@@ -1,4 +1,5 @@
 #![feature(duration_millis_float)]
+#![feature(str_as_str)]
 // src/main.rs
 
 #![warn(
@@ -43,7 +44,7 @@ fn main() {
     handle_special_args(&args);
 
     let packages = parse::parse(&args.packages);
-    let mut pm = PM::new(&packages);
+    let pm = PM::new(&packages);
 
     if args.version { v::display() }
     if args.build   { pm.build  () }
