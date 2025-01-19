@@ -5,49 +5,64 @@
 use super::Package;
 use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
 use super::sets::unravel;
-use crate::utils::fail::{fail, Fail};
+use crate::utils::fail::Fail;
+use crate::comms::log::erm;
 
-pub fn parse(packages: &[String]) -> Box<[Package]> {
-    packages.iter().flat_map(|p| {
-        if p.contains('=') {
-            fail!("Version control is not supported");
+// TODO: I'd love to have sets of repos but im too dumb to figure out how to do it rn
+pub fn parse(packages: &[String]) -> Vec<Package> {
+    let mut parsed = Vec::new();
+
+    for p in packages {
+        let mut p = p.as_str();
+
+        if let Some(i) = p.find('=') {
+            erm!("Version control is not supported; stripping version");
+            p = &p[..i];
         }
 
-        let p = if p.ends_with('/') {
-            format!("{p}@all")
-        } else {
-            p.to_string()
-        };
+        let mut p = p.to_string();
+        if p.ends_with('/') {
+            p.push_str("@all");
+        }
 
         // TODO: test 'main/@lfs'
         if p.contains('@') {
-            let set = expand_set(&p);
-            return set.into_iter()
+            let mut set = expand_set(&p).to_vec();
+            parsed.append(&mut set);
+            continue
         }
 
-        let p = if p.contains('/') {
-            p
-        } else {
-            resolve_ambiguity(&p)
-        };
+        if ! p.contains('/') {
+            p = resolve_ambiguity(&p);
+        }
 
         let (repo, name) = p.split_once('/').ufail("Package does not contain '/'");
-        vec![Package::new(repo, name)].into_iter()
-    }).collect::<Vec<_>>().into()
+        parsed.push(Package::new(repo, name));
+    }
+    parsed
 }
 
-fn expand_set(set: &str) -> Box<[Package]> {
-    let set = if set.contains("@all") { set.to_string() } else { resolve_set_ambiguity(set) };
+pub fn expand_set(set: &str) -> Box<[Package]> {
+    let set = if set.contains("@every") || set.contains("@!") || set.contains("/@all") || set.contains("/@@") {
+        set.to_string()
+    } else {
+        resolve_set_ambiguity(set)
+    };
+
     let packages = unravel(&set).fail("Failed to unravel set");
 
     packages.iter().map(|p| {
-        if p.contains('=') { fail!("Version control is not supported") }
+        let mut p = p.as_str();
 
-        let p = if p.contains('/') {
-            p.to_string()
-        } else {
-            resolve_ambiguity(p)
-        };
+        if let Some(i) = p.find('=') {
+            erm!("Version control is not supported; stripping version");
+            p = &p[..i];
+        }
+
+        let mut p = p.to_string();
+        if ! p.contains('/') {
+            p = resolve_ambiguity(&p);
+        }
 
         let (repo, name) = p.split_once('/').ufail("p does not contain '/'");
         Package::new(repo, name)
