@@ -1,13 +1,13 @@
 // src/fetch/download.rs
 //! Defines download functions
 
-use std::io::{Write, Read};
-use std::fs::{self, File};
-use std::path::Path;
+use anyhow::bail;
 use crate::package::Package;
 use crate::utils::fail::{fail, ufail, Fail};
 use indicatif::{ProgressBar, ProgressStyle};
-use anyhow::bail;
+use std::fs::{self, File};
+use std::io::{Write, Read};
+use std::path::Path;
 
 pub const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 

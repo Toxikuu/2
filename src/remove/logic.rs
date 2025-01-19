@@ -2,41 +2,41 @@
 //
 // logic for package removal
 
+use anyhow::{bail, Result};
+use crate::comms::log::{erm, pr, vpr};
+use crate::globals::config::CONFIG;
 use crate::globals::flags::FLAGS;
 use crate::package::Package;
-use crate::comms::log::{erm, pr, vpr};
+use crate::utils::fail::{fail, Fail};
 use std::fs::{create_dir, read_dir, remove_dir, remove_dir_all, remove_file};
+use std::io::ErrorKind as IOE;
 use std::path::{Path, PathBuf};
 use super::manifest::{find_dead_files, find_unique_paths};
-use crate::globals::config::CONFIG;
-use crate::utils::fail::{fail, Fail};
-use std::io::ErrorKind as IOE;
-use anyhow::{bail, Result};
 
 const KEPT: [&str; 23] = [
+    "/",
+    "/bin",
+    "/boot",
+    "/dev",
+    "/etc",
+    "/lib",
+    "/lib32",
+    "/opt",
+    "/proc",
+    "/root",
+    "/run",
+    "/sbin",
+    "/sys",
+    "/sys",
     "/usr",
     "/usr/bin",
-    "/bin",
-    "/etc",
-    "/usr/share",
-    "/usr/ports",
     "/usr/lib",
     "/usr/lib32",
     "/usr/libexec",
-    "/sbin",
-    "/sys",
-    "/dev",
-    "/lib",
-    "/lib32",
-    "/root",
-    "/sys",
+    "/usr/ports",
+    "/usr/share",
+    "/usr/share/pkgconfig",
     "/var",
-    "/run",
-    "/proc",
-    "/opt",
-    "/boot",
-    "/",
-    "/usr/share/pkgconfig"
 ];
 
 fn rmdir(path: &PathBuf) -> Result<()> {

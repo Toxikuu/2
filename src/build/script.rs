@@ -1,15 +1,15 @@
 // src/build/script.rs
 //! Interfaces with $PORT/BUILD
 
-use crate::shell::cmd::exec;
+use anyhow::Result;
+use crate::fetch::download::normalize_tarball;
 use crate::globals::config::CONFIG;
-use crate::shell::cmd::pkgexec;
 use crate::package::Package;
+use crate::shell::cmd::exec;
+use crate::shell::cmd::pkgexec;
+use crate::utils::fail::{fail, Fail};
 use std::fs::{create_dir, remove_dir_all};
 use std::path::Path;
-use crate::fetch::download::normalize_tarball;
-use crate::utils::fail::{fail, Fail};
-use anyhow::Result;
 
 /// ### Description
 /// Checks the hashes for package sources, dying if they don't match known ones

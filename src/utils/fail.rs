@@ -3,9 +3,9 @@
 
 // TODO: consider adding an erm method that discards an error and sends a message
 
-use std::fmt;
 use crate::comms::log::erm;
 use crate::globals::config::CONFIG;
+use std::fmt;
 use std::panic::Location;
 
 #[allow(dead_code)]

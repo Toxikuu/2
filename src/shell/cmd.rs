@@ -2,13 +2,13 @@
 //
 // defines command functions
 
+use anyhow::{anyhow, Result, Context};
+use crate::comms::log::{erm, cpr};
+use crate::utils::fail::Fail;
+use log::{debug, error};
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
-use crate::utils::fail::Fail;
 use std::thread;
-use crate::comms::log::{erm, cpr};
-use log::{debug, error};
-use anyhow::{anyhow, Result, Context};
 
 pub fn exec(command: &str) -> Result<()> {
     // initialize the bash environment

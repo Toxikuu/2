@@ -2,12 +2,12 @@
 //
 // some functions for dealing with package repos
 
+use crate::comms::log::{erm, pr, msg};
 use crate::shell::cmd::exec;
 use crate::utils::fail::Fail;
-use crate::comms::log::{erm, pr, msg};
-use std::fs::{read_dir, read_to_string};
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::fs::{read_dir, read_to_string};
 use std::rc::Rc;
 
 /// # Description

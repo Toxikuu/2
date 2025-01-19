@@ -2,15 +2,15 @@
 //
 // defines the package type
 
-pub mod endpoints;
 pub mod ambiguity;
-pub mod traits;
+pub mod endpoints;
 pub mod parse;
-pub mod sets;
 pub mod repos;
+pub mod sets;
+pub mod traits;
 
-use std::rc::Rc;
 use serde::Deserialize;
+use std::rc::Rc;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Package {

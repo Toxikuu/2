@@ -1,8 +1,8 @@
 // src/globals/config.rs
 //! Defines 2's config
 
-use lazy_static::lazy_static;
 use anyhow::Result;
+use lazy_static::lazy_static;
 use serde::Deserialize;
 use std::fs;
 use std::sync::Arc;

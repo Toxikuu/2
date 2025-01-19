@@ -1,15 +1,15 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
-use crate::globals::config::CONFIG;
 use crate::comms::log::{erm, msg, cpr};
+use crate::globals::config::CONFIG;
 use crate::globals::flags::FLAGS;
 use crate::package::Package;
-use crate::shell::cmd::exec;
 use crate::remove::logic::remove_dead_files_after_update;
-use super::script;
-use std::path::Path;
+use crate::shell::cmd::exec;
 use crate::utils::fail::Fail;
+use std::path::Path;
+use super::script;
 
 // TODO: add similar return enums in the future for all pm logic operations
 // pub enum InstallTristate {

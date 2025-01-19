@@ -2,6 +2,11 @@
 #![feature(str_as_str)]
 // src/main.rs
 
+#![deny(
+    clippy::perf,
+    clippy::todo,
+    clippy::complexity,
+)]
 #![warn(
     clippy::all,
     clippy::pedantic,
@@ -9,14 +14,10 @@
     clippy::unwrap_used,
     // clippy::cargo,
 )]
-#![deny(
-    clippy::perf,
-    clippy::todo,
-    clippy::complexity,
-)]
 
 mod build;
 mod cli;
+mod comms;
 mod fetch;
 mod globals;
 mod package;
@@ -24,7 +25,6 @@ mod pm;
 mod remove;
 mod shell;
 mod utils;
-mod comms;
 
 use cli::args::Args;
 use cli::version as v;

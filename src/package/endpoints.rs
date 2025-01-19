@@ -1,11 +1,11 @@
 // src/package/endpoints.rs
 //! Defines endpoints for the package struct
 
-use super::Package;
-use std::fs;
-use std::path::Path;
 use crate::comms::log::vpr;
 use crate::utils::fail::{fail, Fail};
+use std::fs;
+use std::path::Path;
+use super::Package;
 
 impl Package {
     pub fn new(repo: &str, name: &str) -> Self {

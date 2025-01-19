@@ -2,11 +2,11 @@
 // 
 // defines flags
 
+use crate::cli::args::Args;
+use crate::utils::fail::Fail;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use super::config::CONFIG;
-use crate::cli::args::Args;
-use crate::utils::fail::Fail;
 
 #[derive(Debug)]
 pub struct Flags {

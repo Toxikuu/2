@@ -2,15 +2,15 @@
 //
 // defines endpoints for PM
 
-use crate::globals::flags::FLAGS;
-use crate::comms::log::{msg, pr};
-use super::PM;
 use crate::build::{logic as bl, script};
+use crate::comms::log::{msg, pr};
 use crate::fetch::download::download;
-use crate::remove::logic as rl;
-use crate::utils::time::Stopwatch;
-use crate::utils::fail::Fail;
+use crate::globals::flags::FLAGS;
 use crate::package::{Package, parse::expand_set};
+use crate::remove::logic as rl;
+use crate::utils::fail::Fail;
+use crate::utils::time::Stopwatch;
+use super::PM;
 
 impl PM {
     pub fn install(&self) {

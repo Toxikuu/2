@@ -3,15 +3,15 @@
 // reads the package manifest
 
 use crate::comms::log::vpr;
-use walkdir::{DirEntry, WalkDir};
-use std::path::{Path, PathBuf};
+use crate::package::Package;
+use crate::utils::fail::Fail;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use crate::package::Package;
-use std::result::Result;
-use crate::utils::fail::Fail;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::result::Result;
+use walkdir::{DirEntry, WalkDir};
 
 fn is_in_wrong_hidden(entry: &DirEntry) -> bool {
     entry.path()

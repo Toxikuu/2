@@ -2,8 +2,8 @@
 //! Implements --version
 
 const NAME: &str = env!("CARGO_PKG_NAME");
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 const REPO: &str = env!("CARGO_PKG_REPOSITORY");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn display() {
 println!(

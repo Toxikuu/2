@@ -1,11 +1,11 @@
 // src/package/sets.rs
 //! Adds support for sets
 
-use std::fs::{read_dir, File};
-use std::io::{BufRead, BufReader};
+use anyhow::{bail, Context, Result};
 use crate::comms::log::{erm, pr};
 use crate::utils::fail::Fail;
-use anyhow::{bail, Context, Result};
+use std::fs::{read_dir, File};
+use std::io::{BufRead, BufReader};
 use std::rc::Rc;
 
 /// # Description
