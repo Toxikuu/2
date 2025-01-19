@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # e-core (environment core) the core environment exec() sources
 
-set -e # DONT REMOVE THIS
+set -e # Removing this will make 2 unable to detect build failures, so don't unless you know what you're doing
 
 source /usr/share/2/bin/f-core || exit 211
 
@@ -10,5 +10,7 @@ export CXXFLAGS="${CFLAGS}"
 export MAKEFLAGS="-j$(nproc)"
 export FFLAGS="-O2"
 export LDFLAGS="-Wl,--as-needed"
+export PATH="/usr/share/2/bin:/usr/bin:/usr/sbin" # source f-path and use those functions if more paths are needed
 
-export PATH="/usr/share/2/bin:/usr/bin:/usr/sbin" # import f-path and use those functions if more paths are needed
+export TZ="${TZ:-America/New_York}"
+# TODO: Move system configuration variables to /etc/2/sysconf.toml
