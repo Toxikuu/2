@@ -4,3 +4,4 @@
 source /usr/share/2/bin/f-path
 
 pathprepend /opt/cargo/bin
+rustup default nightly
