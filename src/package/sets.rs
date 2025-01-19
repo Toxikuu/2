@@ -1,6 +1,5 @@
 // src/package/sets.rs
-//
-// adds support for sets
+//! Adds support for sets
 
 use std::fs::{read_dir, File};
 use std::io::{BufRead, BufReader};
@@ -9,12 +8,17 @@ use crate::utils::fail::Fail;
 use anyhow::{bail, Context, Result};
 use std::rc::Rc;
 
+/// # Description
+/// Returns true if a given string is a set
 fn is(package: &str) -> bool {
     package.contains('@')
 }
 
-// unravels the special set '@all'
-// unravels into all packages in that repo
+/// # Description
+/// Unravels the special set '@all', which contains every package in a given repo
+/// Output is in the form 'repo/package'
+///
+/// @all has an alias, @@
 fn all(repo: &str) -> Result<Rc<[String]>> {
     let dir = format!("/usr/ports/{repo}/");
     let entries = read_dir(dir).context("Nonexistent repo")?;
@@ -40,18 +44,20 @@ fn all(repo: &str) -> Result<Rc<[String]>> {
     Ok(packages)
 }
 
-fn split_repo(str: &str) -> (String, String) {
-    let (repo, set) = str.split_once('/').ufail("I fucked up with split_repo()");
-    (repo.to_string(), set.to_string())
-}
-
+/// # Description
+/// Given a set, returns all member packages
+/// Sets are defined in ``/usr/ports/<repo>/.sets/<@set>``
 pub fn unravel(set: &str) -> anyhow::Result<Rc<[String]>> {
     if !is(set) { bail!("Not a set") }
 
-    let (repo, set) = split_repo(set);
+    if matches!(set.as_str(), "@!" | "@every") {
+        return Ok(every())
+    }
 
-    if set == "@all" {
-        return all(&repo);
+    let (repo, set) = set.split_once('/').ufail("No '/' in set");
+
+    if matches!(set.as_str(), "@@" | "@all") {
+        return all(repo)
     }
 
     let file_path = format!("/usr/ports/{repo}/.sets/{set}");
@@ -71,7 +77,8 @@ pub fn unravel(set: &str) -> anyhow::Result<Rc<[String]>> {
     Ok(lines)
 }
 
-// lists available sets for a repo
+/// # Description
+/// Lists available sets for a repo
 pub fn list(repo: &str) {
     let dir = format!("/usr/ports/{repo}/.sets");
     let Ok(entries) = read_dir(dir) else {
@@ -84,4 +91,20 @@ pub fn list(repo: &str) {
     }
 
     available.iter().for_each(|s| pr!("{}", s));
+}
+
+/// # Description
+/// Unravels the special set '@every', which contains every package in every repo
+///
+/// @every has an alias, @!
+pub fn every() -> Rc<[String]> {
+    let repos = super::repos::find_all();
+    let mut every = Vec::new();
+
+    repos.iter().for_each(|r| {
+        let mut packages = all(r).unwrap_or_default().to_vec();
+        every.append(&mut packages);
+    });
+
+    every.into()
 }
