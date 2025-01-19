@@ -2,6 +2,13 @@
 
 TODO
 
+    Add a package log
+
+    Add --provides (-P) to see what package provides a certain file via searching manifests
+
+    Use Arc instead of Vec
+        Maybe branch for this
+  
     Make -l list all packages for all repos
   
     Figure out how to make documentation not show in --help as it currently does
@@ -9,6 +16,8 @@ TODO
     Add log4rs or tracing integration (ideally only log to a file)
 
 WIP
+
+    Use anyhow
 
     Add more documentation
 
@@ -76,6 +85,8 @@ IDEAS
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
 
     Rayon everywhere
+
+    Look into using --dereference with tar
 
 ROADMAP
 
