@@ -105,8 +105,8 @@ pub fn build(package: &Package) {
     ORIG=$(du -sh D | awk '{{print $1}}')
     TB="$PORT/.dist/{package}.tar.zst"
 
-    tar cpf D.tar D
-    zstd --rm -f -T0 -19 -o "$TB" D.tar >/dev/null 2>&1
+    echo -e "Packaging..."
+    tar cf - D | zstd --rm -f -T0 -19 -o "$TB" >/dev/null 2>&1
 
     FINL=$(du -sh "$TB" | awk '{{print $1}}')
     echo -e "\x1b[0;37;1m[ $ORIG ↘ ↘  $FINL ]\x1b[0m" >&2
