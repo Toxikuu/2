@@ -51,7 +51,7 @@ confirm 'Replace repo priority?' && ln -sfv "$PWD"/repo_priority.txt /etc/2/
 if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
     if ! command -v rustup > /dev/null 2>&1; then
         echo "You don't have rustup; using precompiled binary instead" >&2
-        : # wget 'RELEASE URL'
+        : # TODO: Add wget release url
     fi
 
     rustup toolchain install nightly || true
