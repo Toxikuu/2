@@ -17,7 +17,7 @@ pub struct Package {
     pub name: Rc<str>,
     pub repo: Rc<str>,
     #[serde(default)]
-    pub relpath: Rc<str>,
+    pub relpath: String,
     pub version: Rc<str>,
     pub data: PackageData,
 }
