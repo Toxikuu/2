@@ -23,7 +23,6 @@ impl PM {
     pub fn install(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
-            // TODO: Ideally use lifetimes for &str for attach
             logger::get().attach(&p.relpath);
 
             let mut stopwatch = Stopwatch::new();
@@ -32,8 +31,7 @@ impl PM {
             download(p, false);
             if bl::install(p) {
                 stopwatch.stop();
-                // TODO: Include msg as part of log::info
-                log::info!("Installed '{}' in {}", p, stopwatch.display());
+                log::info!("Installed '{}'", p);
                 msg!("Installed '{}' in {}", p, stopwatch.display());
             }
         });
@@ -66,7 +64,7 @@ impl PM {
 
             if rl::remove(p) {
                 stopwatch.stop();
-                log::info!("Removed '{}' in {}", p, stopwatch.display());
+                log::info!("Removed '{}'", p);
                 msg!("Removed '{}' in {}", p, stopwatch.display());
             }
         });
@@ -83,7 +81,7 @@ impl PM {
             download(p, false);
             if bl::build(p) {
                 stopwatch.stop();
-                log::info!("Built '{}' in {}", p, stopwatch.display());
+                log::info!("Built '{}'", p);
                 msg!("Built '{}' in {}", p, stopwatch.display());
             }
         });
@@ -98,10 +96,11 @@ impl PM {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
+            // TODO: add tracking for whether anything was actually downloaded
             download(p, FLAGS.lock().ufail("Failed to lock flags").force);
 
             stopwatch.stop();
-            log::info!("Downloaded '{}' in {}", p, stopwatch.display());
+            log::info!("Downloaded sources for '{}'", p);
         });
     }
 
@@ -114,13 +113,9 @@ impl PM {
         let mut total_count = 0;
         self.packages.iter().for_each(|p| {
             logger::get().attach(&p.relpath);
-            let mut sw = Stopwatch::new();
-            sw.start();
 
             let count = rl::prune(p);
-            
-            sw.stop();
-            log::debug!("Pruned {} files for {} in {}", count, p, sw.display());
+            log::info!("Pruned {}", p);
 
             total_count += count;
         });
@@ -128,7 +123,6 @@ impl PM {
         stopwatch.stop();
 
         logger::get().detach();
-        log::info!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
         msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
 
@@ -138,19 +132,13 @@ impl PM {
         stopwatch.start();
 
         self.packages.iter().for_each(|p| {
-            let mut sw = Stopwatch::new();
-            sw.start();
-
             script::clean(p);
-
-            sw.stop();
-            log::debug!("Cleaned {} in {}", p, sw.display());
+            log::debug!("Cleaned build for {}", p);
         });
 
         stopwatch.stop();
 
         logger::get().detach();
-        log::info!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
         msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
@@ -176,7 +164,8 @@ impl PM {
         log::info!("Listed {} packages", pkgs.len());
     }
 
-    // this intentionally does not log
+    // this intentionally does not log, though I suppose it could
+    // TODO: look into the above
     pub fn logs(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {

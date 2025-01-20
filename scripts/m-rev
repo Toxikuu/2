@@ -58,5 +58,6 @@ git status -s
 git add .
 git commit -m "$NAME: revisions"
 # TODO: consider reading a line at the end of BUILD for custom commit messages
+# Alternatively, consider adding m-cc for custom-commit
 
 popd > /dev/null

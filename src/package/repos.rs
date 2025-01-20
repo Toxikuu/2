@@ -84,6 +84,11 @@ pub fn add(repo_url: &str) {
         .fail("Invalid repo name");
 
     // TODO: Consider normalizing git urls
+    // Normalization would involve assuming a prefix of https:// if none are provided, as well as
+    // assuming the domain of github.com if not provided, allowing users to simply do something
+    // like `2 -a toxikuu/2-main`, which would normalize to "https://github.com/toxikuu/2-main.git"
+    //
+    // This should be done in a separate function
     let command = format!("git clone {repo_url} /usr/ports/{repo_name}");
 
     exec(&command).fail("Failed to add repo");

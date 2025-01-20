@@ -25,7 +25,6 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
             p.push_str("@all");
         }
 
-        // TODO: test 'main/@lfs'
         if p.contains('@') {
             let mut set = expand_set(&p).to_vec();
             parsed.append(&mut set);

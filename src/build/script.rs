@@ -118,7 +118,7 @@ pub fn build(package: &Package) {
 /// ### Description
 /// Evaluates pre-install instructions
 ///
-/// TODO: Finish writing this
+/// These instructions are defined in BUILD under the function ``2a()``.
 pub fn prep(package: &Package) {
     let command =
     r#"
