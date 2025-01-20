@@ -25,12 +25,13 @@ The same applies for building, though I use this only for debugging:
 Here, I'm forcibly building and installing whois. I can then page through the
 build output in less, easily observing stderr, packaged files, etc.
 
-### History
-If a package has a particularly long history, it can be convenient to page through that as well:
+### Logs & History
+Similarly, you can view logs and history. Basically, just use `less -R` with
+most colored output :)
 
 ```bash
+2 -L whois | less -R
 2 -H whois | less -R
 ```
 
-Here, I can view the history of whois.
 [//]: # TODO: Implement history.
