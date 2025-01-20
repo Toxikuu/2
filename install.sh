@@ -62,7 +62,15 @@ fi
 cat << EOF > /usr/bin/2
 #!/usr/bin/env bash
 
-sudo -H /usr/share/2/target/release/two "\$@"
+if command -v sudo >/dev/null 2>&1; then
+  S=sudo
+elif command -v doas >/dev/null 2>&1; then
+  S=doas
+else
+  S=
+fi
+
+"\$S" LOG_LEVEL="\$LOG_LEVEL" /code/2/target/release/two "\$@"
 EOF
 
 chmod +x /usr/bin/2
