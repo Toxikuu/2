@@ -62,7 +62,6 @@ fn setup(package: &Package) {
 
     XTR="/tmp/2/extraction"
     rm -rf "$XTR"
-    mkdir -pv "$XTR"
 
     if {no_source}; then
         echo "Package has no tarball; skipping extraction" >&2
@@ -73,6 +72,8 @@ fn setup(package: &Package) {
         echo "Extraction explicitly disabled" >&2
         exit 0
     fi
+
+    mkdir -pv "$XTR"
 
     # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
     tar xf "$SRC/{package}.tar."*z* -C $XTR
@@ -96,12 +97,10 @@ pub fn build(package: &Package) {
     let command = format!(
     r#"
     
-    source "$PORT/BUILD"
     cd "$BLD"
-
     2b
-
     cd "$BLD"
+
     ORIG=$(du -sh D | awk '{{print $1}}')
     TB="$PORT/.dist/{package}.tar.zst"
 
@@ -124,11 +123,9 @@ pub fn prep(package: &Package) {
     let command =
     r#"
 
-    source "$PORT/BUILD"
     mkdir -pv "$PORT"/.{data,dist,build}
 
     type -t 2a > /dev/null 2>&1 || exit 0
-    
     2a
 
     "#.to_string();
@@ -145,15 +142,12 @@ pub fn prep(package: &Package) {
 /// post-install actions
 pub fn post(package: &Package) {
     let command =
-    r#"
-
-    source "$PORT/BUILD"
+    r"
 
     type -t 2z > /dev/null 2>&1 || exit 0 # finish if post is undefined
-
     2z
-
-    "#.to_string();
+    
+    ".to_string();
 
     pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in post-install: {}", package, e));
 }
