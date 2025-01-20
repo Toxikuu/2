@@ -1,6 +1,7 @@
+// src/main.rs
+
 #![feature(duration_millis_float)]
 #![feature(str_as_str)]
-// src/main.rs
 
 #![deny(
     clippy::perf,
@@ -28,10 +29,11 @@ mod utils;
 
 use cli::args::Args;
 use cli::version as v;
-use globals::flags;
+use globals::flags::{self, FLAGS};
 use package::{parse, sets, repos};
 use pm::PM;
 use utils::fail::Fail;
+use utils::logger;
 
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
@@ -54,17 +56,29 @@ fn main() {
     if args.prune   { pm.prune  () }
     if args.clean   { pm.clean  () }
     if args.list    { pm.list   () }
+    if args.logs    { pm.logs   () }
     if args.remove  { pm.remove () }
+
+    logger::get().detach();
+    log::info!("Finished all tasks\n\n\t----------------\n");
 }
 
 /// ### Description
 /// Initializes arguments and sets flags
+/// Also initializes the logger
 fn initialize() -> Args {
+    logger::init("/var/log/2/master.log");
+    logger::get();
+
+    log::info!("Process initiated");
+    log::debug!("Command line: {:?}", std::env::args().collect::<Vec<String>>().join(" "));
+    log::debug!("Initialized logger");
+
     let args = Args::init();
     flags::set(&args);
 
-    vpr!("Initialized args: {:#?}", args);
-    vpr!("Initialized flags: {:#?}", FLAGS.lock().ufail("Flag lock failure"));
+    log::debug!("Initialized args: {:#?}", args);
+    log::debug!("Initialized flags: {:#?}", FLAGS.lock().ufail("Failed to lock flags"));
 
     args
 }

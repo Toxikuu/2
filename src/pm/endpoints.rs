@@ -4,97 +4,158 @@
 
 use crate::build::{logic as bl, script};
 use crate::comms::log::{msg, pr};
+use crate::erm;
 use crate::fetch::download::download;
 use crate::globals::flags::FLAGS;
 use crate::package::{Package, parse::expand_set};
 use crate::remove::logic as rl;
 use crate::utils::fail::Fail;
+use crate::utils::logger;
 use crate::utils::time::Stopwatch;
+use std::path::Path;
 use super::PM;
 
 impl PM {
+    fn ready() {
+        logger::get().detach();
+    }
+
     pub fn install(&self) {
+        Self::ready();
         self.packages.iter().for_each(|p| {
+            // TODO: Ideally use lifetimes for &str for attach
+            logger::get().attach(&p.relpath);
+
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
             download(p, false);
             if bl::install(p) {
+                stopwatch.stop();
+                // TODO: Include msg as part of log::info
+                log::info!("Installed '{}' in {}", p, stopwatch.display());
                 msg!("Installed '{}' in {}", p, stopwatch.display());
             }
         });
     }
 
     pub fn update(&self) {
+        Self::ready();
         self.packages.iter().for_each(|p| {
+            logger::get().attach(&p.relpath);
+
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
             download(p, false);
             if bl::update(p) {
                 stopwatch.stop();
+                log::info!("Updated to '{}' in {}", p, stopwatch.display());
                 msg!("Updated to '{}' in {}", p, stopwatch.display());
             }
         });
     }
 
     pub fn remove(&self) {
+        Self::ready();
         self.packages.iter().for_each(|p| {
+            logger::get().attach(&p.relpath);
+
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
             if rl::remove(p) {
                 stopwatch.stop();
+                log::info!("Removed '{}' in {}", p, stopwatch.display());
                 msg!("Removed '{}' in {}", p, stopwatch.display());
             }
         });
     }
 
     pub fn build(&self) {
+        Self::ready();
         self.packages.iter().for_each(|p| {
+            logger::get().attach(&p.relpath);
+
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
             download(p, false);
             if bl::build(p) {
                 stopwatch.stop();
+                log::info!("Built '{}' in {}", p, stopwatch.display());
                 msg!("Built '{}' in {}", p, stopwatch.display());
             }
         });
     }
 
+    // TODO: Parallelize this
     pub fn get(&self) {
+        Self::ready();
         self.packages.iter().for_each(|p| {
+            logger::get().attach(&p.relpath);
+
+            let mut stopwatch = Stopwatch::new();
+            stopwatch.start();
+
             download(p, FLAGS.lock().ufail("Failed to lock flags").force);
+
+            stopwatch.stop();
+            log::info!("Downloaded '{}' in {}", p, stopwatch.display());
         });
     }
 
+    // TODO: Parallelize this
     pub fn prune(&self) {
+        Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
         let mut total_count = 0;
         self.packages.iter().for_each(|p| {
-            total_count += rl::prune(p);
+            logger::get().attach(&p.relpath);
+            let mut sw = Stopwatch::new();
+            sw.start();
+
+            let count = rl::prune(p);
+            
+            sw.stop();
+            log::debug!("Pruned {} files for {} in {}", count, p, sw.display());
+
+            total_count += count;
         });
 
         stopwatch.stop();
+
+        logger::get().detach();
+        log::info!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
         msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
 
     pub fn clean(&self) {
+        Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
         self.packages.iter().for_each(|p| {
+            let mut sw = Stopwatch::new();
+            sw.start();
+
             script::clean(p);
+
+            sw.stop();
+            log::debug!("Cleaned {} in {}", p, sw.display());
         });
 
         stopwatch.stop();
+
+        logger::get().detach();
+        log::info!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
         msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
     pub fn list(&self) {
+        Self::ready();
         msg!("Packages:");
 
         let mut pkgs = self.packages.to_vec();
@@ -111,6 +172,21 @@ impl PM {
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", status);
         };
+
+        log::info!("Listed {} packages", pkgs.len());
+    }
+
+    // this intentionally does not log
+    pub fn logs(&self) {
+        Self::ready();
+        self.packages.iter().for_each(|p| {
+            let log_file_str = format!("/usr/ports/{}/.logs/build.log", p.relpath);
+            let log_file = Path::new(&log_file_str);
+            
+            if logger::display(log_file).is_err() {
+                erm!("No logs exist for '{}'", p);
+            }
+        });
     }
 }
 

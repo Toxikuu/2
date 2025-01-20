@@ -185,10 +185,31 @@ pub fn prune(package: &Package) -> usize {
         }
     }
 
-    prune_manifests(package); // TODO: make it configurable
+    if CONFIG.general.prune_manifests { prune_manifests(package); }
+    if CONFIG.general.prune_logs { prune_logs(package); }
     // IDEA: Maybe consider using hashes for the manifests (might be beyond scope though)
 
     count
+}
+
+fn prune_logs(package: &Package) {
+    let log_dir_str = format!("/usr/ports/{}/.logs", package.relpath);
+    let log_dir = Path::new(&log_dir_str);
+
+    if !log_dir.exists() { return }
+    for entry in read_dir(log_dir).fail("Failed to read log directory") {
+        let entry = entry.ufail("Invalid directory entry");
+        let path = entry.path();
+
+        let is_log = path.file_name().ufail("File in .data ends in '..' tf??").to_string_lossy().ends_with(".log");
+
+        if is_log {
+            let msg = format!("Pruning log '{path:?}'");
+            vpr!("{}", msg);
+            log::debug!("{}", msg);
+            remove_file(path).fail("Failed to prune log");
+        }
+    }
 }
 
 fn prune_manifests(package: &Package) {
@@ -203,7 +224,9 @@ fn prune_manifests(package: &Package) {
         let is_protected = path.to_string_lossy() == protected_manifest;
 
         if is_manifest && !is_protected {
-            vpr!("Pruning manifest '{:?}'", path);
+            let msg = format!("Pruning manifest '{path:?}'");
+            vpr!("{}", msg);
+            log::debug!("{}", msg);
             remove_file(path).fail("Failed to prune manifest");
         }
     }

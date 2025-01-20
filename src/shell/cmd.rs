@@ -4,8 +4,8 @@
 
 use anyhow::{anyhow, Result, Context};
 use crate::comms::log::{erm, cpr};
+use crate::globals::config::CONFIG;
 use crate::utils::fail::Fail;
-use log::{debug, error};
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 use std::thread;
@@ -36,7 +36,7 @@ pub fn exec(command: &str) -> Result<()> {
             match line {
                 Ok(line) => {
                     cpr!("{}", line);
-                    debug!("{}", line);
+                    log::trace!("{}", line);
                 }
                 Err(e) => erm!("Error reading stdout: {}", e),
             }
@@ -48,8 +48,9 @@ pub fn exec(command: &str) -> Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    cpr!("\x1b[{}{}", CONFIG.message.stderr, line);
-                    debug!("[ERR] {}", line);
+                    let msg = format!("\x1b[{}{line}", CONFIG.message.stderr);
+                    cpr!("{}", msg);
+                    log::trace!("{}", msg);
                 }
                 Err(e) => erm!("Error reading stderr: {}", e),
             }
@@ -58,8 +59,8 @@ pub fn exec(command: &str) -> Result<()> {
 
     let status = child.wait()?;
     if !status.success() {
-        error!("Command `{}` failed!", command);
-        return Err(anyhow!("Command `{}` failed", command));
+        log::error!("Command failed");
+        return Err(anyhow!("Command failed"));
     }
 
     stdout_thread.join().ufail("Failed to join the stdout thread");
@@ -79,6 +80,8 @@ macro_rules! pkgexec {
         export SRC="$PORT/.sources"
         export BLD="$PORT/.build"
         export D="$BLD/D"
+
+        source "$PORT/BUILD" || exit 211
 
         {}
         "#,

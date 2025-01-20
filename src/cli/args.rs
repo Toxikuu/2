@@ -148,6 +148,14 @@ pub struct Args {
     #[arg(short = 'c', long)]
     pub clean: bool,
 
+    /// ### Type
+    /// Extra
+    ///
+    /// ### Description
+    /// Displays build logs for packages
+    #[arg(short = 'L', long)]
+    pub logs: bool,
+
     // Type: Special
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2

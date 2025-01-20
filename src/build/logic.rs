@@ -82,11 +82,13 @@ fn dist_install(package: &Package) {
 pub fn update(package: &Package) -> bool {
     let force = FLAGS.lock().ufail("Failed to lock flags").force;
     if !package.data.is_installed && !force {
+        log::warn!("Not updating to '{}' as an older version is not installed and force wasn't passed", package);
         erm!("Missing: '{}'", package);
         return false
     }
 
     if package.version == package.data.installed_version && !force {
+        log::warn!("Not updating to '{}' as it's already at its newest version", package);
         erm!("Current: '{}'", package);
         return false
     }
