@@ -1,4 +1,4 @@
 /target
 
-# for now
+# TODO: Finish release.sh and unignore it
 release.sh
