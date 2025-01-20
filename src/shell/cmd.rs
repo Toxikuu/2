@@ -2,7 +2,7 @@
 //
 // defines command functions
 
-use anyhow::{anyhow, Result, Context};
+use anyhow::{Result, Context, bail};
 use crate::comms::log::{erm, cpr};
 use crate::globals::config::CONFIG;
 use crate::utils::fail::Fail;
@@ -59,8 +59,8 @@ pub fn exec(command: &str) -> Result<()> {
 
     let status = child.wait()?;
     if !status.success() {
-        log::error!("Command failed");
-        return Err(anyhow!("Command failed"));
+        log::debug!("Command failed");
+        bail!("Command failed");
     }
 
     stdout_thread.join().ufail("Failed to join the stdout thread");
