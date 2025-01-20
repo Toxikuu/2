@@ -27,3 +27,6 @@ clean_after_build = false
 show_bug_report_message = true
 check_hashes = false
 auto_ambiguity = true
+log_level = "trace" # one of: trace, debug, info, warn, error
+prune_logs = true
+prune_manifests = true
