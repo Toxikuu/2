@@ -3,7 +3,7 @@
 
 // TODO: consider adding an erm method that discards an error and sends a message
 
-use crate::comms::log::erm;
+use crate::{comms::log::erm, utils::logger};
 use crate::globals::config::CONFIG;
 use std::fmt;
 use std::panic::Location;
@@ -70,8 +70,14 @@ pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailT
         erm!("{}\n", link);
     }
 
-    erm!("In {} on line {}, column {}", location.file(), location.line(), location.column());
-    die!("[{}] {}", fail_type, msg);
+    let msg1 = format!("In {} on line {}, column {}", location.file(), location.line(), location.column());
+    let msg2 = format!("[{fail_type}] {msg}");
+    logger::get().detach();
+    log::debug!("{}", msg1);
+    log::debug!("{}", msg2);
+    log::error!("Process died\n\n\t----------------\n");
+    erm!("{}", msg1);
+    die!("{}", msg2);
 }
 
 pub trait Fail<T, E> {
