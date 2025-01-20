@@ -48,7 +48,7 @@ impl PM {
             download(p, false);
             if bl::update(p) {
                 stopwatch.stop();
-                log::info!("Updated to '{}' in {}", p, stopwatch.display());
+                log::info!("Updated to '{}'", p);
                 msg!("Updated to '{}' in {}", p, stopwatch.display());
             }
         });
@@ -169,7 +169,7 @@ impl PM {
     pub fn logs(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
-            let log_file_str = format!("/usr/ports/{}/.logs/build.log", p.relpath);
+            let log_file_str = format!("/usr/ports/{}/.logs/pkg.log", p.relpath);
             let log_file = Path::new(&log_file_str);
             
             if logger::display(log_file).is_err() {
