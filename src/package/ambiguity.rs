@@ -104,7 +104,10 @@ fn is_special(set: &str) -> bool {
 // TODO: Include special sets for outdated packages, installed packages, available packages, etc
 // TODO: Figure out a way to have a global repo so i can go global/@installed to view all the
 // installed packages from across all repos, for instance
-fn handle_special_sets(set: &str) -> Vec<String> {
+//
+/// # Description
+/// Finds the matches for special sets
+fn handle_special_set_matches(set: &str) -> Vec<String> {
     match set {
         "@@" | "@all" => {
             super::repos::find_all().iter().map(|s| format!("{s}/@all")).collect()
@@ -118,7 +121,7 @@ fn handle_special_sets(set: &str) -> Vec<String> {
 /// Prompts the user if multiple repositories contain the set
 pub fn resolve_set_ambiguity(set: &str) -> String {
     let mut matches = if is_special(set) {
-        handle_special_sets(set)
+        handle_special_set_matches(set)
     } else {
         locate_set(set)
     };

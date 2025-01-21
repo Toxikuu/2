@@ -1,6 +1,5 @@
-// code/pm/endpoints.rs
-//
-// defines endpoints for PM
+// src/pm/endpoints.rs
+//! Defines endpoints for PM
 
 use crate::build::{logic as bl, script};
 use crate::comms::log::{msg, pr};
@@ -16,10 +15,16 @@ use std::path::Path;
 use super::PM;
 
 impl PM {
+    /// # Description
+    /// Private function to reset the PM struct to a ready state between actions
+    ///
+    /// Currently, this just detaches the logger from a specific package
     fn ready() {
         logger::get().detach();
     }
 
+    /// # Description
+    /// Installs all packages in the PM struct
     pub fn install(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -37,6 +42,8 @@ impl PM {
         });
     }
 
+    /// # Description
+    /// Updates all packages in the PM struct
     pub fn update(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -54,6 +61,8 @@ impl PM {
         });
     }
 
+    /// # Description
+    /// Removes all packages in the PM struct
     pub fn remove(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -70,6 +79,8 @@ impl PM {
         });
     }
 
+    /// # Description
+    /// Builds all packages in the PM struct
     pub fn build(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -88,6 +99,8 @@ impl PM {
     }
 
     // TODO: Parallelize this
+    /// # Description
+    /// Gets (downloads sources for) all packages in the PM struct
     pub fn get(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -105,6 +118,8 @@ impl PM {
     }
 
     // TODO: Parallelize this
+    /// # Description
+    /// Prunes files for all packages in the PM struct
     pub fn prune(&self) {
         Self::ready();
         let mut stopwatch = Stopwatch::new();
@@ -126,6 +141,8 @@ impl PM {
         msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
 
+    /// # Description
+    /// Cleans the build directory for all packages in the PM struct
     pub fn clean(&self) {
         Self::ready();
         let mut stopwatch = Stopwatch::new();
@@ -142,6 +159,10 @@ impl PM {
         msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
+    /// # Description
+    /// Lists out all the packages in the PM struct
+    ///
+    /// If there are no packages, lists all of them
     pub fn list(&self) {
         Self::ready();
         msg!("Packages:");
@@ -166,6 +187,9 @@ impl PM {
 
     // this intentionally does not log, though I suppose it could
     // TODO: look into the above
+    //
+    /// # Description
+    /// Displays the logs for a package
     pub fn logs(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -179,6 +203,8 @@ impl PM {
     }
 }
 
+/// # Description
+/// Displays the logs for a package
 fn format_package_status(package: &Package) -> String {
     let iv = &package.data.installed_version;
 
@@ -187,7 +213,7 @@ fn format_package_status(package: &Package) -> String {
     }
 
     if *iv != package.version {
-        return "\x1b[1;31mOutdated".to_string()
+        return format!("\x1b[1;31mOutdated ({iv})")
     }
 
     format!("\x1b[1;36mInstalled {iv}")

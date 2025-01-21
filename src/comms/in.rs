@@ -1,6 +1,10 @@
 // src/comms/in.rs
 //! Utilities for taking user input
 
+/// # Description
+/// Prompts the user to make a selection. Takes user input, trims it, and converts it to a string.
+///
+/// See ``src/package/ambiguity.rs`` for example usage
 #[macro_export]
 macro_rules! select {
     ($($arg:tt)*) => {{

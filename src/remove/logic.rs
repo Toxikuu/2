@@ -1,6 +1,5 @@
 // src/remove/logic.rs
-//
-// logic for package removal
+//! Logic for package removal
 
 use anyhow::{bail, Result};
 use crate::comms::log::{erm, pr, vpr};
@@ -13,6 +12,11 @@ use std::io::ErrorKind as IOE;
 use std::path::{Path, PathBuf};
 use super::manifest::{find_dead_files, find_unique_paths};
 
+// TODO: Consider using glob patterns for the below, allowing to protect against removal of boot/*
+// for instance
+//
+/// # Description
+/// Paths that are protected against removal no matter what
 const KEPT: [&str; 23] = [
     "/",
     "/bin",
@@ -39,6 +43,10 @@ const KEPT: [&str; 23] = [
     "/var",
 ];
 
+/// # Description
+/// Removes a directory. Ignores attempts to remove missing or populated directories.
+///
+/// Propagates any other io error
 fn rmdir(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_dir(path) {
         match e.kind() {
@@ -50,6 +58,10 @@ fn rmdir(path: &PathBuf) -> Result<()> {
     Ok(())
 }
 
+/// # Description
+/// Removes a file. Ignores attempts to remove missing files.
+///
+/// Propagates any other io error
 fn rmf(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_file(path) {
         match e.kind() {
@@ -60,6 +72,18 @@ fn rmf(path: &PathBuf) -> Result<()> {
     Ok(())
 }
 
+/// # Description
+/// Removes a package
+///
+/// Removal entails reading a package's manifest and removing unique files. Some paths are
+/// protected against removal, even if they're unique.
+///
+/// Returns false if the package isn't installed
+/// Affected by quiet (I think; TODO: Confirm this)
+///
+/// **Fail Conditions:**
+/// - the manifest doesn't exist
+/// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
 pub fn remove(package: &Package) -> bool {
     if !package.data.is_installed && !FLAGS.lock().ufail("Failed to lock flags").force { 
         erm!("Not installed: '{}'", package);
@@ -107,18 +131,22 @@ pub fn remove(package: &Package) -> bool {
     true
 }
 
+/// # Description
+/// Removes and recreates ``$PORT/.sources``
 fn remove_sources(package: &Package) {
     let srcdir = format!("/usr/ports/{}/{}/.sources", package.repo, package.name);
     remove_dir_all(&srcdir).ufail("Failed to remove .sources");
     create_dir(&srcdir).ufail("Failed to recreate .sources");
 }
 
+/// # Description
+/// Removes and recreates ``$PORT/.dist`` and ``$PORT/.data``
 fn remove_dots(package: &Package) {
     let portdir_str = format!("/usr/ports/{}/{}", package.repo, package.name);
     let portdir = Path::new(&portdir_str);
 
     // lazy rm -rf .d{ata,ist}/{,.}*
-    // these should never fail (unless maybe .data doesnt exist)
+    // these should never fail (unless maybe .data doesnt exist [which shouldn't happen anyway])
     remove_dir_all(portdir.join(".data")).ufail("Failed to remove .data");
     create_dir(portdir.join(".data")).ufail("Failed to recreate .data");
 
@@ -126,6 +154,8 @@ fn remove_dots(package: &Package) {
     create_dir(portdir.join(".dist")).ufail("Failed to recreate .dist");
 }
 
+/// # Description
+/// Removes dead files after an update
 pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
 
@@ -156,6 +186,12 @@ pub fn remove_dead_files_after_update(package: &Package) {
     });
 }
 
+/// # Description
+/// Prunes files for a package
+///
+/// Pruning involves removing all files from sources except the current tarball and extra files
+///
+/// Optionally also removes old manifests and deletes logs
 pub fn prune(package: &Package) -> usize {
     let src = format!("/usr/ports/{}/.sources", package.relpath);
 
@@ -192,6 +228,8 @@ pub fn prune(package: &Package) -> usize {
     count
 }
 
+/// # Description
+/// Deletes all logs for a package
 fn prune_logs(package: &Package) {
     let log_dir_str = format!("/usr/ports/{}/.logs", package.relpath);
     let log_dir = Path::new(&log_dir_str);
@@ -212,6 +250,8 @@ fn prune_logs(package: &Package) {
     }
 }
 
+/// # Description
+/// Deletes all manifests except the current one for a package
 fn prune_manifests(package: &Package) {
     let data = format!("/usr/ports/{}/.data", package.relpath);
     

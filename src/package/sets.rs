@@ -61,7 +61,7 @@ pub fn unravel(set: &str) -> anyhow::Result<Rc<[String]>> {
     }
 
     let file_path = format!("/usr/ports/{repo}/.sets/{set}");
-    let file = File::open(file_path).expect("Nonexistent set");
+    let file = File::open(file_path).fail("Nonexistent set");
     let buf = BufReader::new(file);
 
     let lines = buf.lines().collect::<Result<Vec<String>, _>>()?;

@@ -1,15 +1,27 @@
 // src/shell/cmd.rs
-//
-// defines command functions
+//! Defines functions for sending commands through bash
 
 use anyhow::{Result, Context, bail};
-use crate::comms::log::{erm, cpr};
+use crate::comms::log::cpr;
 use crate::globals::config::CONFIG;
 use crate::utils::fail::Fail;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 use std::thread;
 
+/// # Description
+/// Executes a command
+///
+/// Sources /usr/share/2/bin/e-core
+///
+/// Prints each line unless quiet is passed
+///
+/// **Fail conditions:**
+/// - command failed
+/// - bash wasn't found
+/// - failed to source /usr/share/2/bin/e-core
+/// - some sync shenanigans (unlikely)
+/// - failing to read stderr/stdout (unlikely)
 pub fn exec(command: &str) -> Result<()> {
     // initialize the bash environment
     let command = format!(
@@ -33,27 +45,21 @@ pub fn exec(command: &str) -> Result<()> {
     let stdout_thread = thread::spawn(move || {
         let reader = BufReader::new(stdout);
         for line in reader.lines() {
-            match line {
-                Ok(line) => {
-                    cpr!("{}", line);
-                    log::trace!("{}", line);
-                }
-                Err(e) => erm!("Error reading stdout: {}", e),
-            }
+            let line = line.ufail("Failed to read stdout");
+
+            cpr!("{}", line);
+            log::trace!("{}", line);
         }
     });
 
     let stderr_thread = thread::spawn(move || {
         let reader = BufReader::new(stderr);
         for line in reader.lines() {
-            match line {
-                Ok(line) => {
-                    let msg = format!("\x1b[{}{line}", CONFIG.message.stderr);
-                    cpr!("{}", msg);
-                    log::trace!("{}", msg);
-                }
-                Err(e) => erm!("Error reading stderr: {}", e),
-            }
+            let line = line.ufail("Failed to read stderr");
+
+            let msg = format!("\x1b[{}{line}", CONFIG.message.stderr);
+            cpr!("{}", msg);
+            log::trace!("{}", msg);
         }
     });
 
@@ -69,6 +75,10 @@ pub fn exec(command: &str) -> Result<()> {
     Ok(())
 }
 
+/// # Description
+/// Executes a command in the context of a package
+///
+/// This context is just sourcing ``$PORT/BUILD`` and setting environment variables
 #[macro_export]
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{

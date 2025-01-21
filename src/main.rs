@@ -1,4 +1,5 @@
 // src/main.rs
+//! The main file lol
 
 #![feature(duration_millis_float)]
 #![feature(str_as_str)]

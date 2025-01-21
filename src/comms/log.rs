@@ -1,6 +1,11 @@
 // src/comms/log.rs
 //! Some utility functions for communicating with the user
+//! All the macros in this module take formatting from the message config
 
+/// # Description
+/// Sends a message to stdout with the message formatting
+///
+/// Unaffected by the quiet flag
 #[macro_export]
 macro_rules! msg {
     ($($arg:tt)*) => {{
@@ -9,6 +14,10 @@ macro_rules! msg {
     }};
 }
 
+/// # Description
+/// Prints to stdout with the default formatting
+///
+/// Unaffected by the quiet flag
 #[macro_export]
 macro_rules! pr {
     ($($arg:tt)*) => {{
@@ -17,6 +26,10 @@ macro_rules! pr {
     }};
 }
 
+/// # Description
+/// Prints to stdout with the default formatting
+///
+/// Affected by the quiet flag
 #[macro_export]
 macro_rules! cpr {
     ($($arg:tt)*) => {{
@@ -28,6 +41,10 @@ macro_rules! cpr {
     }};
 }
 
+/// # Description
+/// Prints to stdout with the danger formatting
+///
+/// Unaffected by the quiet flag
 #[macro_export]
 macro_rules! erm {
     ($($arg:tt)*) => {{
@@ -36,6 +53,10 @@ macro_rules! erm {
     }};
 }
 
+/// # Description
+/// Prints to stdout with the verbose formatting
+///
+/// Unaffected by the quiet flag, enabled by the verbose flag
 #[macro_export]
 macro_rules! vpr {
     ($($arg:tt)*) => {{

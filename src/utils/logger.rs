@@ -1,4 +1,5 @@
 // src/utils/logger.rs
+//! Logging-related utilities
 
 use anyhow::Result;
 use crate::globals::config::CONFIG;
@@ -19,6 +20,13 @@ use super::fail::Fail;
 static LOGGER: OnceLock<Logger> = OnceLock::new();
 static LOG_INIT: Once = Once::new();
 
+/// # Description
+/// Retrieve the log level
+///
+/// The log level may be specified through the ``LOG_LEVEL`` environment variable or through the
+/// config. If it's unset, it defaults to trace.
+///
+/// Trace is the recommended log level. I really should have used custom ones but whatever.
 fn get_log_level() -> log::LevelFilter {
     let log_level = std::env::var("LOG_LEVEL");
     let log_level = log_level.as_deref().unwrap_or(&CONFIG.general.log_level);
@@ -33,6 +41,12 @@ fn get_log_level() -> log::LevelFilter {
     })
 }
 
+/// # Description
+/// The logger struct
+///
+/// Takes the master log file path (/var/log/2/master.log)
+/// Optionally takes a relative path (for attaching to per-package logs)
+/// Optionally takes a handle (for refreshing the config)
 #[derive(Debug)]
 pub struct Logger {
     relpath: Mutex<Option<String>>,
@@ -49,16 +63,27 @@ impl Logger {
         }
     }
 
+    /// # Description
+    /// Attaches the logger to a specific package
+    ///
+    /// This writes logs to that package's log file, located at ``$PORT/.logs/pkg.log`` and to the
+    /// master log
     pub fn attach(&self, relpath: &str) {
         *self.relpath.lock().ufail("Failed to lock relpath mutex") = Some(relpath.to_string());
         self.refresh().ufail("Failed to refresh logger");
     }
 
+    /// # Description
+    /// Detaches the logger from any package
+    /// 
+    /// Logs will only write to the master log when detached
     pub fn detach(&self) {
         *self.relpath.lock().ufail("Failed to lock relpath mutex") = None;
         self.refresh().ufail("Failed to refresh logger");
     }
 
+    /// # Description
+    /// Initializes the logger
     pub fn init(&self) {
         LOG_INIT.call_once(|| {
             let config = self.build_config().ufail("Failed to build initial config");
@@ -67,6 +92,8 @@ impl Logger {
         });
     }
 
+    /// # Description
+    /// Builds the logger config
     fn build_config(&self) -> Result<Config> {
         let log_dir = Path::new("/var/log/2");
         if !log_dir.exists() {
@@ -108,6 +135,8 @@ impl Logger {
         Ok(config_builder.build(root_builder.build(get_log_level()))?)
     }
 
+    /// # Description
+    /// Refreshes the logger config
     fn refresh(&self) -> Result<()> {
         let config = self.build_config()?;
         if let Some(handle) = self.handle.lock().ufail("Failed to lock handle mutex").as_ref() {
@@ -117,16 +146,29 @@ impl Logger {
     }
 }
 
+/// # Description
+/// Retrieve the logger object
+///
+/// ```rust
+/// // Example usage
+/// logger::get().detach()
+/// ```
 pub fn get<'s>() -> &'s Logger {
     LOGGER.get().ufail("Logger not initialized (my bad)")
 }
 
+/// # Description
+/// Initialize the logger object
 pub fn init(master_log: impl Into<PathBuf>) {
     let logger = Logger::new(master_log);
     LOGGER.set(logger).ufail("Logger already initialized (my bad)");
     LOGGER.get().ufail("Failed to access logger instance").init();
 }
 
+/// # Description
+/// Formats the lines for logs
+///
+/// Used with ``display()``
 fn color_lines(file: &Path) -> Result<String> {
     let mut contents = fs::read_to_string(file)?;
 
@@ -142,6 +184,10 @@ fn color_lines(file: &Path) -> Result<String> {
     Ok(contents)
 }
 
+/// # Description
+/// Displays formatted logs
+///
+/// Used with the -L flag to view a package's logs
 pub fn display(file: &Path) -> Result<()> {
     let log_level = get_log_level();
 
@@ -156,6 +202,8 @@ pub fn display(file: &Path) -> Result<()> {
     Ok(())
 }
 
+/// # Description
+/// Parses the log level for a line from a log file
 fn extract_log_level(line: &str) -> Option<log::LevelFilter> {
     if line.contains(" TRACE ") {
         Some(log::LevelFilter::Trace)

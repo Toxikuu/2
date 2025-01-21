@@ -1,6 +1,5 @@
 // src/package/parse.rs
-//
-// parses the raw package arguments
+//! Functions for parsing positional arguments
 
 use crate::comms::log::erm;
 use crate::utils::fail::Fail;
@@ -9,6 +8,13 @@ use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
 use super::sets::unravel;
 
 // TODO: I'd love to have sets of repos but im too dumb to figure out how to do it rn
+//
+/// # Description
+/// Parses the raw package positional arguments into packages
+///
+/// Expands sets and resolves ambiguity
+///
+/// If a version is passed, warns the user
 pub fn parse(packages: &[String]) -> Vec<Package> {
     let mut parsed = Vec::new();
 
@@ -16,7 +22,8 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
         let mut p = p.as_str();
 
         if let Some(i) = p.find('=') {
-            erm!("Version control is not supported; stripping version");
+            let msg = format!("Version control is not supported; stripping version for '{p}'");
+            erm!("{}", msg); log::warn!("{}", msg);
             p = &p[..i];
         }
 
@@ -41,6 +48,8 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
     parsed
 }
 
+/// # Description
+/// Expands a set into its constituent packages
 pub fn expand_set(set: &str) -> Box<[Package]> {
     let set = if set.contains("@every") || set.contains("@!") || set.contains("/@all") || set.contains("/@@") {
         set.to_string()
@@ -54,7 +63,8 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
         let mut p = p.as_str();
 
         if let Some(i) = p.find('=') {
-            erm!("Version control is not supported; stripping version");
+            let msg = format!("Version control is not supported; stripping version for set '{set}' member '{p}'");
+            erm!("{}", msg); log::warn!("{}", msg);
             p = &p[..i];
         }
 

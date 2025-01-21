@@ -18,6 +18,11 @@ use super::script;
 //     BuiltAndInstalled,
 // }
 
+/// # Description
+/// Installs a package by performing a dist install. If the package isn't built, builds it and then
+/// dist installs.
+///
+/// Returns false if the package has already been installed
 pub fn install(package: &Package) -> bool {
     if package.data.installed_version == package.version && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already installed '{}'", package);
@@ -32,6 +37,10 @@ pub fn install(package: &Package) -> bool {
     }
 }
 
+/// # Description
+/// Builds a package, calling functions in ``super::script``
+///
+/// Returns false if the package has already been built
 pub fn build(package: &Package) -> bool {
     if Path::new(package.data.dist.as_str()).exists() && !FLAGS.lock().ufail("Failed to lock flags").force {
         erm!("Already built '{}'", package);
@@ -48,6 +57,10 @@ pub fn build(package: &Package) -> bool {
     }
 }
 
+/// # Description
+/// Installs a package from its dist tarball. Also evaluates the post-install instructions.
+///
+/// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 fn dist_install(package: &Package) {
     let command = format!(
     r#"
@@ -79,6 +92,20 @@ fn dist_install(package: &Package) {
     script::post(package);
 }
 
+/// # Description
+/// Updates a package.
+///
+/// Returns false if
+/// - the package isn't installed and force isn't passed; otherwise continues
+/// - the package is at its newest version and force isn't passed; otherwise continues
+///
+/// If the dist tarball for the new version exists, uses that. Otherwise, builds the package and
+/// then dist installs it.
+///
+/// After dist installing, if the new version isn't the old version, removes any dead files by
+/// calling ``remove_dead_files_after_update()``. Finally returns true.
+///
+/// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 pub fn update(package: &Package) -> bool {
     let force = FLAGS.lock().ufail("Failed to lock flags").force;
     if !package.data.is_installed && !force {

@@ -1,6 +1,5 @@
 // src/package/traits.rs
-// 
-// defines traits for package
+//! Defines traits for package
 
 use std::fmt::{Display, Formatter, Result};
 use super::Package;

@@ -40,6 +40,8 @@ impl fmt::Display for FailType {
     }
 }
 
+/// # Description
+/// A utility macro which panics with custom formatting, suppressing the default panic output
 macro_rules! die {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
@@ -50,6 +52,11 @@ macro_rules! die {
     }};
 }
 
+/// # Description
+/// Reports the cause of a failure before panicing
+///
+/// If the failure should be unreachable, prompts the user to report it as a bug featuring a github
+/// issue link
 pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailType) {
     if CONFIG.general.show_bug_report_message {
         let link = match fail_type {
@@ -80,6 +87,32 @@ pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailT
     die!("{}", msg2);
 }
 
+/// # Description
+/// The Fail trait allows you to call ``.fail()`` and ``.ufail()`` on result and option types
+///
+/// These then call report, which "gracefully" panics
+///
+/// ``fail_with_location()`` and ``ufail_with_location()`` should not be used
+///
+/// **Examples:**
+/// ```rust
+/// fn fallible_function() -> anyhow::Result<()> {
+///     bail!("hi mom");
+///     Ok(())
+/// }
+/// 
+/// // ``.fail()`` will also output the error message
+/// fallible_function().fail("Fallible function failed");
+///
+/// let num: Option<u8> = None;
+/// num.fail("Num was none");
+/// 
+/// let num: Option<u8> = Some(42);
+/// num.ufail("Shouldn't have failed"); // unreachable failure
+///
+/// println!("Number: {}", num); // should output ``Number: 42``
+///
+/// ```
 pub trait Fail<T, E> {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T;
 
@@ -133,6 +166,10 @@ impl<T> Fail<T, ()> for Option<T> {
     }
 }
 
+/// # Description
+/// The macro equivalent of the ``.fail()`` method
+///
+/// Useful for explicitly failing on bools
 #[macro_export]
 macro_rules! fail {
     ($($arg:tt)*) => {{
@@ -146,6 +183,10 @@ macro_rules! fail {
     }};
 }
 
+/// # Description
+/// The macro equivalent of the ``.ufail()`` method
+///
+/// Useful for explicitly failing on bools
 #[macro_export]
 macro_rules! ufail {
     ($($arg:tt)*) => {{

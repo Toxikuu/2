@@ -8,6 +8,8 @@ use std::path::Path;
 use super::Package;
 
 impl Package {
+    /// # Description
+    /// Creates a package given its repo and name
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
         if name.starts_with('.') { fail!("Invalid package name") }
@@ -23,7 +25,7 @@ impl Package {
         vpr!("Status path: {:?}", status_path);
         package.data.is_installed = status_path.exists();
         package.data.installed_version = fs::read_to_string(status_path).unwrap_or_default().trim().into();
-        package.relpath = format!("{repo}/{name}").into();
+        package.relpath = format!("{repo}/{name}");
         package.data.dist = format!("/usr/ports/{}/.dist/{}.tar.zst", package.relpath, package).into();
 
         package

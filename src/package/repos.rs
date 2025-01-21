@@ -1,6 +1,5 @@
 // src/package/repos.rs
-//
-// some functions for dealing with package repos
+//! Functions for dealing with package repos
 
 use crate::comms::log::{erm, pr, msg};
 use crate::shell::cmd::exec;
@@ -96,8 +95,7 @@ pub fn add(repo_url: &str) {
 }
 
 /// # Description
-/// Syncs an installed git repo
-/// Requires git to work
+/// Syncs an installed git repo. Requires git to work.
 pub fn sync(repo: &str) {
     let command = format!("cd /usr/ports/{repo} && git pull");
 
