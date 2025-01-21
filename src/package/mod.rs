@@ -4,6 +4,7 @@
 pub mod ambiguity;
 pub mod endpoints;
 pub mod parse;
+pub mod provides;
 pub mod repos;
 pub mod sets;
 pub mod traits;

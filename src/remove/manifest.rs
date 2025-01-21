@@ -40,7 +40,7 @@ fn is_manifest(entry: &DirEntry) -> bool {
 /// Ignores entries that aren't manifests and that aren't in .data
 ///
 /// dir is commonly ``/usr/ports``, though can also be ``$PORT/.data`` for dead files
-fn locate(dir: &str) -> Rc<[PathBuf]> {
+pub fn locate(dir: &str) -> Rc<[PathBuf]> {
     let mut manifests = Vec::new();
 
     for entry in WalkDir::new(dir)

@@ -163,9 +163,9 @@ impl PM {
     /// Lists out all the packages in the PM struct
     ///
     /// If there are no packages, lists all of them
-    pub fn list(&self) {
+    pub fn list(&self, msg: &str) {
         Self::ready();
-        msg!("Packages:");
+        msg!("{msg}:");
 
         let mut pkgs = self.packages.to_vec();
         if pkgs.is_empty() { pkgs = expand_set("@every").to_vec(); }
