@@ -15,78 +15,26 @@ use clap::Parser;
 /// Stores flags as a bunch of booleans
 /// Stores positional argument 'packages' as `Vec<String>`
 pub struct Args {
-    // Type: Generic
-    // Arguments that are not specific to 2
-    // They do not take positional arguments
-
-    /// ### Type
-    /// Generic
-    ///
-    /// ### Description
-    /// Increases output verbosity
-    ///
-    /// In the code, verbose output is called from vpr!()
-    #[arg(short = 'v', long)]
-    pub verbose: bool,
-
-    /// ### Type
-    /// Generic
-    ///
-    /// ### Description
-    /// Displays the version
-    #[arg(short = 'V', long)]
-    pub version: bool,
-
-    /// ### Type
-    /// Generic
-    ///
-    /// ### Description
-    /// Decreases output verbosity
-    ///
-    /// In practice, this mostly just hides output from the shell commands
-    #[arg(short = 'q', long)]
-    pub quiet: bool,
-
-    /// ### Type
-    /// Generic
-    ///
-    /// ### Description
-    /// Forces actions
-    ///
-    /// Used in combination with other flags to perform more "forceful" actions
-    #[arg(short = 'f', long)]
-    pub force: bool,
-
     // Type: Core
     // Arguments that call core 2 functions
 
-    /// ### Type
-    /// Core
+    /// Installs packages, building them if necessary
     ///
-    /// ### Description
-    /// Installs packages, building them if necessary, optionally forcibly
-    ///
-    /// If combined with force, does not forcibly rebuild, only forcibily installs
+    /// If combined with force, does not forcibly rebuild, only forcibly installs
     #[arg(short = 'i', long)]
     pub install: bool,
 
-    /// ### Type
-    /// Core
-    ///
-    /// ### Description
-    /// Builds packages, optionally forcibly
+    /// Builds packages
     ///
     /// If combined with force, checks for existing dist tarballs are skipped, and any existing
     /// ones are overwritten.
     #[arg(short = 'b', long)]
     pub build: bool,
 
-    /// ### Type
-    /// Core
+    /// Removes packages
     ///
-    /// ### Description
-    /// Removes packages via a manifest system, optionally forcibly
-    /// 
+    /// Removal is done via a manifest system
+    ///
     /// If combined with force, bypasses install checks and just removes the relevant files (note
     /// this would require a manifest to exist)
     ///
@@ -94,12 +42,8 @@ pub struct Args {
     #[arg(short = 'r', long)]
     pub remove: bool,
 
-    /// ### Type
-    /// Core
+    /// Updates packages
     ///
-    /// ### Description
-    /// Updates packages, optionally forcibly
-    /// 
     /// If combined with force, bypasses latest version checks
     ///
     /// Upon successful update, removes any dead files from the previous version. Dead file removal
@@ -107,19 +51,13 @@ pub struct Args {
     #[arg(short = 'u', long)]
     pub update: bool,
 
-    /// ### Type
-    /// Core
+    /// Lists packages
     ///
-    /// ### Description
-    /// Lists packages, including their repo, version, and status
+    /// Includes their repo, version, and status
     #[arg(short = 'l', long)]
     pub list: bool,
 
-    /// ### Type
-    /// Core
-    ///
-    /// ### Description
-    /// Downloads package sources, optionally forcibly
+    /// Downloads package sources
     ///
     /// If combined with force, overwrites existing sources
     #[arg(short = 'g', long)]
@@ -128,31 +66,20 @@ pub struct Args {
     // Type: Extra
     // Arguments that call non-core 2 functions
 
-    /// ### Type
-    /// Extra
+    /// Deletes package files for older versions
     ///
-    /// ### Description
-    /// Deletes package sources for older versions, optionally forcibly
+    /// The files that are pruned include old manifests, logs, and sources
     ///
     /// If combined with force, removes current package sources, too
-    /// ### CURRENTLY UNIMPLEMENTED
-    // TODO: implement forced pruning
+    /// TODO: Implement forced pruning
     #[arg(short = 'p', long)]
     pub prune: bool,
 
-    /// ### Type
-    /// Extra
-    ///
-    /// ### Description
-    /// Cleans out the .build folder
+    /// Cleans the build directory
     #[arg(short = 'c', long)]
     pub clean: bool,
 
-    /// ### Type
-    /// Extra
-    ///
-    /// ### Description
-    /// Displays build logs for packages
+    /// Displays logs
     #[arg(short = 'L', long)]
     pub logs: bool,
 
@@ -160,54 +87,51 @@ pub struct Args {
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2
 
-    /// ### Type
-    /// Special
-    ///
-    /// ### Description
-    /// Takes positional argument 'repositories'
-    /// Lists available sets for those repositories
-    #[arg(short = '@', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
-    pub list_sets: Vec<String>,
-
-    /// ### Type
-    /// Special
-    ///
-    /// ### Description
-    /// Takes no arguments
     /// Lists all available repositories
+    ///
+    /// Takes no arguments
     #[arg(short = '/', long)]
     pub list_repos: bool,
 
-    
-    /// ### Type
-    /// Special
-    ///
-    /// ### Description
-    /// Takes positional argument 'repositories'
+    /// Lists available sets for one or more repos
+    #[arg(short = '@', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
+    pub list_sets: Vec<String>,
+
     /// Adds one or more repos
     #[arg(short = 'a', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
     pub add_repos: Vec<String>,
 
-    /// ### Type
-    /// Special
-    ///
-    /// ### Description
-    /// Takes positional argument 'repositories'
-    /// Syncs those repositories
-    /// ### CURRENTLY UNIMPLEMENTED
+    /// Syncs one or more repos
     #[arg(short = 's', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
     pub sync_repos: Vec<String>,
 
-    /// ### Type
-    /// Positional
-    ///
-    /// ### Description
-    /// The positional arguments passed after all flags
-    /// 
-    /// Normally, these are treated as packages. However, if a special argument is passed, they are
-    /// reinterpreted accordingly
+    /// See which packages provide a path
+    #[arg(short = 'P', long, value_name = "PATH", value_delimiter = ' ', num_args = 1..)]
+    pub provides: Vec<String>,
+
+    /// The positional argument on which most flags act
     #[arg(value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
     pub packages: Vec<String>,
+
+    // Type: Generic
+    // Arguments that are not specific to 2
+    // They do not take positional arguments
+
+    /// Increases output verbosity
+    #[arg(short = 'v', long)]
+    pub verbose: bool,
+
+    /// Decreases output verbosity
+    #[arg(short = 'q', long)]
+    pub quiet: bool,
+
+    /// Forces actions, useful with other flags
+    #[arg(short = 'f', long)]
+    pub force: bool,
+
+    /// Displays the version
+    #[arg(short = 'V', long)]
+    pub version: bool,
 }
 
 impl Args {
