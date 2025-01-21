@@ -31,7 +31,7 @@ mod utils;
 use cli::args::Args;
 use cli::version as v;
 use globals::flags::{self, FLAGS};
-use package::{parse, sets, repos};
+use package::{parse, sets, repos, provides};
 use pm::PM;
 use utils::fail::Fail;
 use utils::logger;
@@ -43,22 +43,22 @@ fn main() {
     // TODO: test against args to determine which need root privileges before erroring out
     if !unsafe { libc::geteuid() == 0 } { fail!("2 requires root privileges") } // prolly safe :)
 
-    // exit after executing any special argument functions
     handle_special_args(&args);
 
     let packages = parse::parse(&args.packages);
     let pm = PM::new(&packages);
 
+    // the order here matters
     if args.version { v::display() }
+    if args.remove  { pm.remove () }
+    if args.get     { pm.get    () }
     if args.build   { pm.build  () }
     if args.install { pm.install() }
     if args.update  { pm.update () }
-    if args.get     { pm.get    () }
     if args.prune   { pm.prune  () }
     if args.clean   { pm.clean  () }
-    if args.list    { pm.list   () }
     if args.logs    { pm.logs   () }
-    if args.remove  { pm.remove () }
+    if args.list    { pm.list("Packages:") }
 
     logger::get().detach();
     log::info!("Finished all tasks\n\n\t----------------\n");
@@ -87,7 +87,7 @@ fn initialize() -> Args {
 /// ### Description
 /// Handles special arguments if any were passed, returning true; otherwise returns false
 fn handle_special_args(args: &Args) {
-
+    args.provides.iter().for_each(|p| provides::provides(p));
     args.add_repos.iter().for_each(|r| repos::add(r));
     args.sync_repos.iter().for_each(|r| repos::sync(r));
     args.list_sets.iter().for_each(|r| sets::list(r));
