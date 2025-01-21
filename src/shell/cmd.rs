@@ -37,7 +37,7 @@ pub fn exec(command: &str) -> Result<()> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .context("Failed spawn bash")?;
+        .context("Failed to spawn bash")?;
 
     let stdout = child.stdout.take().context("Stdout already taken?")?;
     let stderr = child.stderr.take().context("Stderr already taken?")?;
