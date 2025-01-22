@@ -24,10 +24,17 @@ impl Package {
 
         vpr!("Status path: {:?}", status_path);
         package.data.is_installed = status_path.exists();
-        package.data.installed_version = fs::read_to_string(status_path).unwrap_or_default().trim().into();
-        package.relpath = format!("{repo}/{name}");
-        package.data.dist = format!("/usr/ports/{}/.dist/{}.tar.zst", package.relpath, package).into();
 
+        let relpath = format!("{repo}/{name}");
+
+        package.repo = repo.to_string();
+        package.name = name.to_string();
+
+        package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();
+        package.data.dist = format!("/usr/ports/{relpath}/.dist/{package}.tar.zst");
+        package.relpath = relpath;
+
+        dbg!(&package);
         package
     }
 }
