@@ -34,7 +34,6 @@ impl Package {
         package.data.dist = format!("/usr/ports/{relpath}/.dist/{package}.tar.zst");
         package.relpath = relpath;
 
-        dbg!(&package);
         package
     }
 }
