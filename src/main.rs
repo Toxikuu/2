@@ -1,5 +1,12 @@
 // src/main.rs
-//! The main file lol
+// 
+//! # 2
+//! 2 is a (mostly) source-based package manager for LFS
+//!
+//! It's got some fancy features:
+//! - distribution tarballs
+//! - per-package changelogs
+//! - TODO: finish this list
 
 #![feature(duration_millis_float)]
 #![feature(str_as_str)]
