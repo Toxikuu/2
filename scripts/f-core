@@ -3,8 +3,13 @@
 
 die() {
   export -f die
-  echo "Death: '$1'" >&2
+  echo -e "\x1b[31;1mDeath: '$1'\x1b[0m" >&2
   exit 1
+}
+
+msg() {
+  export -f msg
+  echo -e "\x1b[34;1m$1\x1b[0m"
 }
 
 warn() {
