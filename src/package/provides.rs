@@ -1,9 +1,9 @@
 // src/package/provides.rs
 //! Utilities for seeing what package(s) provide a specific path
 
+use anyhow::Context;
 use std::fs;
 use std::path::{Path, PathBuf};
-use anyhow::Context;
 
 use crate::comms::log::erm;
 use crate::pm::PM;
