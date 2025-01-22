@@ -13,7 +13,7 @@ EDITOR="${EDITOR:-nvim}"
 
 [ "$#" -ne 1 ] && usage
 
-[[ "$1" == *#*   ]] && usage # options are not supported by this script
+[[ "$1" == *#*   ]] && usage # options are not supported
 [[ "$1" == */*/* ]] && usage
 [[ "$1" == *=*=* ]] && usage
 [[ "$1" == *=*   ]] || usage # version must be specified
@@ -47,7 +47,7 @@ mkdir -pv "$NAME" && cd "$NAME"
 
 [ -e BUILD ] && die 'This package already exists!'
 
-mkdir -pv .dist .data .sources .build
+mkdir -pv .dist .data .sources .build .logs
 
 cat > BUILD << EOF
 NAME="$NAME"
@@ -67,8 +67,20 @@ EOF
 
 /usr/share/2/bin/m-gen "$REPO/$NAME"
 
-git status -s
+msg "Committing changes..."
+
+MSG="Added $NAME=$VERS"
+
 git add .
-git commit -m "$NAME: added"
+COMMIT=$(git commit -qm "$MSG" && git rev-parse HEAD)
+
+TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M:%S")
+echo -e "Changelog for $NAME:\n" > CHANGELOG
+echo "[$COMMIT] [$TIMESTAMP] | $MSG" >> CHANGELOG
+
+git add CHANGELOG
+git commit -qm "Logged $COMMIT"
+
+msg "Done!"
 
 popd > /dev/null
