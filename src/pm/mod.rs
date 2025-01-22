@@ -4,18 +4,17 @@
 pub mod endpoints;
 
 use crate::package::Package;
-use std::rc::Rc;
 
 /// # Description
 /// The package manager struct
-pub struct PM {
-    pub packages: Rc<[Package]>
+pub struct PM<'a> {
+    pub packages: &'a [Package]
 }
 
-impl PM {
+impl<'a> PM<'a> {
     /// # Description
     /// Creates a new package manager struct from an array of packages
-    pub fn new(packages: &[Package]) -> Self {
-        Self { packages: packages.into() }
+    pub const fn new(packages: &'a [Package]) -> Self {
+        Self { packages }
     }
 }

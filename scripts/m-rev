@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # m-rev (maintainer revise) revises a package
 
+source /usr/share/2/bin/e-core || exit 211
 pushd . > /dev/null
 
 usage() {
-  echo 'Usage: m-rev (<repo>/)<package>' >&2
+  echo -e "\x1b[31;1mUsage: m-rev (<repo>/)<package>\x1b[0m" >&2
   # you can specify version but it isn't used
   exit 2 # syntax exit code
 }
@@ -54,10 +55,30 @@ declare -p > /tmp/2/m-diffs/post
 changes=$(diff /tmp/2/m-diffs/p{re,ost} | grep -E 'NAME|VERS|DESC|UPST|SOURCE|EXTRA' | wc -l)
 [ "$changes" -gt 0 ] && /usr/share/2/bin/m-gen "$REPO/$NAME"
 
-git status -s
+# check for a commit description
+LINE=$(tail -n1 BUILD)
+if [[ "$LINE" =~ ^\#d ]]; then
+  CD="${LINE#*#d }"
+fi
+
+MSG="Revised $NAME"
+
+# commit
+msg "Committing changes..."
+
 git add .
-git commit -m "$NAME: revisions"
-# TODO: consider reading a line at the end of BUILD for custom commit messages
-# Alternatively, consider adding m-cc for custom-commit
+COMMIT=$(git commit -qm "$MSG" -m "$CD" && git rev-parse HEAD)
+
+TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M:%S")
+if [ -z "$CD" ]; then
+  echo "[$COMMIT] [$TIMESTAMP] | $MSG" >> CHANGELOG
+else
+  echo "[$COMMIT] [$TIMESTAMP] | $MSG: $CD" >> CHANGELOG
+fi
+
+git add CHANGELOG
+git commit -qm "Logged $COMMIT"
+
+msg "Done!"
 
 popd > /dev/null

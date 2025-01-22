@@ -8,7 +8,7 @@ pushd . > /dev/null
 source "/usr/share/2/bin/f-core" || exit 211
 
 usage() {
-  echo 'Usage: '"$1"'(<repo>/)<package>' >&2
+  echo -e "\x1b[31;1mUsage: '$1'(<repo>/)<package>\x1b[0m" >&2
   exit 2 # syntax exit code
 }
 
@@ -20,14 +20,14 @@ linkhash() {
   wget "$1" -q -O /tmp/twohash/target
 
   if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to download $1" >&2
+    echo -e "\x1b[31;1mError: Failed to download $1\x1b[0m" >&2
     return 1
   fi
 
   /usr/share/2/bin/u-hash /tmp/twohash/target
 
   if [[ $? -ne 0 ]]; then
-    echo "Error: Hashing failed" >&2
+    echo -e "\x1b[31;1mError: Hashing failed\x1b[0m" >&2
     return 1
   fi
 }
@@ -49,14 +49,8 @@ fi
 VERS="${NAME#*=}"
 NAME="${NAME%%=*}"
 
-echo
-echo " ### VARIABLES ### "
-echo "REPO: $REPO"
-echo "NAME: $NAME"
-echo " ### VARIABLES ### "
-echo
-
-read -p "Press enter to continue..." 
+msg "Generating info.lock..."
+msg "This may take a while"
 
 cd "/usr/ports/$REPO/$NAME"
 
@@ -84,3 +78,5 @@ mkdir -pv .dist .data .sources .build
 
 popd > /dev/null
 rm -rf /tmp/twohash
+
+msg "$REPO/$NAME-$VERS generated!"

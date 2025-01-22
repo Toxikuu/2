@@ -14,7 +14,7 @@ use crate::utils::time::Stopwatch;
 use std::path::Path;
 use super::PM;
 
-impl PM {
+impl PM<'_> {
     /// # Description
     /// Private function to reset the PM struct to a ready state between actions
     ///
