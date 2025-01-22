@@ -1,5 +1,5 @@
 // src/package/mod.rs
-//! defines the package type
+//! Defines the package type
 
 pub mod ambiguity;
 pub mod endpoints;
@@ -20,11 +20,14 @@ use std::rc::Rc;
 /// Contains package data
 #[derive(Deserialize, Debug, Clone)]
 pub struct Package {
-    pub name: Rc<str>,
-    pub repo: Rc<str>,
-    #[serde(default)]
+    #[serde(skip)]
+    pub name: String,
+    #[serde(skip)]
+    pub repo: String,
+    #[serde(skip)]
     pub relpath: String,
-    pub version: Rc<str>,
+
+    pub version: String,
     pub data: PackageData,
 }
 
@@ -34,20 +37,21 @@ pub struct Package {
 /// Contains package source
 #[derive(Deserialize, Debug, Clone)]
 pub struct PackageData {
-    #[serde(default)]
+    #[serde(skip)]
     pub is_installed: bool,
-    #[serde(default)]
-    pub installed_version: Rc<str>,
+    #[serde(skip)]
+    pub installed_version: String,
+    #[serde(skip)]
+    pub dist: String,
+
     pub source: PackageSource,
     pub extra: Rc<[PackageSource]>,
-    #[serde(default)]
-    pub dist: Rc<str>,
 }
 
 /// # Description
 /// The package source struct
 #[derive(Deserialize, Debug, Clone)]
 pub struct PackageSource {
-    pub url: Rc<str>,
-    pub hash: Rc<str>,
+    pub url: Rc<str>, // rc used as its immutable and cloned
+    pub hash: String, // the hash is never cloned, so String
 }
