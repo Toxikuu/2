@@ -5,8 +5,8 @@ source /usr/share/2/bin/f-core || exit 211
 pushd . > /dev/null
 
 usage() {
-  echo "\x1b[31;1mUsage: m-upd (<repo>/)<package>=<version>\x1b[0m" >&2
-  echo "\x1b[31;1mThe version specified becomes the new version\x1b[0m" >&2
+  echo -e "\x1b[31;1mUsage: m-upd (<repo>/)<package>=<version>\x1b[0m" >&2
+  echo -e "\x1b[31;1mThe version specified becomes the new version\x1b[0m" >&2
   exit 2 # syntax exit code
 }
 
@@ -42,6 +42,7 @@ echo
 read -p "Press enter to continue..." 
 
 [ -e /usr/ports/"$REPO" ] || die "Nonexistent repo: $REPO"
+[ -e /usr/ports/"$REPO/$NAME" ] || die "Nonexistent package: $NAME"
 
 cd "/usr/ports/$REPO/$NAME"
 
