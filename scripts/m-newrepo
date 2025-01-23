@@ -4,27 +4,27 @@
 # to use this, you'll need to create the remote repository first
 # the remote repo name format is: '2-<repo>'
 # and the local repo would just be called <repo>
-#
-# WARNING: This is currently untested
 
 source /usr/share/2/bin/f-core
 pushd . > /dev/null
 
 usage() {
-  echo 'Usage: m-newrepo <repo> <remote>' >&2
+  echo 'Usage: m-newrepo <repo> (<remote>)' >&2
   # optionally also $LICENSE
   exit 2 # syntax exit code
 }
 
 EDITOR="${EDITOR:-nvim}"
 
-# TODO: Check git show instead and ensure the relevant fields are populated
+GITUSER=${GITUSER:-$(git config user.name)}
+GITEMAIL=${GITEMAIL:-$(git config user.email)}
+
 [ -z "$GITUSER" ]   && die 'Please set $GITUSER'
 [ -z "$GITEMAIL" ]  && die 'Please set $GITEMAIL'
 
 REPO="${1:-$REPO}"
 [ -z "$REPO" ]    && usage
-REMOTE="${2:-$REMOTE:-"git@github.com:$GITUSER/2-$REPO.git"}"
+REMOTE="${2:-${REMOTE:-"git@github.com:$GITUSER/2-$REPO.git"}}"
 [ -z "$REMOTE" ]  && usage
 
 echo
@@ -51,7 +51,7 @@ cat > README.md << EOF
 # $REPO
 
 ## INFO
-$REPO is a package repository for [2](https://github.com/Toxikuu/2)
+This is a [2](https://github.com/Toxikuu/2) package repository
 EOF
 "$EDITOR" README.md
 
@@ -61,8 +61,8 @@ curl -o LICENSE "${LICENSE:-https://www.gnu.org/licenses/gpl-3.0.txt}"
 git status -s
 read -p "Press enter to continue..." 
 
-git config user.name="$GITUSER"
-git config user.email="$GITEMAIL"
+git config user.name "$GITUSER"
+git config user.email "$GITEMAIL"
 
 # commit
 msg "Committing changes..."
