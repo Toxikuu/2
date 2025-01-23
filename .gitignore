@@ -1,4 +1,7 @@
 /target
 
+# I'm doing some testing with RustRover
+.idea
+
 # TODO: Finish release.sh and unignore it
 release.sh
