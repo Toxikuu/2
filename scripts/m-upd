@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # m-upd (maintainer update) updates a package
 
-source /usr/share/2/bin/f-core
+source /usr/share/2/bin/f-core || exit 211
 pushd . > /dev/null
 
 usage() {
-  echo 'Usage: m-upd (<repo>/)<package>=<version>' >&2
-  echo 'The version specified becomes the new version'
+  echo "\x1b[31;1mUsage: m-upd (<repo>/)<package>=<version>\x1b[0m" >&2
+  echo "\x1b[31;1mThe version specified becomes the new version\x1b[0m" >&2
   exit 2 # syntax exit code
 }
 
@@ -51,12 +51,23 @@ OLDVERS="$VERS"
 
 sed -i "0,/^VERS=/s/^VERS=.*/VERS=\"$NEWVERS\"/" BUILD
 "$EDITOR" BUILD
-source BUILD # in case the user changes $VERS while in nvim
+source BUILD # in case $VERS is changed while in the editor
 
 /usr/share/2/bin/m-gen "$REPO/$NAME"
 
-git status -s
+msg "Committing changes..."
+
+MSG="Updated $NAME: $OLDVERS -> $VERS"
+
 git add .
-git commit -m "$NAME: $OLDVERS -> $VERS"
+COMMIT=$(git commit -qm "$MSG" && git rev-parse HEAD)
+
+TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M:%S")
+echo "[$COMMIT] [$TIMESTAMP] | $MSG" >> CHANGELOG
+
+git add CHANGELOG
+git commit -qm "Logged $COMMIT"
+
+msg "Done!"
 
 popd > /dev/null

@@ -4,6 +4,8 @@
 # to use this, you'll need to create the remote repository first
 # the remote repo name format is: '2-<repo>'
 # and the local repo would just be called <repo>
+#
+# WARNING: This is currently untested
 
 source /usr/share/2/bin/f-core
 pushd . > /dev/null
@@ -16,13 +18,14 @@ usage() {
 
 EDITOR="${EDITOR:-nvim}"
 
-REPO="${1:-$REPO}"
-REMOTE="${2:-$REMOTE}"
-[ -z "$REPO" ]    && usage
-[ -z "$REMOTE" ]  && usage
-
+# TODO: Check git show instead and ensure the relevant fields are populated
 [ -z "$GITUSER" ]   && die 'Please set $GITUSER'
 [ -z "$GITEMAIL" ]  && die 'Please set $GITEMAIL'
+
+REPO="${1:-$REPO}"
+[ -z "$REPO" ]    && usage
+REMOTE="${2:-$REMOTE:-"git@github.com:$GITUSER/2-$REPO.git"}"
+[ -z "$REMOTE" ]  && usage
 
 echo
 echo " ### VARIABLES ### "
@@ -37,7 +40,8 @@ read -p "Press enter to continue..."
 
 mkdir -pv "/usr/ports/$REPO"
 cd "/usr/ports/$REPO"
-git init
+msg "Initializing repo..."
+git init -q
 
 cat > .gitignore << EOF
 */.*
@@ -57,14 +61,22 @@ curl -o LICENSE "${LICENSE:-https://www.gnu.org/licenses/gpl-3.0.txt}"
 git status -s
 read -p "Press enter to continue..." 
 
-git add .
 git config user.name="$GITUSER"
 git config user.email="$GITEMAIL"
 
-git commit -m "$REPO: initialized repo"
+# commit
+msg "Committing changes..."
 
+git add .
+git commit -qm "Initialized '$REPO'"
 git remote add origin "$REMOTE"
 git branch -M master
-git push -u origin master
+
+msg "The remote origin has been set to '$REMOTE'"
+# this is not done automatically in case the user doesn't have rw access properly set up
+msg "You should now push the changes:"
+echo "git push -u origin master"
+
+msg "Done!"
 
 popd > /dev/null
