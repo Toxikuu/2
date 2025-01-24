@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.26" # documentation, clarity, refactors
+version = "0.0.28" # upstream version tracking and other things
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
@@ -14,6 +14,10 @@ keywords = [
   "2",
   "package manager",
 ]
+
+[features]
+default = [] # most users won't care about upstream versions (id imagine)
+upstream = []
 
 [dependencies]
 anyhow = "1.0.95"
