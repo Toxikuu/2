@@ -2,6 +2,8 @@
 //! Defines endpoints for PM
 
 use crate::build::{logic as bl, script};
+#[cfg(feature = "upstream")]
+use crate::upstream::core::upstream;
 use crate::comms::log::{msg, pr};
 use crate::erm;
 use crate::fetch::download::download;
@@ -199,6 +201,17 @@ impl PM<'_> {
             if logger::display(log_file).is_err() {
                 erm!("No logs exist for '{}'", p);
             }
+        });
+    }
+
+    /// # Description
+    /// Displays the upstream version for a package, as well as the local version based on
+    /// information from .chaser.toml
+    #[cfg(feature = "upstream")]
+    pub fn upstream(&self) {
+        Self::ready();
+        self.packages.iter().for_each(|p| {
+            upstream(p);
         });
     }
 }

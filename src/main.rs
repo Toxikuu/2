@@ -25,6 +25,8 @@
 )]
 
 mod build;
+#[cfg(feature = "upstream")]
+mod upstream;
 mod cli;
 mod comms;
 mod fetch;
@@ -56,16 +58,18 @@ fn main() {
     let pm = PM::new(&packages);
 
     // the order here matters
-    if args.version { v::display() }
-    if args.remove  { pm.remove () }
-    if args.get     { pm.get    () }
-    if args.build   { pm.build  () }
-    if args.install { pm.install() }
-    if args.update  { pm.update () }
-    if args.prune   { pm.prune  () }
-    if args.clean   { pm.clean  () }
-    if args.logs    { pm.logs   () }
-    if args.list    { pm.list("Packages:") }
+    if args.version  { v::display () }
+    if args.remove   { pm.remove  () }
+    #[cfg(feature = "upstream")]
+    if args.upstream { pm.upstream() }
+    if args.get      { pm.get     () }
+    if args.build    { pm.build   () }
+    if args.install  { pm.install () }
+    if args.update   { pm.update  () }
+    if args.prune    { pm.prune   () }
+    if args.clean    { pm.clean   () }
+    if args.logs     { pm.logs    () }
+    if args.list     { pm.list("Packages") }
 
     logger::get().detach();
     log::info!("Finished all tasks\n\n\t----------------\n");
