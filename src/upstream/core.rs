@@ -84,16 +84,13 @@ fn run_command(cc: &UVConfig) -> Result<String> {
 /// # Description
 /// Strips the package name from a git tag (output from ``run_command()``)
 /// Also strips out the 'v' prefix
-fn extract_version(stdout: &str, package: &Package) -> String {
+fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
     let name = &package.name;
-    let stdout = stdout.trim_start_matches('v');
 
-    if stdout.contains(name) {
-        stdout.replace(name, "")
-    }
-    else {
-        stdout.to_string()
-    }
+    stdout
+        .trim_start_matches(name)
+        .trim_start_matches('-')
+        .trim_start_matches('v')
 }
 
 /// # Description
@@ -108,7 +105,7 @@ fn get_version(package: &Package) -> String {
         return stdout.to_string()
     }
 
-    extract_version(stdout, package)
+    extract_version(stdout, package).to_string()
 }
 
 /// # Description
