@@ -47,6 +47,7 @@ mkdir -pv /tmp/2/m-diffs
 source BUILD
 declare -p > /tmp/2/m-diffs/pre
 
+sed -i '/^#d/d' BUILD
 "$EDITOR" BUILD
 
 source BUILD
