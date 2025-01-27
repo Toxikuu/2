@@ -87,6 +87,7 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
 fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Rc<[String]> {
     let mut unique = Vec::new();
 
+    // TODO: Consider not failing, rather just warning the user when a manifest isn't found
     let this_data = all_data.get(this_manifest).fail("Manifest not found");
     let mut all_other_lines = HashSet::new();
     for (path, lines) in all_data {
