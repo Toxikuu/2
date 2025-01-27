@@ -8,7 +8,11 @@ TODO
   
     Work on mdbook docs
 
+    Rayon support for -U is badly needed
+
 WIP
+  
+    Fix .uv.toml for all packages
 
     Expand the main repo
 
