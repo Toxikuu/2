@@ -1,13 +1,11 @@
 // src/upstream/core.rs
 //! Core logic for --upstream
 
-use std::fs;
 use anyhow::{bail, Result};
 use std::process::Command;
 use crate::globals::config::CONFIG;
 use crate::package::Package;
-use crate::utils::fail::{fail, Fail};
-use crate::comms::log::{pr, erm};
+use crate::comms::log::{pr, erm, vpr};
 use serde::Deserialize;
 
 /// # Description
@@ -17,13 +15,11 @@ use serde::Deserialize;
 /// If command is specified, it is evaluated; if not, it uses a reasonable default
 /// Bleeding is a toggle for tracking commit-level versions
 #[derive(Deserialize, Debug)]
-pub struct UVConfig {
+pub struct UVConfig<'u> {
     #[serde(default)]
-    upstream: String,
+    upstream: &'u str,
     #[serde(default)]
-    command: String,
-    #[serde(default)]
-    bleeding: bool,
+    command: &'u str,
 }
 
 /// # Description
@@ -45,20 +41,14 @@ pub fn sex(command: &str) -> Result<String> {
 }
 
 /// # Description
-/// Generates ``UVConfig`` from .uv.toml
-fn read_uv_toml(package: &Package) -> UVConfig {
-    let relpath = &package.relpath;
-    let uv_path = format!("/usr/ports/{relpath}/.uv.toml");
-
-    let contents = fs::read_to_string(uv_path).unwrap_or_default();
-    let cc: UVConfig = toml::de::from_str(&contents).ufail("how lmao");
-
-    // fallback to package upstream
-    if cc.upstream.is_empty() && cc.command.is_empty() {
-        fail!("Invalid uv config!");
+/// Generates ``UVConfig`` from the package struct
+// Necessary allow as Package is not known at compile time
+#[allow(clippy::missing_const_for_fn)]
+fn gen_cc(package: &Package) -> UVConfig {
+    UVConfig {
+        upstream: &package.data.upstream,
+        command: &package.data.version_command,
     }
-
-    cc
 }
 
 /// # Description
@@ -67,17 +57,10 @@ fn read_uv_toml(package: &Package) -> UVConfig {
 /// If no command is provided, runs a default command
 fn run_command(cc: &UVConfig) -> Result<String> {
     if !cc.command.is_empty() {
-        return sex(&cc.command);
+        return sex(cc.command);
     }
 
-    let command =
-    if cc.bleeding {
-        format!("git ls-remote {} HEAD | awk '{{print $1}}'", cc.upstream)
-    }
-    else {
-        format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1", cc.upstream)
-    };
-
+    let command = format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1", cc.upstream);
     sex(&command)
 }
 
@@ -96,14 +79,10 @@ fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
 /// # Description
 /// High level retrieval of a package's upstream version
 fn get_version(package: &Package) -> String {
-    let cc = read_uv_toml(package);
+    let cc = gen_cc(package);
     let stdout = run_command(&cc).unwrap_or_default();
     let stdout = stdout.trim();
-
-    // the bleeding hashes don't need extracting
-    if cc.bleeding {
-        return stdout.to_string()
-    }
+    vpr!("stdout: {}", stdout);
 
     extract_version(stdout, package).to_string()
 }
