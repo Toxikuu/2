@@ -53,7 +53,7 @@ sed -i '/^#d/d' BUILD
 source BUILD
 declare -p > /tmp/2/m-diffs/post
 
-changes=$(diff /tmp/2/m-diffs/p{re,ost} | grep -E 'NAME|VERS|DESC|UPST|SOURCE|EXTRA' | wc -l)
+changes=$(diff /tmp/2/m-diffs/p{re,ost} | grep -E 'NAME|VERS|DESC|UPST|VCMD|SOURCE|EXTRA' | wc -l)
 [ "$changes" -gt 0 ] && /usr/share/2/bin/m-gen "$REPO/$NAME"
 
 # check for a commit description

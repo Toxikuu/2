@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # m-gen (maintainer generate) generates the info.lock files for a package
 # this is usually run automatically by m-rev, m-add, or m-upd
+#
+# this may be rewritten in rust in the future to ease toml serialization
 
 set -e
 pushd . > /dev/null
@@ -74,6 +76,12 @@ for ((i = 0; i < EXTRACOUNT; i++)); do
 done
 
 echo ']' >> info.lock
+
+[ -n "$UPST" ] && printf 'upstream = "%s"\n' "$UPST" >> info.lock
+# all my homies HATE escape sequences
+# why cant languages just have good raw string syntax
+[ -n "$VCMD" ] && printf "version_command = '''%s'''\n" "$VCMD" >> info.lock
+
 mkdir -pv .dist .data .sources .build
 
 popd > /dev/null
