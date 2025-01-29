@@ -46,6 +46,14 @@ pub struct PackageData {
 
     pub source: PackageSource,
     pub extra: Rc<[PackageSource]>,
+
+    // I prolly should use Option<> but I'm fucking lazy
+    #[cfg(feature = "upstream")]
+    #[serde(default)]
+    pub upstream: String,
+    #[cfg(feature = "upstream")]
+    #[serde(default)]
+    pub version_command: String,
 }
 
 /// # Description
