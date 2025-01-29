@@ -11,13 +11,14 @@ TODO
     Rayon support for -U is badly needed
 
 WIP
-  
-    Fix .uv.toml for all packages
+
+    Fix upstream version commands for all packages
 
     Expand the main repo
 
 DONEISH
 
+    Move .uv.toml data back into info.lock and BUILD, simplifying stuff
     Add upstream version checking
 
     Add per package history tracking
