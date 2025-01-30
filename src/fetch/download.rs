@@ -2,12 +2,21 @@
 //! Defines download functions
 
 use anyhow::{bail, Context};
-use crate::package::Package;
-use crate::utils::fail::{fail, ufail, Fail};
 use indicatif::{ProgressBar, ProgressStyle};
-use std::fs::{self, File};
-use std::io::{Write, Read};
-use std::path::Path;
+use ureq::{
+    Error as UE,
+    http::header::{CONTENT_LENGTH, CONTENT_TYPE}
+};
+use crate::{
+    package::Package,
+    utils::fail::{fail, ufail, Fail},
+    comms::log::vpr,
+};
+use std::{
+    fs::{self, File},
+    io::{self, Read, Write},
+    path::Path,
+};
 
 /// # Description
 /// The format for the download bar
@@ -66,13 +75,20 @@ pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String>
         bail!("Exists: {:?}", file_path);
     }
 
-    let r = ureq::get(url).call().fail(&format!("Failed to download url '{url}'"));
+    vpr!("Attempting to download {url}...");
+    let r = match ureq::get(url).call() {
+        Ok(r) => r,
+        Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
+        Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
+        Err(_) => bail!("An unexpected error occured")
+    };
 
-    if r.status() != 200 {
-        bail!("HTTP Status: {}", r.status());
-    }
+    let length: u64 = r.headers()
+        .get(CONTENT_LENGTH)
+        .and_then(|hv| hv.to_str().ok())
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(8192);
 
-    let length = r.header("Content-Length").and_then(|len| len.parse().ok()).unwrap_or(8192);
     let bar = ProgressBar::new(length);
 
     bar.set_message(file_name.clone());
@@ -83,28 +99,33 @@ pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String>
     );
 
     let mut f = File::create(file_path)?;
-    match r.header("Content-Type") {
-        Some(ct) if ct.starts_with("text/") => {
-            let text = r.into_string()?;
-            f.write_all(text.as_bytes())?;
-        }
-        _ => {
-            let mut reader = bar.wrap_read(r.into_reader());
-            let mut buffer = vec![0; 8192];
-            let mut downloaded = 0;
 
-            loop {
-                let bytes_read = reader.read(&mut buffer)?;
-                if bytes_read == 0 { break }
+    let is_text = r.headers()
+        .get(CONTENT_TYPE)
+        .and_then(|ct| ct.to_str().ok())
+        .is_some_and(|s| s.starts_with("text/"));
 
-                f.write_all(&buffer[..bytes_read])?;
-                downloaded += bytes_read as u64;
+    let body = r.into_body();
+    let mut reader = body.into_reader();
 
-                bar.set_position(downloaded);
+    if is_text {
+        io::copy(&mut reader, &mut f)?;
+    } else {
+        let mut reader = bar.wrap_read(reader);
+        let mut buffer = vec![0; 8192];
+        let mut downloaded = 0;
 
-                if length < downloaded {
-                    bar.set_length(downloaded);
-                }
+        loop {
+            let bytes_read = reader.read(&mut buffer)?;
+            if bytes_read == 0 { break }
+
+            f.write_all(&buffer[..bytes_read])?;
+            downloaded += bytes_read as u64;
+
+            bar.set_position(downloaded);
+
+            if length < downloaded {
+                bar.set_length(downloaded);
             }
         }
     }
@@ -171,7 +192,7 @@ fn download_tarball(package: &Package, force: bool) {
 
     if let Err(e) = download_url(&url, &out, force) {
         if !e.to_string().contains("Exists: ") {
-            fail!("Failed to download tarball for '{}'", package);
+            fail!("Failed to download tarball for '{package}': {e}");
         }
     }
 }
