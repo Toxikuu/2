@@ -81,8 +81,6 @@ pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String>
             .ufail("Invalid template for indicatif bar")
             .progress_chars("=>-")
     );
-    
-    // bar.set_length(length);
 
     let mut f = File::create(file_path)?;
     match r.header("Content-Type") {
