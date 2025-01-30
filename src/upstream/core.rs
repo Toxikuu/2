@@ -72,8 +72,17 @@ fn run_command(cc: &UVConfig) -> Result<String> {
 fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
     let name = &package.name;
 
-    stdout
-        .trim_start_matches(name)
+    let namelen = name.len();
+    let unnamed =
+    if stdout.len() >= namelen
+        && stdout[..namelen].eq_ignore_ascii_case(name)
+    {
+        &stdout[namelen..]
+    } else {
+        stdout
+    };
+
+    unnamed
         .trim_start_matches('-')
         .trim_start_matches('v')
 }
