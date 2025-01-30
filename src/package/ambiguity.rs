@@ -1,12 +1,15 @@
 // src/package/ambiguity.rs
 //! Responsible for resolving ambiguity in packages and sets
 
-use crate::comms::log::{pr, erm};
-use crate::comms::r#in::select;
-use crate::fail;
-use crate::globals::config::CONFIG;
-use crate::package::repos::prioritize;
-use crate::utils::fail::Fail;
+use crate::{
+    comms::{
+        log::{pr, erm},
+        r#in::select,
+    },
+    utils::fail::{fail, Fail},
+    globals::config::CONFIG,
+    package::repos::prioritize,
+};
 use std::fs;
 use walkdir::WalkDir;
 

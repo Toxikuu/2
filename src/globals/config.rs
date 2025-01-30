@@ -5,8 +5,7 @@ use anyhow::{Result, Context};
 use crate::utils::fail::Fail;
 use lazy_static::lazy_static;
 use serde::Deserialize;
-use std::fs;
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 
 /// # Description
 /// The config struct

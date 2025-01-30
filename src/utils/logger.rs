@@ -2,19 +2,23 @@
 //! Logging-related utilities
 
 use anyhow::Result;
-use crate::globals::config::CONFIG;
-use crate::comms::log::erm;
+use crate::{
+    comms::log::erm,
+    globals::config::CONFIG,
+};
 use log4rs::{
     append::file::FileAppender,
     encode::pattern::PatternEncoder,
     config::{Config, Appender, Root},
     Handle,
 };
-use std::fs;
-use std::io::{self, Write};
-use std::path::{PathBuf, Path};
-use std::str::FromStr;
-use std::sync::{Mutex, Once, OnceLock};
+use std::{
+    fs,
+    io::{self, Write},
+    path::{Path, PathBuf},
+    str::FromStr,
+    sync::{Mutex, Once, OnceLock},
+};
 use super::fail::Fail;
 
 static LOGGER: OnceLock<Logger> = OnceLock::new();

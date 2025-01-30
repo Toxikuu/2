@@ -1,13 +1,17 @@
 // src/package/repos.rs
 //! Functions for dealing with package repos
 
-use crate::comms::log::{erm, pr, msg};
-use crate::shell::cmd::exec;
-use crate::utils::fail::Fail;
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use std::fs::{read_dir, read_to_string};
-use std::rc::Rc;
+use crate::{
+    comms::log::{erm, pr, msg},
+    shell::cmd::exec,
+    utils::fail::Fail,
+};
+use std::{
+    cmp::Ordering,
+    collections::HashMap,
+    fs::{read_dir, read_to_string},
+    rc::Rc,
+};
 
 /// # Description
 /// Returns a vector of all repositories under /usr/ports

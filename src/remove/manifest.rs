@@ -1,15 +1,19 @@
 // src/remove/manifest.rs
 //! Reads the package manifest
 
-use crate::comms::log::vpr;
-use crate::package::Package;
-use crate::utils::fail::Fail;
-use std::collections::{HashMap, HashSet};
-use std::fs;
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
-use std::result::Result;
-use std::string::ToString;
+use crate::{
+    comms::log::vpr,
+    package::Package,
+    utils::fail::Fail,
+};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    path::{Path, PathBuf},
+    rc::Rc,
+    result::Result,
+    string::ToString,
+};
 use walkdir::{DirEntry, WalkDir};
 
 /// # Description

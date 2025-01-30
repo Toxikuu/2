@@ -2,11 +2,15 @@
 //! Adds support for sets
 
 use anyhow::{bail, Context, Result};
-use crate::comms::log::{erm, pr};
-use crate::utils::fail::Fail;
-use std::fs::{read_dir, File};
-use std::io::{BufRead, BufReader};
-use std::rc::Rc;
+use crate::{
+    comms::log::{erm, pr},
+    utils::fail::Fail,
+};
+use std::{
+    fs::{read_dir, File},
+    io::{BufRead, BufReader},
+    rc::Rc,
+};
 
 /// # Description
 /// Returns true if a given string is a set

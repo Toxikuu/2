@@ -1,18 +1,21 @@
 // src/pm/endpoints.rs
 //! Defines endpoints for PM
 
-use crate::build::{logic as bl, script};
+use crate::{
+    build::{logic as bl, script},
+    comms::log::{msg, pr, erm},
+    fetch::download::download,
+    globals::flags::FLAGS,
+    package::{Package, parse::expand_set},
+    remove::logic as rl,
+    utils::{
+        fail::Fail,
+        logger,
+        time::Stopwatch,
+    },
+};
 #[cfg(feature = "upstream")]
 use crate::upstream::core::upstream;
-use crate::comms::log::{msg, pr};
-use crate::erm;
-use crate::fetch::download::download;
-use crate::globals::flags::FLAGS;
-use crate::package::{Package, parse::expand_set};
-use crate::remove::logic as rl;
-use crate::utils::fail::Fail;
-use crate::utils::logger;
-use crate::utils::time::Stopwatch;
 use std::path::Path;
 use super::PM;
 

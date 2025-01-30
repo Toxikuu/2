@@ -1,11 +1,15 @@
 // src/package/parse.rs
 //! Functions for parsing positional arguments
 
-use crate::comms::log::erm;
-use crate::utils::fail::Fail;
-use super::Package;
-use super::ambiguity::{resolve_ambiguity, resolve_set_ambiguity};
-use super::sets::unravel;
+use crate::{
+    comms::log::erm,
+    utils::fail::Fail,
+};
+use super::{
+    ambiguity::{resolve_ambiguity, resolve_set_ambiguity},
+    Package,
+    sets::unravel,
+};
 
 // TODO: I'd love to have sets of repos but im too dumb to figure out how to do it rn
 //

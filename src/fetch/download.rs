@@ -2,20 +2,20 @@
 //! Defines download functions
 
 use anyhow::{bail, Context};
-use indicatif::{ProgressBar, ProgressStyle};
-use ureq::{
-    Error as UE,
-    http::header::{CONTENT_LENGTH, CONTENT_TYPE}
-};
 use crate::{
     package::Package,
     utils::fail::{fail, ufail, Fail},
     comms::log::vpr,
 };
+use indicatif::{ProgressBar, ProgressStyle};
 use std::{
     fs::{self, File},
     io::{self, Read, Write},
     path::Path,
+};
+use ureq::{
+    Error as UE,
+    http::header::{CONTENT_LENGTH, CONTENT_TYPE}
 };
 
 /// # Description

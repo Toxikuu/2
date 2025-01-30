@@ -2,11 +2,13 @@
 //! Core logic for --upstream
 
 use anyhow::{bail, Result};
-use std::process::Command;
-use crate::globals::config::CONFIG;
-use crate::package::Package;
-use crate::comms::log::{pr, erm, vpr};
+use crate::{
+    comms::log::{pr, erm, vpr},
+    globals::config::CONFIG,
+    package::Package,
+};
 use serde::Deserialize;
+use std::process::Command;
 
 /// # Description
 /// The upstream version config, generated from .uv.toml by ``read_uv_toml()``

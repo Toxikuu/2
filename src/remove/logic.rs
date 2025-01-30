@@ -2,14 +2,26 @@
 //! Logic for package removal
 
 use anyhow::{bail, Result};
-use crate::comms::log::{erm, pr, vpr};
-use crate::globals::config::CONFIG;
-use crate::globals::flags::FLAGS;
-use crate::package::Package;
-use crate::utils::fail::{fail, Fail};
-use std::fs::{create_dir, read_dir, remove_dir, remove_dir_all, remove_file};
-use std::io::ErrorKind as IOE;
-use std::path::{Path, PathBuf};
+use crate::{
+    comms::log::{erm, pr, vpr},
+    globals::{
+        config::CONFIG,
+        flags::FLAGS,
+    },
+    package::Package,
+    utils::fail::{fail, Fail},
+};
+use std::{
+    fs::{
+        create_dir,
+        read_dir,
+        remove_dir,
+        remove_dir_all,
+        remove_file,
+    },
+    io::ErrorKind as IOE,
+    path::{Path, PathBuf},
+};
 use super::manifest::{find_dead_files, find_unique_paths};
 
 // TODO: Consider using glob patterns for the below, allowing to protect against removal of boot/*

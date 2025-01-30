@@ -25,8 +25,6 @@
 )]
 
 mod build;
-#[cfg(feature = "upstream")]
-mod upstream;
 mod cli;
 mod comms;
 mod fetch;
@@ -35,15 +33,21 @@ mod package;
 mod pm;
 mod remove;
 mod shell;
+#[cfg(feature = "upstream")]
+mod upstream;
 mod utils;
 
-use cli::args::Args;
-use cli::version as v;
+use cli::{
+    args::Args,
+    version as v,
+};
 use globals::flags::{self, FLAGS};
 use package::{parse, sets, repos, provides};
 use pm::PM;
-use utils::fail::Fail;
-use utils::logger;
+use utils::{
+    fail::Fail,
+    logger,
+};
 
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
@@ -98,10 +102,10 @@ fn initialize() -> Args {
 /// ### Description
 /// Handles special arguments if any were passed, returning true; otherwise returns false
 fn handle_special_args(args: &Args) {
-    args.provides.iter().for_each(|p| provides::provides(p));
-    args.add_repos.iter().for_each(|r| repos::add(r));
+    args.provides.iter  ().for_each(|p| provides::provides(p));
+    args.add_repos.iter ().for_each(|r| repos::add (r));
     args.sync_repos.iter().for_each(|r| repos::sync(r));
-    args.list_sets.iter().for_each(|r| sets::list(r));
+    args.list_sets.iter ().for_each(|r| sets::list (r));
 
     if args.list_repos {
         repos::list();

@@ -2,13 +2,16 @@
 //! Utilities for seeing what package(s) provide a specific path
 
 use anyhow::Context;
-use std::fs;
-use std::path::{Path, PathBuf};
-
-use crate::comms::log::erm;
-use crate::pm::PM;
-use crate::remove::manifest;
-use crate::utils::fail::Fail;
+use crate::{
+    comms::log::erm,
+    pm::PM,
+    remove::manifest,
+    utils::fail::Fail,
+};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use super::Package;
 
 /// # Description

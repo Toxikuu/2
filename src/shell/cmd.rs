@@ -2,12 +2,16 @@
 //! Defines functions for sending commands through bash
 
 use anyhow::{Result, Context, bail};
-use crate::comms::log::cpr;
-use crate::globals::config::CONFIG;
-use crate::utils::fail::Fail;
-use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
-use std::thread;
+use crate::{
+    comms::log::cpr,
+    globals::config::CONFIG,
+    utils::fail::Fail,
+};
+use std::{
+    io::{BufRead, BufReader},
+    process::{Command, Stdio},
+    thread,
+};
 
 /// # Description
 /// Executes a command

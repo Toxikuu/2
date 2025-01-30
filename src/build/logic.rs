@@ -1,13 +1,14 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
-use crate::comms::log::{erm, msg, cpr};
-use crate::globals::config::CONFIG;
-use crate::globals::flags::FLAGS;
-use crate::package::Package;
-use crate::remove::logic::remove_dead_files_after_update;
-use crate::shell::cmd::exec;
-use crate::utils::fail::Fail;
+use crate::{
+    comms::log::{erm, msg, cpr},
+    globals::{config::CONFIG, flags::FLAGS},
+    package::Package,
+    remove::logic::remove_dead_files_after_update,
+    shell::cmd::exec,
+    utils::fail::Fail,
+};
 use std::path::Path;
 use super::script;
 

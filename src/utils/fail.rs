@@ -3,10 +3,15 @@
 
 // TODO: consider adding an erm method that discards an error and sends a message
 
-use crate::{comms::log::erm, utils::logger};
-use crate::globals::config::CONFIG;
-use std::fmt;
-use std::panic::Location;
+use crate::{
+    comms::log::erm,
+    utils::logger,
+    globals::config::CONFIG,
+};
+use std::{
+    fmt,
+    panic::Location,
+};
 
 #[allow(dead_code)]
 pub enum UnreachableType {
