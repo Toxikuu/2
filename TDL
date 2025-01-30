@@ -12,11 +12,15 @@ TODO
 
 WIP
 
-    Fix upstream version commands for all packages
+    Fix upstream version commands for xorg/
 
     Expand the main repo
 
 DONEISH
+
+    Update to ureq 3
+
+    Fix upstream version commands for main/
 
     Move .uv.toml data back into info.lock and BUILD, simplifying stuff
     Add upstream version checking
