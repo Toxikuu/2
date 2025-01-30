@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.29" # bugfixes for upstream version checking
+version = "0.0.30" # simplified upstream version checking && updated dependencies
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
