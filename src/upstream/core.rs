@@ -11,11 +11,10 @@ use serde::Deserialize;
 use std::process::Command;
 
 /// # Description
-/// The upstream version config, generated from .uv.toml by ``read_uv_toml()``
+/// The upstream version config, taken from Package by ``gen_cc()``
 ///
 /// Upstream represents the upstream url the command will check (unless empty)
 /// If command is specified, it is evaluated; if not, it uses a reasonable default
-/// Bleeding is a toggle for tracking commit-level versions
 #[derive(Deserialize, Debug)]
 pub struct UVConfig<'u> {
     #[serde(default)]
@@ -44,7 +43,7 @@ pub fn sex(command: &str) -> Result<String> {
 
 /// # Description
 /// Generates ``UVConfig`` from the package struct
-// Necessary allow as Package is not known at compile time
+// Necessary allow as Package is not known at compile time since it's deserialized
 #[allow(clippy::missing_const_for_fn)]
 fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
