@@ -10,7 +10,7 @@ pub mod sets;
 pub mod traits;
 
 use serde::Deserialize;
-use std::rc::Rc;
+use std::sync::Arc;
 
 /// # Description
 /// The package struct
@@ -45,7 +45,7 @@ pub struct PackageData {
     pub dist: String,
 
     pub source: PackageSource,
-    pub extra: Rc<[PackageSource]>,
+    pub extra: Arc<[PackageSource]>,
 
     // I prolly should use Option<> but I'm fucking lazy
     #[cfg(feature = "upstream")]
@@ -60,6 +60,6 @@ pub struct PackageData {
 /// The package source struct
 #[derive(Deserialize, Debug, Clone)]
 pub struct PackageSource {
-    pub url: Rc<str>, // rc used as its immutable and cloned
+    pub url: Arc<str>, // must be thread safe
     pub hash: String, // the hash is never cloned, so String
 }
