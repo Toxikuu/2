@@ -105,7 +105,7 @@ fn display_version(package: &Package, version: &str) {
     let v = &package.version;
     
     if version.is_empty() {
-        erm!("{name} | Failed to get version :(");
+        return erm!("{name} | Failed to get version :(");
     }
 
     let width = 24 - name.len();
@@ -126,6 +126,12 @@ fn format_second_half(v: &str, version: &str) -> String {
 /// # Description
 /// High level function for checking and displaying upstream package versions
 pub fn upstream(package: &Package) {
-    let version = get_version(package);
+    let mut version = String::new();
+    for _ in 0..CONFIG.upstream.retries {
+        version = get_version(package);
+        if !version.is_empty() {
+            break
+        }
+    }
     display_version(package, &version);
 }

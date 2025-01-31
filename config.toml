@@ -30,3 +30,8 @@ auto_ambiguity = true
 log_level = "trace" # one of: trace, debug, info, warn, error
 prune_logs = true
 prune_manifests = true
+
+[upstream]
+max_threads = 64
+stack_size = 512
+retries = 4

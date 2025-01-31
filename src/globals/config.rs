@@ -17,6 +17,8 @@ pub struct Config {
     pub message: MessageConfig,
     pub removal: RemovalConfig,
     pub general: GeneralConfig,
+    #[cfg(feature = "upstream")]
+    pub upstream: UpstreamConfig,
 }
 
 /// # Description
@@ -71,6 +73,18 @@ pub struct MessageConfig {
     pub stderr: String,
     pub stdout: String,
     pub verbose: String,
+}
+
+/// # Description
+/// Part of the config struct
+///
+/// Config options for upstream version checking
+#[cfg(feature = "upstream")]
+#[derive(Deserialize, Debug)]
+pub struct UpstreamConfig {
+    pub max_threads: usize,
+    pub stack_size: usize,
+    pub retries: usize,
 }
 
 impl Config {
