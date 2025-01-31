@@ -1,6 +1,8 @@
 # Project: two
 
 TODO
+
+    Consider using cfg_if
   
     Add sets for installed, outdated, etc
 
@@ -10,15 +12,15 @@ TODO
   
     Work on mdbook docs
 
-    Rayon support for -U is badly needed
-
 WIP
-
-    Fix upstream version commands for xorg/
 
     Expand the main repo
 
 DONEISH
+
+    Fix upstream version commands for xorg/
+
+    Rayon support for -U is badly needed
 
     Update to ureq 3
 
