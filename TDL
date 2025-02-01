@@ -10,8 +10,6 @@ TODO
     Low priority: add m-remove
         also add m-downgrade
 
-    Allow viewing package changelogs with -H
-  
     Work on mdbook docs
 
 WIP
@@ -20,6 +18,8 @@ WIP
 
 DONEISH
 
+    Allow viewing package changelogs with -H
+  
     Make -U show the repo as well as the package name
         cus
             main/kernel

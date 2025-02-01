@@ -6,7 +6,7 @@ use crate::{
     comms::log::{msg, pr, erm, vpr},
     fetch::download::download,
     globals::flags::FLAGS,
-    package::{Package, parse::expand_set},
+    package::{Package, parse::expand_set, history},
     remove::logic as rl,
     utils::{
         fail::Fail,
@@ -236,6 +236,13 @@ impl PM<'_> {
             self.packages.par_iter().for_each(|p| {
                 upstream(p);
             });
+        });
+    }
+
+    pub fn history(&self) {
+        Self::ready();
+        self.packages.iter().for_each(|p| {
+            history::view(p);
         });
     }
 }

@@ -88,6 +88,10 @@ pub struct Args {
     #[arg(short = 'U', long)]
     pub upstream: bool,
 
+    /// View the history for a package
+    #[arg(short = 'H', long)]
+    pub history: bool,
+
     // Type: Special
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2

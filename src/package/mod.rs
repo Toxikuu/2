@@ -3,6 +3,7 @@
 
 pub mod ambiguity;
 pub mod endpoints;
+pub mod history;
 pub mod parse;
 pub mod provides;
 pub mod repos;

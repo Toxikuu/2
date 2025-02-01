@@ -70,6 +70,7 @@ fn main() {
     if args.prune    { pm.prune   () }
     if args.clean    { pm.clean   () }
     if args.logs     { pm.logs    () }
+    if args.history  { pm.history () }
     if args.list     { pm.list("Packages") }
 
     logger::get().detach();
