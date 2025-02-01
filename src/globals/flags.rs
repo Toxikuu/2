@@ -1,13 +1,16 @@
 // src/globals/flags.rs
 //! Defines flags
 
+use once_cell::sync::OnceCell;
 use crate::{
     cli::args::Args,
+    globals::config::CONFIG,
     utils::fail::Fail,
 };
-use lazy_static::lazy_static;
-use std::sync::Mutex;
-use super::config::CONFIG;
+
+/// # Description
+/// The generic global flags object
+pub static FLAGS: OnceCell<Flags> = OnceCell::new();
 
 /// # Description
 /// The generic global flags struct
@@ -23,25 +26,15 @@ pub struct Flags {
 impl Flags {
     /// # Description
     /// Creates a new flags struct
-    pub fn new() -> Self {
-        Self {
-            force: CONFIG.flags.force,
-            quiet: CONFIG.flags.quiet,
-            verbose: CONFIG.flags.verbose,
-        }
+    pub fn new(args: &Args) -> Self {
+        let force = args.force || CONFIG.flags.force;
+        let quiet = args.quiet || CONFIG.flags.quiet;
+        let verbose = args.verbose || CONFIG.flags.verbose;
+
+        Self { force, quiet, verbose }
     }
 }
 
-lazy_static! {
-    /// # Description
-    /// The global flags object
-    pub static ref FLAGS: Mutex<Flags> = Mutex::new(Flags::new());
-}
-
-/// # Description
-/// Sets the generic global flags given passed args
 pub fn set(args: &Args) {
-    FLAGS.lock().ufail("Failed to lock flags").force = args.force;
-    FLAGS.lock().ufail("Failed to lock flags").quiet = args.quiet;
-    FLAGS.lock().ufail("Failed to lock flags").verbose = args.verbose;
+    FLAGS.set(Flags::new(args)).ufail("FLAGS was reinitialized")
 }

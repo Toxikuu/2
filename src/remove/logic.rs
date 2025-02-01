@@ -97,7 +97,7 @@ fn rmf(path: &PathBuf) -> Result<()> {
 /// - the manifest doesn't exist
 /// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
 pub fn remove(package: &Package) -> bool {
-    if !package.data.is_installed && !FLAGS.lock().ufail("Failed to lock flags").force { 
+    if !package.data.is_installed && !FLAGS.get().ufail("Cell issue").force { 
         erm!("Not installed: '{}'", package);
         return false
     }

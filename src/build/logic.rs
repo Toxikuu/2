@@ -25,7 +25,7 @@ use super::script;
 ///
 /// Returns false if the package has already been installed
 pub fn install(package: &Package) -> bool {
-    if package.data.installed_version == package.version && !FLAGS.lock().ufail("Failed to lock flags").force {
+    if package.data.installed_version == package.version && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already installed '{}'", package);
         false
     } else if Path::new(package.data.dist.as_str()).exists() {
@@ -43,7 +43,7 @@ pub fn install(package: &Package) -> bool {
 ///
 /// Returns false if the package has already been built
 pub fn build(package: &Package) -> bool {
-    if Path::new(package.data.dist.as_str()).exists() && !FLAGS.lock().ufail("Failed to lock flags").force {
+    if Path::new(package.data.dist.as_str()).exists() && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already built '{}'", package);
         false
     } else {
@@ -108,7 +108,7 @@ fn dist_install(package: &Package) {
 ///
 /// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 pub fn update(package: &Package) -> bool {
-    let force = FLAGS.lock().ufail("Failed to lock flags").force;
+    let force = FLAGS.get().ufail("Cell issue").force;
     if !package.data.is_installed && !force {
         log::warn!("Not updating to '{}' as an older version is not installed and force wasn't passed", package);
         erm!("Missing: '{}'", package);

@@ -44,10 +44,7 @@ use cli::{
 use globals::flags::{self, FLAGS};
 use package::{parse, sets, repos, provides};
 use pm::PM;
-use utils::{
-    fail::Fail,
-    logger,
-};
+use utils::logger;
 
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
@@ -94,7 +91,7 @@ fn initialize() -> Args {
     flags::set(&args);
 
     log::debug!("Initialized args: {:#?}", args);
-    log::debug!("Initialized flags: {:#?}", FLAGS.lock().ufail("Failed to lock flags"));
+    log::debug!("Initialized flags: {:#?}", FLAGS);
 
     args
 }
