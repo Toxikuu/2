@@ -2,16 +2,13 @@
 
 TODO
   
-    Make -U show the repo as well as the package name
-        cus
-            main/kernel
-            tox/kernel
-
     Consider using cfg_if
+        probably not necessary yet
   
     Add sets for installed, outdated, etc
 
     Low priority: add m-remove
+        also add m-downgrade
 
     Allow viewing package changelogs with -H
   
@@ -22,6 +19,11 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    Make -U show the repo as well as the package name
+        cus
+            main/kernel
+            tox/kernel
 
     // fucking hell i was tired :sob:
     Fix the fucking the thing the parallel dowlnoads fuck im tired
