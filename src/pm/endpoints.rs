@@ -3,7 +3,7 @@
 
 use crate::{
     build::{logic as bl, script},
-    comms::log::{msg, pr, erm},
+    comms::log::{msg, pr, erm, vpr},
     fetch::download::download,
     globals::flags::FLAGS,
     package::{Package, parse::expand_set},
@@ -16,8 +16,22 @@ use crate::{
 };
 #[cfg(feature = "upstream")]
 use crate::upstream::core::upstream;
+use indicatif::ProgressStyle;
+use once_cell::sync::Lazy;
+#[cfg(feature = "parallelism")]
+use rayon::prelude::*;
 use std::path::Path;
 use super::PM;
+
+/// # Description
+/// The format for the download bar
+const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
+
+static STY: Lazy<ProgressStyle> = Lazy::new(|| {
+    ProgressStyle::with_template(BAR)
+        .ufail("Invalid bar template")
+        .progress_chars("=>-")
+});
 
 impl PM<'_> {
     /// # Description
@@ -38,7 +52,7 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false);
+            download(p, false, &STY);
             if bl::install(p) {
                 stopwatch.stop();
                 log::info!("Installed '{}'", p);
@@ -57,7 +71,7 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false);
+            download(p, false, &STY);
             if bl::update(p) {
                 stopwatch.stop();
                 log::info!("Updated to '{}'", p);
@@ -94,7 +108,7 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false);
+            download(p, false, &STY);
             if bl::build(p) {
                 stopwatch.stop();
                 log::info!("Built '{}'", p);
@@ -103,24 +117,23 @@ impl PM<'_> {
         });
     }
 
-    // TODO: Parallelize this
     /// # Description
     /// Gets (downloads sources for) all packages in the PM struct
     pub fn get(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
             logger::get().attach(&p.relpath);
+            log::info!("Downloading sources for '{p}'...");
+            vpr!("Downloading sources for '{p}'...");
 
-            let mut stopwatch = Stopwatch::new();
-            stopwatch.start();
-
+            let force = FLAGS.get().ufail("Cell issue").force;
             // TODO: add tracking for whether anything was actually downloaded
-            download(p, FLAGS.lock().ufail("Failed to lock flags").force);
+            download(p, force, &STY);
 
-            stopwatch.stop();
-            log::info!("Downloaded sources for '{}'", p);
+            log::info!("Downloading sources for '{p}'...");
         });
     }
+    
 
     // TODO: Parallelize this
     /// # Description
@@ -209,12 +222,20 @@ impl PM<'_> {
 
     /// # Description
     /// Displays the upstream version for a package, as well as the local version based on
-    /// information from .chaser.toml
+    /// information from BUILD
     #[cfg(feature = "upstream")]
     pub fn upstream(&self) {
         Self::ready();
+        #[cfg(not(feature = "parallelism"))]
         self.packages.iter().for_each(|p| {
             upstream(p);
+        });
+
+        #[cfg(feature = "parallelism")]
+        self.thread_pool.install(|| {
+            self.packages.par_iter().for_each(|p| {
+                upstream(p);
+            });
         });
     }
 }
