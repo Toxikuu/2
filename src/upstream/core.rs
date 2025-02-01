@@ -100,16 +100,16 @@ fn get_version(package: &Package) -> String {
 /// # Description
 /// Handles displaying local vs upstream package versions for a package
 fn display_version(package: &Package, version: &str) {
-    let name = &package.name;
+    let pkg = format!("{}/{}", package.repo, package.name);
     let v = &package.version;
     
     if version.is_empty() {
-        return erm!("{name} | Failed to get version :(");
+        return erm!("{pkg} | Failed to get version :(");
     }
 
-    let width = 24 - name.len();
+    let width = 24 - pkg.len();
     let second_half = format_second_half(v, version);
-    pr!("{name} {:<width$} | {second_half}", " ");
+    pr!("{pkg} {:<width$} | {second_half}", " ");
 }
 
 /// # Description
