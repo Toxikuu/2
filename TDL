@@ -1,6 +1,11 @@
 # Project: two
 
 TODO
+  
+    Make -U show the repo as well as the package name
+        cus
+            main/kernel
+            tox/kernel
 
     Consider using cfg_if
   
@@ -17,6 +22,11 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    // fucking hell i was tired :sob:
+    Fix the fucking the thing the parallel dowlnoads fuck im tired
+        make the downloads happen at the start but not like in parallel because every fucking crate author is allergic to writing good documentation with examples of how to use the fucking library
+        also it would make logging a lot simpler
 
     Fix upstream version commands for xorg/
 
