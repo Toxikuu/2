@@ -10,25 +10,27 @@ use crate::{
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
     fs::{self, File},
-    io::{self, Read, Write},
+    io::{Read, Write},
     path::Path,
 };
 use ureq::{
     Error as UE,
-    http::header::{CONTENT_LENGTH, CONTENT_TYPE}
+    http::header::CONTENT_LENGTH,
+    // http::header::{CONTENT_LENGTH, CONTENT_TYPE},
 };
-
-/// # Description
-/// The format for the download bar
-const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
 /// # Description
 /// Very high level download function for package
 ///
 /// Downloads the tarball and any extra sources
-pub fn download(package: &Package, force: bool) {
-    download_tarball(package, force);
-    download_extra(package, force);
+pub fn download(package: &Package, force: bool, sty: &ProgressStyle) {
+    let pb = ProgressBar::new(8192);
+    pb.set_style(sty.clone());
+
+    download_tarball(package, force, &pb);
+    download_extra(package, force, &pb);
+
+    pb.finish_with_message(format!("󰗠 {package}"));
 }
 
 /// # Description
@@ -43,12 +45,12 @@ pub fn download(package: &Package, force: bool) {
 /// - ``download_url()`` returns an error other than Exists
 ///
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
-pub fn download_extra(package: &Package, force: bool) {
+pub fn download_extra(package: &Package, force: bool, pb: &ProgressBar) {
     package.data.extra.iter().for_each(|source| {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail(&format!("Invalid extra url: '{}'", source.url));
         let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
 
-        if let Err(e) = download_url(&source.url, &out, force) {
+        if let Err(e) = download_url(&source.url, &out, force, pb) {
             if !e.to_string().contains("Exists: ") {
                 fail!("Failed to get extra url '{}'", source.url);
             }
@@ -67,7 +69,7 @@ pub fn download_extra(package: &Package, force: bool) {
 /// - the http status is not 200
 /// - the file path cannot be created (unlikely)
 /// - random buffer-related rw failures (unlikely)
-pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String> {
+pub fn download_url(url: &str, out: &str, force: bool, pb: &ProgressBar) -> anyhow::Result<String> {
     let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).ufail("Invalid output path");
     let file_path = Path::new(&out);
 
@@ -75,13 +77,14 @@ pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String>
         bail!("Exists: {:?}", file_path);
     }
 
-    vpr!("Attempting to download {url}...");
+    vpr!("Downloading '{url}'...");
     let r = match ureq::get(url).call() {
         Ok(r) => r,
         Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
         Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
         Err(_) => bail!("An unexpected error occured")
     };
+    vpr!("Response:\n{r:#?}");
 
     let length: u64 = r.headers()
         .get(CONTENT_LENGTH)
@@ -89,49 +92,38 @@ pub fn download_url(url: &str, out: &str, force: bool) -> anyhow::Result<String>
         .and_then(|s| s.parse().ok())
         .unwrap_or(8192);
 
-    let bar = ProgressBar::new(length);
-
-    bar.set_message(file_name.clone());
-    bar.set_style(
-        ProgressStyle::with_template(BAR)
-            .ufail("Invalid template for indicatif bar")
-            .progress_chars("=>-")
-    );
+    pb.set_length(length);
+    pb.set_message(format!("󱑤 {file_name}"));
 
     let mut f = File::create(file_path)?;
 
-    let is_text = r.headers()
-        .get(CONTENT_TYPE)
-        .and_then(|ct| ct.to_str().ok())
-        .is_some_and(|s| s.starts_with("text/"));
+    // let is_text = r.headers()
+    //     .get(CONTENT_TYPE)
+    //     .and_then(|ct| ct.to_str().ok())
+    //     .is_some_and(|s| s.starts_with("text/"));
 
     let body = r.into_body();
-    let mut reader = body.into_reader();
+    let reader = body.into_reader();
 
-    if is_text {
-        io::copy(&mut reader, &mut f)?;
-    } else {
-        let mut reader = bar.wrap_read(reader);
-        let mut buffer = vec![0; 8192];
-        let mut downloaded = 0;
+    let mut downloaded = 0;
+    let mut reader = pb.wrap_read(reader);
+    let mut buffer = vec![0; 8192];
 
-        loop {
-            let bytes_read = reader.read(&mut buffer)?;
-            if bytes_read == 0 { break }
+    loop {
+        let bytes_read = reader.read(&mut buffer)?;
+        if bytes_read == 0 { break }
 
-            f.write_all(&buffer[..bytes_read])?;
-            downloaded += bytes_read as u64;
+        f.write_all(&buffer[..bytes_read])?;
+        downloaded += bytes_read as u64;
 
-            bar.set_position(downloaded);
+        pb.set_position(downloaded);
 
-            if length < downloaded {
-                bar.set_length(downloaded);
-            }
+        if length < downloaded {
+            pb.set_length(downloaded);
         }
     }
 
-    bar.set_position(length);
-    bar.finish_with_message("Done");
+    pb.set_position(length);
 
     Ok(file_name)
 }
@@ -179,7 +171,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 /// - ``download_url()`` returns an error other than Exists
 ///
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
-fn download_tarball(package: &Package, force: bool) {
+fn download_tarball(package: &Package, force: bool, pb: &ProgressBar) {
     let url = package.data.source.url.clone();
     if url.is_empty() { return }
 
@@ -190,7 +182,8 @@ fn download_tarball(package: &Package, force: bool) {
     fs::create_dir_all(&srcpath).ufail("Failed to create source path");
     let out = format!("{}/{}", &srcpath, &file_name);
 
-    if let Err(e) = download_url(&url, &out, force) {
+    vpr!("Downloading tarball...");
+    if let Err(e) = download_url(&url, &out, force, pb) {
         if !e.to_string().contains("Exists: ") {
             fail!("Failed to download tarball for '{package}': {e}");
         }
