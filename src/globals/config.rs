@@ -3,9 +3,11 @@
 
 use anyhow::{Result, Context};
 use crate::utils::fail::Fail;
-use lazy_static::lazy_static;
 use serde::Deserialize;
-use std::{fs, sync::Arc};
+use std::{
+    fs,
+    sync::{Arc, LazyLock},
+};
 
 /// # Description
 /// The config struct
@@ -100,12 +102,16 @@ impl Config {
     }
 }
 
-lazy_static! {
-    /// # Description
-    /// Shared config object
-    ///
-    /// It's evaluated at runtime and available across files
-    pub static ref CONFIG: Arc<Config> = Arc::new(
-        Config::load().fail("Failed to load /etc/2/config.toml")
-    );
-}
+pub static CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| Arc::new(
+    Config::load().fail("Failed to load /etc/2/config.toml")
+));
+//
+// lazy_static! {
+//     /// # Description
+//     /// Shared config object
+//     ///
+//     /// It's evaluated at runtime and available across files
+//     pub static ref CONFIG: Arc<Config> = Arc::new(
+//         Config::load().fail("Failed to load /etc/2/config.toml")
+//     );
+// }
