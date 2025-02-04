@@ -36,5 +36,5 @@ impl Flags {
 }
 
 pub fn set(args: &Args) {
-    FLAGS.set(Flags::new(args)).ufail("FLAGS was reinitialized")
+    FLAGS.set(Flags::new(args)).ufail("FLAGS was reinitialized");
 }
