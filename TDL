@@ -18,6 +18,9 @@ WIP
 
 DONEISH
 
+    Migrate from lazy_static to once_cell for everything
+        Used std::sync::LazyLock instead
+
     Allow viewing package changelogs with -H
   
     Make -U show the repo as well as the package name
