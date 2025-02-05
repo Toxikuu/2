@@ -23,7 +23,7 @@ impl Package {
         if !toml_path.exists() { fail!("{} does not exist", &toml_path_str) }
         let toml_contents = fs::read_to_string(toml_path).ufail(&format!("Something is very wrong with {}", &toml_path_str));
 
-        let mut package: Self = toml::de::from_str(&toml_contents).ufail("Invalid syntax in info.lock");
+        let mut package: Self = toml::de::from_str(&toml_contents).ufail(&format!("Invalid syntax in info.lock for '{repo}/{name}'"));
         let status_path = toml_path.with_file_name(".data/INSTALLED");
 
         vpr!("Status path: {:?}", status_path);
@@ -39,5 +39,9 @@ impl Package {
         package.relpath = relpath;
 
         package
+    }
+
+    pub fn is_outdated(&self) -> bool {
+        self.data.is_installed && self.data.installed_version != self.version
     }
 }
