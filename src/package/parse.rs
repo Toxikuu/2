@@ -8,10 +8,11 @@ use crate::{
 use super::{
     ambiguity::{resolve_ambiguity, resolve_set_ambiguity},
     Package,
-    sets::unravel,
+    sets::{unravel, is_special_set},
 };
 
-// TODO: I'd love to have sets of repos but im too dumb to figure out how to do it rn
+// TODO: Rather than sets of repos, I should make it so the user can limit the sets to specific
+// repos (ex. main/@outdated)
 //
 /// # Description
 /// Parses the raw package positional arguments into packages
@@ -55,10 +56,10 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 /// # Description
 /// Expands a set into its constituent packages
 pub fn expand_set(set: &str) -> Box<[Package]> {
-    let set = if set.contains("@every") || set.contains("@!") || set.contains("/@all") || set.contains("/@@") {
+    let set = if is_special_set(set) {
         set.to_string()
     } else {
-        resolve_set_ambiguity(set)
+        resolve_set_ambiguity(set)  
     };
 
     let packages = unravel(&set).fail("Failed to unravel set");
@@ -67,7 +68,7 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
         let mut p = p.as_str();
 
         if let Some(i) = p.find('=') {
-            let msg = format!("Version control is not supported; stripping version for set '{set}' member '{p}'");
+            let msg = format!("Version control is not supported; stripping version for '{set}' member '{p}'");
             erm!("{}", msg); log::warn!("{}", msg);
             p = &p[..i];
         }
