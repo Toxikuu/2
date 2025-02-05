@@ -25,7 +25,7 @@ use super::PM;
 
 /// # Description
 /// The format for the download bar
-const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
+const BAR: &str = "{prefix:.red} {msg:32.red} [{elapsed_precise}] [{bar:64.red/black}] {bytes}/{total_bytes}";
 
 static STY: Lazy<ProgressStyle> = Lazy::new(|| {
     ProgressStyle::with_template(BAR)
