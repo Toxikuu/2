@@ -1,11 +1,17 @@
 # Project: two
 
 TODO
+
+    Use more nf icons
+
+    Make the downloads actually happen at the start
+
+    Add a way to specify repo when dealing with sets
+        I'm thinking assume all repos unless repo/ is specified (for special sets)
+        otherwise resolve ambiguity
   
     Consider using cfg_if
         probably not necessary yet
-  
-    Add sets for installed, outdated, etc
 
     Low priority: add m-remove
         also add m-downgrade
@@ -17,6 +23,8 @@ WIP
     Expand the main repo
 
 DONEISH
+  
+    Add sets for installed, outdated, etc
 
     Migrate from lazy_static to once_cell for everything
         Used std::sync::LazyLock instead
@@ -137,6 +145,8 @@ DROPPED
         Would be unintuitive and overly complex
         
 IDEAS
+
+    Add a file for enabled repos
 
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
 
