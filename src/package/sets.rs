@@ -9,6 +9,7 @@ use crate::{
 use std::{
     fs::{read_dir, File},
     io::{BufRead, BufReader},
+    path::Path,
     rc::Rc,
 };
 
@@ -58,6 +59,14 @@ pub fn unravel(set: &str) -> anyhow::Result<Rc<[String]>> {
         return Ok(every())
     }
 
+    if matches!(set.as_str(), "@o" | "@outdated") {
+        return Ok(outdated())
+    }
+
+    if matches!(set.as_str(), "@i" | "@installed") {
+        return Ok(installed())
+    }
+
     let (repo, set) = set.split_once('/').ufail("No '/' in set");
 
     if matches!(set.as_str(), "@@" | "@all") {
@@ -102,13 +111,41 @@ pub fn list(repo: &str) {
 ///
 /// @every has an alias, @!
 pub fn every() -> Rc<[String]> {
-    let repos = super::repos::find_all();
-    let mut every = Vec::new();
-
-    repos.iter().for_each(|r| {
-        let mut packages = all(r).unwrap_or_default().to_vec();
-        every.append(&mut packages);
-    });
-
-    every.into()
+    super::repos::find_all()
+        .iter()
+        .flat_map(|r| all(r).unwrap_or_default().to_vec())
+        .collect()
 }
+
+/// # Description
+/// Unravels the special set '@installed', which contains every installed package in every repo
+///
+/// @installed has an alias, @i
+pub fn installed() -> Rc<[String]> {
+    super::repos::find_all()
+        .iter()
+        .flat_map(|r| all(r).unwrap_or_default().to_vec())
+        .filter(|p| Path::new(&format!("/usr/ports/{p}/.data/INSTALLED")).exists())
+        .collect()
+}
+
+/// # Description
+/// Unravels the special set '@outdated', which contains every outdated package in every repo
+///
+/// @outdated has an alias, @o
+pub fn outdated() -> Rc<[String]> {
+    super::repos::find_all()
+        .iter()
+        .flat_map(|r| all(r).unwrap_or_default().to_vec())
+        .filter(|p| {
+            let (repo, name) = p.split_once('/').ufail(&format!("Misformatted package {p}"));
+            super::Package::new(repo, name).is_outdated()
+        })
+        .collect()
+}
+
+/// # Description
+/// Returns true if a given set is a special set
+pub fn is_special_set(set: &str) -> bool {
+    matches!(set, "@o" | "@outdated" | "@i" | "@installed" | "@!" | "@every" | "@all" | "@@")
+} 
