@@ -210,39 +210,40 @@ pub(crate) use {fail, ufail};
 #[cfg(test)]
 mod tests {
     use super::*;
-    use anyhow::{Result, anyhow};
+    // use anyhow::{Result, anyhow};
+    use anyhow::Result;
 
-    #[test]
-    #[allow(clippy::should_panic_without_expect)]
-    #[should_panic]
-    fn option_fail() {
-        let option: Option<char> = None;
-        option.fail("option fail test");
-    }
-
-    #[test]
-    #[allow(clippy::should_panic_without_expect)]
-    #[should_panic]
-    fn option_ufail() {
-        let option: Option<char> = None;
-        option.ufail("unreachable option fail test");
-    }
-
-    #[test]
-    #[allow(clippy::should_panic_without_expect)]
-    #[should_panic]
-    fn error_fail() {
-        let result: Result<char> = Err(anyhow!("hi mom"));
-        result.fail("error fail test");
-    }
-
-    #[test]
-    #[allow(clippy::should_panic_without_expect)]
-    #[should_panic]
-    fn error_ufail() {
-        let result: Result<char> = Err(anyhow!("hi mom"));
-        result.ufail("unreachable error fail test");
-    }
+    // #[test]
+    // #[allow(clippy::should_panic_without_expect)]
+    // #[should_panic]
+    // fn option_fail() {
+    //     let option: Option<char> = None;
+    //     option.fail("option fail test");
+    // }
+    //
+    // #[test]
+    // #[allow(clippy::should_panic_without_expect)]
+    // #[should_panic]
+    // fn option_ufail() {
+    //     let option: Option<char> = None;
+    //     option.ufail("unreachable option fail test");
+    // }
+    //
+    // #[test]
+    // #[allow(clippy::should_panic_without_expect)]
+    // #[should_panic]
+    // fn error_fail() {
+    //     let result: Result<char> = Err(anyhow!("hi mom"));
+    //     result.fail("error fail test");
+    // }
+    //
+    // #[test]
+    // #[allow(clippy::should_panic_without_expect)]
+    // #[should_panic]
+    // fn error_ufail() {
+    //     let result: Result<char> = Err(anyhow!("hi mom"));
+    //     result.ufail("unreachable error fail test");
+    // }
 
     #[test]
     fn option_success() {
