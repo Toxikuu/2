@@ -50,6 +50,8 @@ declare -p > /tmp/2/m-diffs/pre
 sed -i '/^#d/d' BUILD
 "$EDITOR" BUILD
 
+# in case one is removed
+unset NAME VERS DESC UPST VCMD SOURCE EXTRA
 source BUILD
 declare -p > /tmp/2/m-diffs/post
 
