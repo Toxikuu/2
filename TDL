@@ -4,13 +4,10 @@ TODO
 
     Use more nf icons
 
-    Make the downloads actually happen at the start
-
     Add a way to specify repo when dealing with sets
         I'm thinking assume all repos unless repo/ is specified (for special sets)
         otherwise resolve ambiguity
   
-    Consider using cfg_if
         probably not necessary yet
 
     Low priority: add m-remove
@@ -23,6 +20,8 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    Make the downloads actually happen at the start
   
     Add sets for installed, outdated, etc
 
@@ -148,6 +147,8 @@ IDEAS
 
     Add a file for enabled repos
 
+    Consider using cfg_if
+
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
 
     Rayon everywhere
@@ -165,4 +166,4 @@ ROADMAP
 
     Features for 2-1.0.0:
         install script
-        solid documentation with mdbook and within the code
+        solid documentation with mdbook
