@@ -39,6 +39,7 @@ impl PM<'_> {
     ///
     /// Currently, this just detaches the logger from a specific package
     fn ready() {
+        log::debug!("Log detached");
         logger::get().detach();
     }
 
@@ -150,7 +151,7 @@ impl PM<'_> {
 
             // TODO: add tracking for whether anything was actually downloaded
             download(p, false, &STY);
-            log::info!("Fetching sources for '{p}'");
+            log::info!("Fetched sources for '{p}'");
         });
     }
 
