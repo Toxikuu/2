@@ -2,7 +2,12 @@
 
 TODO
 
-    Use more nf icons
+    Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
+
+    Have the execution logic as a PM method
+        Also pass args to it
+        This is to address the `2 -bi dependency package` issue
+        Iterate over each package, checking the flags
 
     Add a way to specify repo when dealing with sets
         I'm thinking assume all repos unless repo/ is specified (for special sets)
@@ -16,6 +21,8 @@ TODO
     Work on mdbook docs
 
 WIP
+
+    Use more nf icons
 
     Expand the main repo
 
