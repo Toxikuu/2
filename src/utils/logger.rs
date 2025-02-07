@@ -86,6 +86,7 @@ impl Logger {
     pub fn detach(&self) {
         *self.relpath.lock().ufail("Failed to lock relpath mutex") = None;
         self.refresh().ufail("Failed to refresh logger");
+        log::debug!("Log detached");
     }
 
     /// # Description
