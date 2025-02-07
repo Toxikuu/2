@@ -39,87 +39,95 @@ impl PM<'_> {
     ///
     /// Currently, this just detaches the logger from a specific package
     fn ready() {
-        log::debug!("Log detached");
         logger::get().detach();
+    }
+
+    pub fn run(&self) {
+        self.fetch_all_sources_if_needed(self.args);
+        // args order matters
+        let a = self.args;
+
+        if a.remove {
+            self.packages.iter().for_each(Self::remove);
+        }
+
+        #[cfg(feature = "upstream")]
+        if a.upstream { self.upstream () }
+        if a.get      { self.get      () }
+
+        self.packages.iter().for_each(|p| {
+            Self::ready();
+            logger::get().attach(&p.relpath);
+
+            if a.build    { Self::build   (p) }
+            if a.install  { Self::install (p) }
+            if a.update   { Self::update  (p) }
+            if a.logs     { Self::logs    (p) }
+            if a.history  { Self::history (p) }
+        });
+
+        if a.prune    { self.prune () }
+        if a.clean    { self.clean () }
+        if a.list     { self.list  () }
     }
 
     /// # Description
     /// Installs all packages in the PM struct
-    pub fn install(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
+    fn install(p: &Package) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
 
-            let mut stopwatch = Stopwatch::new();
-            stopwatch.start();
-
-            if bl::install(p) {
-                stopwatch.stop();
-                log::info!("Installed '{}'", p);
-                msg!("󰗠  Installed '{}' in {}", p, stopwatch.display());
-            }
-        });
+        if bl::install(p) {
+            stopwatch.stop();
+            log::info!("Installed '{}'", p);
+            msg!("󰗠  Installed '{}' in {}", p, stopwatch.display());
+        }
     }
 
     /// # Description
     /// Updates all packages in the PM struct
-    pub fn update(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
+    fn update(p: &Package) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
 
-            let mut stopwatch = Stopwatch::new();
-            stopwatch.start();
-
-            if bl::update(p) {
-                stopwatch.stop();
-                log::info!("Updated to '{}'", p);
-                msg!("󰗠  Updated to '{}' in {}", p, stopwatch.display());
-            }
-        });
+        if bl::update(p) {
+            stopwatch.stop();
+            log::info!("Updated to '{}'", p);
+            msg!("󰗠  Updated to '{}' in {}", p, stopwatch.display());
+        }
     }
 
     /// # Description
     /// Removes all packages in the PM struct
-    pub fn remove(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
+    fn remove(p: &Package) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
 
-            let mut stopwatch = Stopwatch::new();
-            stopwatch.start();
-
-            if rl::remove(p) {
-                stopwatch.stop();
-                log::info!("Removed '{}'", p);
-                msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
-            }
-        });
+        if rl::remove(p) {
+            stopwatch.stop();
+            log::info!("Removed '{}'", p);
+            msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
+        }
     }
 
     /// # Description
     /// Builds all packages in the PM struct
-    pub fn build(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
+    fn build(p: &Package) {
+        let mut stopwatch = Stopwatch::new();
+        stopwatch.start();
 
-            let mut stopwatch = Stopwatch::new();
-            stopwatch.start();
-
-            if bl::build(p) {
-                stopwatch.stop();
-                log::info!("Built '{}'", p);
-                msg!("󰗠  Built '{}' in {}", p, stopwatch.display());
-            }
-        });
+        if bl::build(p) {
+            stopwatch.stop();
+            log::info!("Built '{}'", p);
+            msg!("󰗠  Built '{}' in {}", p, stopwatch.display());
+        }
     }
 
     /// # Description
     /// Gets (downloads sources for) all packages in the PM struct
     ///
     /// This is separate from ``fetch_all_sources_if_needed()``
-    pub fn get(&self) {
+    fn get(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
             logger::get().attach(&p.relpath);
@@ -127,8 +135,7 @@ impl PM<'_> {
             vpr!("Downloading sources for '{p}'...");
 
             // TODO: add tracking for whether anything was actually downloaded
-            download(p, self.force, &STY);
-
+            download(p, self.args.force, &STY);
             log::info!("Downloaded sources for '{p}'");
         });
     }
@@ -136,7 +143,7 @@ impl PM<'_> {
     /// # Description
     /// Fetches the sources for all packages if certain cli flags are passed
     /// This logs "fetching" instead of "downloading" to differentiate between this and ``get()``
-    pub fn fetch_all_sources_if_needed(&self, args: &Args) {
+    fn fetch_all_sources_if_needed(&self, args: &Args) {
         // 'if needed' means one of these are passed
         if ! (args.install || args.update || args.build) {
             log::info!("Sources were not automatically fetched as they were not needed");
@@ -160,7 +167,7 @@ impl PM<'_> {
     //
     /// # Description
     /// Prunes files for all packages in the PM struct
-    pub fn prune(&self) {
+    fn prune(&self) {
         Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
@@ -175,15 +182,14 @@ impl PM<'_> {
             total_count += count;
         });
 
+        Self::ready();
         stopwatch.stop();
-
-        logger::get().detach();
         msg!("󰗠  Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
 
     /// # Description
     /// Cleans the build directory for all packages in the PM struct
-    pub fn clean(&self) {
+    fn clean(&self) {
         Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
@@ -195,7 +201,7 @@ impl PM<'_> {
 
         stopwatch.stop();
 
-        logger::get().detach();
+        Self::ready();
         msg!("󰗠  Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
@@ -203,11 +209,23 @@ impl PM<'_> {
     /// Lists out all the packages in the PM struct
     ///
     /// If there are no packages, lists all of them
-    pub fn list(&self, msg: &str) {
+    pub fn list(&self) {
         Self::ready();
+
+        let packages = self.packages;
+        Self::list_packages(packages, "Packages");
+
+        log::info!("Listed {} packages", packages.len());
+    }
+
+    /// # Description
+    /// Lists all provided packages
+    ///
+    /// If none are provided, lists every package
+    pub fn list_packages(packages: &[Package], msg: &str) {
         msg!("{msg}:");
 
-        let mut pkgs = self.packages.to_vec();
+        let mut pkgs = packages.to_vec();
         if pkgs.is_empty() { pkgs = expand_set("@every").to_vec(); }
         pkgs.sort_by(|a, b| {
             let a = format!("{}/{}", a.repo, a);
@@ -221,8 +239,6 @@ impl PM<'_> {
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", status);
         };
-
-        log::info!("Listed {} packages", pkgs.len());
     }
 
     // this intentionally does not log, though I suppose it could
@@ -230,23 +246,20 @@ impl PM<'_> {
     //
     /// # Description
     /// Displays the logs for a package
-    pub fn logs(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            let log_file_str = format!("/usr/ports/{}/.logs/pkg.log", p.relpath);
-            let log_file = Path::new(&log_file_str);
-            
-            if logger::display(log_file).is_err() {
-                erm!("No logs exist for '{}'", p);
-            }
-        });
+    fn logs(p: &Package) {
+        let log_file_str = format!("/usr/ports/{}/.logs/pkg.log", p.relpath);
+        let log_file = Path::new(&log_file_str);
+        
+        if logger::display(log_file).is_err() {
+            erm!("No logs exist for '{}'", p);
+        }
     }
 
     /// # Description
     /// Displays the upstream version for a package, as well as the local version based on
     /// information from BUILD
     #[cfg(feature = "upstream")]
-    pub fn upstream(&self) {
+    fn upstream(&self) {
         Self::ready();
         #[cfg(not(feature = "parallelism"))]
         self.packages.iter().for_each(|p| {
@@ -261,11 +274,8 @@ impl PM<'_> {
         });
     }
 
-    pub fn history(&self) {
-        Self::ready();
-        self.packages.iter().for_each(|p| {
-            history::view(p);
-        });
+    fn history(p: &Package) {
+        history::view(p);
     }
 }
 

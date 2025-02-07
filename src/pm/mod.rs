@@ -4,9 +4,8 @@
 pub mod endpoints;
 
 use crate::{
+    cli::args::Args,
     package::Package,
-    globals::flags::FLAGS,
-    utils::fail::Fail,
 };
 
 #[cfg(feature = "parallelism")]
@@ -19,7 +18,7 @@ pub use {
 /// The package manager struct
 pub struct PM<'a> {
     pub packages: &'a [Package],
-    pub force: bool,
+    pub args: &'a Args,
     #[cfg(feature = "parallelism")]
     pub thread_pool: ThreadPool,
 }
@@ -28,17 +27,17 @@ impl<'a> PM<'a> {
     /// # Description
     /// Creates a new package manager struct from an array of packages
     #[cfg(not(feature = "parallelism"))]
-    pub const fn new(packages: &'a [Package]) -> Self {
+    pub const fn new(packages: &'a [Package], args: &'a Args) -> Self {
         Self { packages }
     }
 
     /// # Description
     /// Creates a new package manager struct from an array of packages
     #[cfg(feature = "parallelism")]
-    pub fn new(packages: &'a [Package]) -> Self {
+    pub fn new(packages: &'a [Package], args: &'a Args) -> Self {
         Self { 
             packages,
-            force: FLAGS.get().ufail("Cell issue").force,
+            args,
             thread_pool: build_pool(packages),
         }
     }

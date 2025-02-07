@@ -57,23 +57,7 @@ fn main() {
     handle_special_args(&args);
 
     let packages = parse::parse(&args.packages);
-    let pm = PM::new(&packages);
-    pm.fetch_all_sources_if_needed(&args);
-
-    // the order here matters
-    if args.version  { v::display () }
-    if args.remove   { pm.remove  () }
-    #[cfg(feature = "upstream")]
-    if args.upstream { pm.upstream() }
-    if args.get      { pm.get     () }
-    if args.build    { pm.build   () }
-    if args.install  { pm.install () }
-    if args.update   { pm.update  () }
-    if args.prune    { pm.prune   () }
-    if args.clean    { pm.clean   () }
-    if args.logs     { pm.logs    () }
-    if args.history  { pm.history () }
-    if args.list     { pm.list("Packages") }
+    PM::new(&packages, &args).run();
 
     logger::get().detach();
     log::info!("Finished all tasks\n\n\t----------------\n");
@@ -100,14 +84,14 @@ fn initialize() -> Args {
 }
 
 /// ### Description
-/// Handles special arguments if any were passed, returning true; otherwise returns false
+/// Handles special arguments if any were passed
 fn handle_special_args(args: &Args) {
+    if args.version { v::display() }
+
     args.provides.iter  ().for_each(|p| provides::provides(p));
     args.add_repos.iter ().for_each(|r| repos::add (r));
     args.sync_repos.iter().for_each(|r| repos::sync(r));
     args.list_sets.iter ().for_each(|r| sets::list (r));
 
-    if args.list_repos {
-        repos::list();
-    }
+    if args.list_repos { repos::list() }
 }
