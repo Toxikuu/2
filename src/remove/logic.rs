@@ -3,7 +3,7 @@
 
 use anyhow::{bail, Result};
 use crate::{
-    comms::log::{erm, pr, vpr},
+    comms::log::{erm, cpr, vpr},
     globals::{
         config::CONFIG,
         flags::FLAGS,
@@ -130,7 +130,7 @@ pub fn remove(package: &Package) -> bool {
             rmdir(&path).fail("Failed to remove directory");
         }
 
-        pr!("'{}' -x", p);
+        cpr!("'{}' -x", p);
     });
 
     // NOTE: the manifest is not removed as prune will handle it
@@ -194,7 +194,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
             rmdir(&path).fail("Failed to remove directory");
         }
 
-        pr!("'{}' -x", p);
+        cpr!("'{}' -x", p);
     });
 }
 
