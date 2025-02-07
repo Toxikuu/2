@@ -3,7 +3,11 @@
 
 pub mod endpoints;
 
-use crate::package::Package;
+use crate::{
+    package::Package,
+    globals::flags::FLAGS,
+    utils::fail::Fail,
+};
 
 #[cfg(feature = "parallelism")]
 pub use {
@@ -15,6 +19,7 @@ pub use {
 /// The package manager struct
 pub struct PM<'a> {
     pub packages: &'a [Package],
+    pub force: bool,
     #[cfg(feature = "parallelism")]
     pub thread_pool: ThreadPool,
 }
@@ -33,6 +38,7 @@ impl<'a> PM<'a> {
     pub fn new(packages: &'a [Package]) -> Self {
         Self { 
             packages,
+            force: FLAGS.get().ufail("Cell issue").force,
             thread_pool: build_pool(packages),
         }
     }
