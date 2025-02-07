@@ -2,6 +2,7 @@
 //! Logging-related utilities
 
 use anyhow::Result;
+use log::LevelFilter;
 use crate::{
     comms::log::erm,
     globals::config::CONFIG,
@@ -9,7 +10,7 @@ use crate::{
 use log4rs::{
     append::file::FileAppender,
     encode::pattern::PatternEncoder,
-    config::{Config, Appender, Root},
+    config::{Config, Appender, Root, Logger as L4L},
     Handle,
 };
 use std::{
@@ -31,17 +32,17 @@ static LOG_INIT: Once = Once::new();
 /// config. If it's unset, it defaults to trace.
 ///
 /// Trace is the recommended log level. I really should have used custom ones but whatever.
-fn get_log_level() -> log::LevelFilter {
+fn get_log_level() -> LevelFilter {
     let log_level = std::env::var("LOG_LEVEL");
     let log_level = log_level.as_deref().unwrap_or(&CONFIG.general.log_level);
 
-    log::LevelFilter::from_str(log_level).unwrap_or_else(|_| {
+    LevelFilter::from_str(log_level).unwrap_or_else(|_| {
         if !log_level.is_empty() {
             let msg = format!("Invalid log level '{log_level}'; defaulting to trace");
             erm!("{}", msg);
             log::warn!("{}", msg);
         }
-        log::LevelFilter::Trace
+        LevelFilter::Trace
     })
 }
 
@@ -75,6 +76,7 @@ impl Logger {
     pub fn attach(&self, relpath: &str) {
         *self.relpath.lock().ufail("Failed to lock relpath mutex") = Some(relpath.to_string());
         self.refresh().ufail("Failed to refresh logger");
+        log::debug!("Log attached");
     }
 
     /// # Description
@@ -115,9 +117,17 @@ impl Logger {
             .build(master_log)?;
 
         let mut config_builder = Config::builder()
-            .appender(Appender::builder().build("master", Box::new(master_log_file)));
+            .appender(Appender::builder().build("master", Box::new(master_log_file)))
+            // tell ureq to stfu
+            .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
+            .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
+            .logger(L4L::builder().build("ureq::tls",           LevelFilter::Info))
+            .logger(L4L::builder().build("ureq::unversioned",   LevelFilter::Warn))
+            .logger(L4L::builder().build("ureq_proto::util",    LevelFilter::Info))
+            .logger(L4L::builder().build("ureq_proto::client",  LevelFilter::Info));
 
-        let mut root_builder = Root::builder().appender("master");
+        let mut root_builder = Root::builder()
+            .appender("master");
 
         if let Some(ref rp) = *self.relpath.lock().ufail("Failed to lock relpath mutex") {
             let build_log_str = format!("/usr/ports/{rp}/.logs/pkg.log");
@@ -208,17 +218,17 @@ pub fn display(file: &Path) -> Result<()> {
 
 /// # Description
 /// Parses the log level for a line from a log file
-fn extract_log_level(line: &str) -> Option<log::LevelFilter> {
+fn extract_log_level(line: &str) -> Option<LevelFilter> {
     if line.contains(" TRACE ") {
-        Some(log::LevelFilter::Trace)
+        Some(LevelFilter::Trace)
     } else if line.contains(" DEBUG ") {
-        Some(log::LevelFilter::Debug)
+        Some(LevelFilter::Debug)
     } else if line.contains(" INFO  ") {
-        Some(log::LevelFilter::Info)
+        Some(LevelFilter::Info)
     } else if line.contains(" WARN  ") {
-        Some(log::LevelFilter::Warn)
+        Some(LevelFilter::Warn)
     } else if line.contains(" ERROR ") {
-        Some(log::LevelFilter::Error)
+        Some(LevelFilter::Error)
     } else {
         None
     }
