@@ -58,6 +58,7 @@ fn main() {
 
     let packages = parse::parse(&args.packages);
     let pm = PM::new(&packages);
+    pm.fetch_all_sources_if_needed(&args);
 
     // the order here matters
     if args.version  { v::display () }
