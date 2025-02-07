@@ -56,7 +56,7 @@ impl PM<'_> {
             if bl::install(p) {
                 stopwatch.stop();
                 log::info!("Installed '{}'", p);
-                msg!("Installed '{}' in {}", p, stopwatch.display());
+                msg!("󰗠  Installed '{}' in {}", p, stopwatch.display());
             }
         });
     }
@@ -74,7 +74,7 @@ impl PM<'_> {
             if bl::update(p) {
                 stopwatch.stop();
                 log::info!("Updated to '{}'", p);
-                msg!("Updated to '{}' in {}", p, stopwatch.display());
+                msg!("󰗠  Updated to '{}' in {}", p, stopwatch.display());
             }
         });
     }
@@ -92,7 +92,7 @@ impl PM<'_> {
             if rl::remove(p) {
                 stopwatch.stop();
                 log::info!("Removed '{}'", p);
-                msg!("Removed '{}' in {}", p, stopwatch.display());
+                msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
             }
         });
     }
@@ -110,7 +110,7 @@ impl PM<'_> {
             if bl::build(p) {
                 stopwatch.stop();
                 log::info!("Built '{}'", p);
-                msg!("Built '{}' in {}", p, stopwatch.display());
+                msg!("󰗠  Built '{}' in {}", p, stopwatch.display());
             }
         });
     }
@@ -178,7 +178,7 @@ impl PM<'_> {
         stopwatch.stop();
 
         logger::get().detach();
-        msg!("Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
+        msg!("󰗠  Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
 
     /// # Description
@@ -196,7 +196,7 @@ impl PM<'_> {
         stopwatch.stop();
 
         logger::get().detach();
-        msg!("Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
+        msg!("󰗠  Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
     /// # Description

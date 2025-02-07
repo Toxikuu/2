@@ -94,8 +94,11 @@ pub fn add(repo_url: &str) {
     // This should be done in a separate function
     let command = format!("git clone {repo_url} /usr/ports/{repo_name}");
 
+    msg!("󰐗  Adding '{repo_name}/'...");
+    log::info!("Adding '{repo_name}/'...");
     exec(&command).fail("Failed to add repo");
-    msg!("Added '{}' to repos", repo_name);
+    msg!("󰗠  Added '{repo_name}/'");
+    log::info!("Added '{repo_name}/'");
 }
 
 /// # Description
@@ -103,6 +106,9 @@ pub fn add(repo_url: &str) {
 pub fn sync(repo: &str) {
     let command = format!("cd /usr/ports/{repo} && git pull");
 
+    msg!("󱍸  Syncing '{repo}'...");
+    log::info!("Syncing '{repo}'...");
     exec(&command).fail("Failed to sync repo");
-    msg!("Synced '{}'", repo);
+    msg!("󰗠  Synced '{repo}'");
+    log::info!("Synced '{repo}'");
 }

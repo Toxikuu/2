@@ -47,7 +47,7 @@ pub fn build(package: &Package) -> bool {
         erm!("Already built '{}'", package);
         false
     } else {
-        msg!("Building '{}'", package);
+        msg!("󱠇  Building '{}'...", package);
         script::prep(package);
         script::build(package);
 
@@ -89,6 +89,7 @@ fn dist_install(package: &Package) {
     package.version, package.relpath,
     );
 
+    msg!("󰐗  Installing '{package}'...");
     exec(&command).fail("Failed to perform dist install");
     script::post(package);
 }
@@ -121,7 +122,7 @@ pub fn update(package: &Package) -> bool {
         return false
     }
 
-    msg!("Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
+    msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
     if !Path::new(package.data.dist.as_str()).exists() {
         build(package);
