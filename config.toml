@@ -6,7 +6,7 @@ verbose = false
 [message] # ansi escape codes (\x1b[ is assumed)
 danger = "31;1m  "
 default = "30;3m"
-message = "36;1m  "
+message = "36;1m"
 prompt = "35;1m"
 stderr = "31;3;1m"
 stdout = "30;3m"
