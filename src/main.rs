@@ -21,6 +21,7 @@
     clippy::pedantic,
     clippy::nursery,
     clippy::unwrap_used,
+    missing_docs,
     // clippy::cargo,
 )]
 
