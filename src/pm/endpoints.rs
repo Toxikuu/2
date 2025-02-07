@@ -3,9 +3,9 @@
 
 use crate::{
     build::{logic as bl, script},
+    cli::args::Args,
     comms::log::{msg, pr, erm, vpr},
     fetch::download::download,
-    globals::flags::FLAGS,
     package::{Package, parse::expand_set, history},
     remove::logic as rl,
     utils::{
@@ -52,7 +52,6 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false, &STY);
             if bl::install(p) {
                 stopwatch.stop();
                 log::info!("Installed '{}'", p);
@@ -71,7 +70,6 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false, &STY);
             if bl::update(p) {
                 stopwatch.stop();
                 log::info!("Updated to '{}'", p);
@@ -108,7 +106,6 @@ impl PM<'_> {
             let mut stopwatch = Stopwatch::new();
             stopwatch.start();
 
-            download(p, false, &STY);
             if bl::build(p) {
                 stopwatch.stop();
                 log::info!("Built '{}'", p);
@@ -119,6 +116,8 @@ impl PM<'_> {
 
     /// # Description
     /// Gets (downloads sources for) all packages in the PM struct
+    ///
+    /// This is separate from ``fetch_all_sources_if_needed()``
     pub fn get(&self) {
         Self::ready();
         self.packages.iter().for_each(|p| {
@@ -126,16 +125,38 @@ impl PM<'_> {
             log::info!("Downloading sources for '{p}'...");
             vpr!("Downloading sources for '{p}'...");
 
-            let force = FLAGS.get().ufail("Cell issue").force;
             // TODO: add tracking for whether anything was actually downloaded
-            download(p, force, &STY);
+            download(p, self.force, &STY);
 
-            log::info!("Downloading sources for '{p}'...");
+            log::info!("Downloaded sources for '{p}'");
         });
     }
-    
+
+    /// # Description
+    /// Fetches the sources for all packages if certain cli flags are passed
+    /// This logs "fetching" instead of "downloading" to differentiate between this and ``get()``
+    pub fn fetch_all_sources_if_needed(&self, args: &Args) {
+        // 'if needed' means one of these are passed
+        if ! (args.install || args.update || args.build) {
+            log::info!("Sources were not automatically fetched as they were not needed");
+            vpr!("Sources were not automatically fetched as they were not needed");
+            return
+        }
+
+        self.packages.iter().for_each(|p| {
+            logger::get().attach(&p.relpath);
+            log::info!("Fetching sources for '{p}'...");
+            vpr!("Fetching sources for '{p}'...");
+
+            // TODO: add tracking for whether anything was actually downloaded
+            download(p, false, &STY);
+            log::info!("Fetching sources for '{p}'");
+        });
+    }
 
     // TODO: Parallelize this
+    // TODO: Add force support (which would prune current sources as well)
+    //
     /// # Description
     /// Prunes files for all packages in the PM struct
     pub fn prune(&self) {
