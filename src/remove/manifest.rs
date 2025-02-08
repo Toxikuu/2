@@ -54,11 +54,11 @@ pub fn locate(dir: &str) -> Rc<[PathBuf]> {
         .filter_map(Result::ok)
     {
         vpr!("ENTRY: {:?}", entry);
-        if entry.file_type().is_file() && is_manifest(&entry) {
-            let installed_path = entry.path().with_file_name("INSTALLED");
-            if installed_path.exists() {
-                manifests.push(entry.into_path());
-            }
+        if entry.file_type().is_file() 
+            && is_manifest(&entry) 
+            && entry.path().with_file_name("INSTALLED").exists()
+        {
+            manifests.push(entry.into_path());
         }
     }
 
