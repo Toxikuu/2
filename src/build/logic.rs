@@ -12,29 +12,40 @@ use crate::{
 use std::path::Path;
 use super::script;
 
-// TODO: add similar return enums in the future for all pm logic operations
-// pub enum InstallTristate {
-//     AlreadyInstalled,
-//     DistInstalled,
-//     BuiltAndInstalled,
-// }
+pub enum InstallStatus {
+    Already,
+    Dist,
+    Source,
+}
+
+pub enum UpdateStatus {
+    Latest,
+    NotInstalled,
+    Dist,
+    Source,
+}
+
+pub enum BuildStatus {
+    Already,
+    Source,
+}
 
 /// # Description
 /// Installs a package by performing a dist install. If the package isn't built, builds it and then
 /// dist installs.
 ///
 /// Returns false if the package has already been installed
-pub fn install(package: &Package) -> bool {
+pub fn install(package: &Package) -> InstallStatus {
     if package.data.installed_version == package.version && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already installed '{}'", package);
-        false
+        InstallStatus::Already
     } else if Path::new(package.data.dist.as_str()).exists() {
         dist_install(package);
-        true
+        InstallStatus::Dist
     } else {
         build(package);
         dist_install(package);
-        true
+        InstallStatus::Source
     }
 }
 
@@ -42,10 +53,10 @@ pub fn install(package: &Package) -> bool {
 /// Builds a package, calling functions in ``super::script``
 ///
 /// Returns false if the package has already been built
-pub fn build(package: &Package) -> bool {
+pub fn build(package: &Package) -> BuildStatus {
     if Path::new(package.data.dist.as_str()).exists() && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already built '{}'", package);
-        false
+        BuildStatus::Already
     } else {
         msg!("󱠇  Building '{}'...", package);
         script::prep(package);
@@ -54,7 +65,7 @@ pub fn build(package: &Package) -> bool {
         if CONFIG.general.clean_after_build {
             script::clean(package);
         }
-        true
+        BuildStatus::Source
     }
 }
 
@@ -108,23 +119,25 @@ fn dist_install(package: &Package) {
 /// calling ``remove_dead_files_after_update()``. Finally returns true.
 ///
 /// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
-pub fn update(package: &Package) -> bool {
+pub fn update(package: &Package) -> UpdateStatus {
     let force = FLAGS.get().ufail("Cell issue").force;
     if !package.data.is_installed && !force {
         log::warn!("Not updating to '{}' as an older version is not installed and force wasn't passed", package);
         erm!("Missing: '{}'", package);
-        return false
+        return UpdateStatus::NotInstalled
     }
 
     if package.version == package.data.installed_version && !force {
         log::warn!("Not updating to '{}' as it's already at its newest version", package);
         erm!("Current: '{}'", package);
-        return false
+        return UpdateStatus::Latest
     }
 
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    if !Path::new(package.data.dist.as_str()).exists() {
+    // TODO: Make a Package method to check if a dist tarball exists
+    let dist_exists = Path::new(package.data.dist.as_str()).exists();
+    if !dist_exists {
         build(package);
     }
 
@@ -133,5 +146,6 @@ pub fn update(package: &Package) -> bool {
         cpr!("Removing dead files for '{}={}'", package.name, package.data.installed_version);
         remove_dead_files_after_update(package);
     }
-    true
+
+    if dist_exists { UpdateStatus::Dist } else { UpdateStatus::Source }
 }

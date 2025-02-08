@@ -42,6 +42,10 @@ impl PM<'_> {
         logger::get().detach();
     }
 
+    /// # Description
+    /// High-level PM function
+    ///
+    /// It interprets all PM-related cli flags and calls the necessary PM methods therefrom
     pub fn run(&self) {
         self.fetch_all_sources_if_needed(self.args);
         // args order matters
@@ -77,10 +81,21 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        if bl::install(p) {
-            stopwatch.stop();
-            log::info!("Installed '{}'", p);
-            msg!("󰗠  Installed '{}' in {}", p, stopwatch.display());
+        let status = bl::install(p);
+        stopwatch.stop();
+        match status {
+            bl::InstallStatus::Already => {
+                log::warn!("Didn't install '{p}' as it's already installed");
+                erm!("Didn't install '{p}' as it's already installed");
+            },
+            bl::InstallStatus::Dist => {
+                log::info!("Installed '{p}'");
+                msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
+            }
+            bl::InstallStatus::Source => {
+                log::info!("Built and installed '{p}'");
+                msg!("󰗠  Built and installed '{p}' in {}", stopwatch.display());
+            }
         }
     }
 
@@ -90,10 +105,25 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        if bl::update(p) {
-            stopwatch.stop();
-            log::info!("Updated to '{}'", p);
-            msg!("󰗠  Updated to '{}' in {}", p, stopwatch.display());
+        let status = bl::update(p);
+        stopwatch.stop();
+        match status {
+            bl::UpdateStatus::Source => {
+                log::info!("Built and updated to '{p}'");
+                msg!("󰗠  Built and updated to '{}' in {}", p, stopwatch.display());
+            },
+            bl::UpdateStatus::Dist => {
+                log::info!("Updated to '{p}'");
+                msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
+            }
+            bl::UpdateStatus::Latest => {
+                log::info!("Up-to-date: '{p}'");
+                msg!("󰗠  Up-to-date: '{p}'");
+            }
+            bl::UpdateStatus::NotInstalled => {
+                log::warn!("Didn't update '{p}' because it's not installed");
+                erm!("Didn't update '{p}' because it's not installed");
+            }
         }
     }
 
@@ -116,10 +146,17 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        if bl::build(p) {
-            stopwatch.stop();
-            log::info!("Built '{}'", p);
-            msg!("󰗠  Built '{}' in {}", p, stopwatch.display());
+        let status = bl::build(p);
+        stopwatch.stop();
+        match status {
+            bl::BuildStatus::Source => {
+                log::info!("Built '{p}'");
+                msg!("󰗠  Built '{p}' in {}", stopwatch.display());
+            }
+            bl::BuildStatus::Already => {
+                log::info!("Already built '{p}'");
+                msg!("󰗠  Already built '{p}'");
+            }
         }
     }
 
