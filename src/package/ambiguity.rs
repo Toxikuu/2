@@ -3,12 +3,11 @@
 
 use crate::{
     comms::{
-        log::{pr, erm},
-        r#in::select,
-    },
-    utils::fail::{fail, Fail},
-    globals::config::CONFIG,
-    package::repos::prioritize,
+        r#in::select, log::{erm, pr}
+    }, 
+    globals::config::CONFIG, 
+    package::repos::{self, prioritize}, 
+    utils::fail::{fail, Fail}
 };
 use std::fs;
 use walkdir::WalkDir;
@@ -98,41 +97,26 @@ fn locate_set(set: &str) -> Vec<String> {
 }
 
 /// # Description
-/// Returns true if a set is special
-fn is_special(set: &str) -> bool {
-    let specials: [&str; 4] = ["@@", "@all", "@!", "@every"];
-    specials.contains(&set)
-}
-
-// TODO: Include special sets for outdated packages, installed packages, available packages, etc
-// TODO: Figure out a way to have a global repo so i can go global/@installed to view all the
-// installed packages from across all repos, for instance
-//
-/// # Description
-/// Finds the matches for special sets
-fn handle_special_set_matches(set: &str) -> Vec<String> {
-    match set {
-        "@@" | "@all" => {
-            super::repos::find_all().iter().map(|s| format!("{s}/@all")).collect()
-        },
-        _ => todo!()
-    }
-}
-
-/// # Description
 /// Given a set, finds its repository
 /// Prompts the user if multiple repositories contain the set
 pub fn resolve_set_ambiguity(set: &str) -> String {
-    let mut matches = if is_special(set) {
-        handle_special_set_matches(set)
-    } else {
-        locate_set(set)
-    };
+    let mut matches =
+        if super::sets::Set::is_special_set(set) {
+            let repos = repos::find_all();
+            repos.iter()
+                .map(|r| format!("{r}/{set}"))
+                .collect::<Vec<_>>()
+        } else {
+            locate_set(set)
+        };
+
+    if matches.is_empty() { 
+        fail!("Failed to find '@{}' in any repo", set);
+    }
+
+    if let [only] = matches.as_slice() { return only.to_string() }
 
     prioritize(&mut matches);
-
-    if matches.is_empty() { fail!("Failed to find '{}' in any repo", set) }
-    if let [only] = matches.as_slice() { return only.to_string() }
 
     erm!("Ambiguous: '{}'", set);
     for (i, m) in matches.iter().enumerate() {

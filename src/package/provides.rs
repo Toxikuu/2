@@ -63,11 +63,11 @@ pub fn provides(path: &str) {
         1 => {
             let package = get_package_from_manifest(manifests.first().ufail("1 != 1"));
             let packages = [package; 1];
-            PM::list_packages(&packages, &format!("1 installed package provides '{path}'"));
+            PM::list_packages(&packages, &format!("1 installed package provides '{path}'"), false);
         }
         _ => {
             let packages = manifests.iter().map(|m| get_package_from_manifest(m)).collect::<Vec<_>>();
-            PM::list_packages(&packages, &format!("{total} installed packages provide '{path}'"));
+            PM::list_packages(&packages, &format!("{total} installed packages provide '{path}'"), false);
         }
     }
 }

@@ -6,9 +6,9 @@ use crate::{
     utils::fail::Fail,
 };
 use super::{
-    ambiguity::{resolve_ambiguity, resolve_set_ambiguity},
+    ambiguity::resolve_ambiguity,
     Package,
-    sets::{unravel, is_special_set},
+    sets::Set,
 };
 
 // TODO: Rather than sets of repos, I should make it so the user can limit the sets to specific
@@ -34,7 +34,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 
         let mut p = p.to_string();
         if p.ends_with('/') {
-            p.push_str("@all");
+            p.push_str("@a");
         }
 
         if p.contains('@') {
@@ -56,13 +56,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 /// # Description
 /// Expands a set into its constituent packages
 pub fn expand_set(set: &str) -> Box<[Package]> {
-    let set = if is_special_set(set) {
-        set.to_string()
-    } else {
-        resolve_set_ambiguity(set)  
-    };
-
-    let packages = unravel(&set).fail("Failed to unravel set");
+    let packages = Set::new(set).unravel().fail(&format!("Failed to unravel '{set}'"));
 
     packages.iter().map(|p| {
         let mut p = p.as_str();

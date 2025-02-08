@@ -146,19 +146,18 @@ impl PM<'_> {
     fn fetch_all_sources_if_needed(&self, args: &Args) {
         // 'if needed' means one of these are passed
         if ! (args.install || args.update || args.build) {
-            log::info!("Sources were not automatically fetched as they were not needed");
-            vpr!("Sources were not automatically fetched as they were not needed");
+            log::debug!("Sources were not automatically fetched as they were not needed");
             return
         }
 
         self.packages.iter().for_each(|p| {
             logger::get().attach(&p.relpath);
-            log::info!("Fetching sources for '{p}'...");
-            vpr!("Fetching sources for '{p}'...");
+            log::info!("Automatically fetching sources for '{p}'...");
+            vpr!("Automatically fetching sources for '{p}'...");
 
             // TODO: add tracking for whether anything was actually downloaded
             download(p, false, &STY);
-            log::info!("Fetched sources for '{p}'");
+            log::info!("Automatically fetched sources for '{p}'");
         });
     }
 
@@ -213,7 +212,8 @@ impl PM<'_> {
         Self::ready();
 
         let packages = self.packages;
-        Self::list_packages(packages, "Packages");
+        let imply = self.args.packages.is_empty();
+        Self::list_packages(packages, "Packages", imply);
 
         log::info!("Listed {} packages", packages.len());
     }
@@ -222,11 +222,15 @@ impl PM<'_> {
     /// Lists all provided packages
     ///
     /// If none are provided, lists every package
-    pub fn list_packages(packages: &[Package], msg: &str) {
+    pub fn list_packages(packages: &[Package], msg: &str, imply: bool) {
         msg!("{msg}:");
 
         let mut pkgs = packages.to_vec();
-        if pkgs.is_empty() { pkgs = expand_set("@every").to_vec(); }
+        if pkgs.is_empty() {
+            if imply { pkgs = expand_set("//@a").to_vec(); }
+            else { erm!("Nothing to list"); }
+        }
+        
         pkgs.sort_by(|a, b| {
             let a = format!("{}/{}", a.repo, a);
             let b = format!("{}/{}", b.repo, b);
