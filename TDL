@@ -4,12 +4,6 @@ TODO
 
     Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
 
-    Add a way to specify repo when dealing with sets
-        I'm thinking assume all repos unless repo/ is specified (for special sets)
-        otherwise resolve ambiguity
-  
-        probably not necessary yet
-
     Low priority: add m-remove
         also add m-downgrade
 
@@ -17,14 +11,21 @@ TODO
 
 WIP
 
+    Expand the main repo
+
+DONEISH
+
     Have the execution logic as a PM method
         Also pass args to it
         This is to address the `2 -bi dependency package` issue
         Iterate over each package, checking the flags
 
-    Expand the main repo
-
-DONEISH
+    Add a way to specify repo when dealing with sets
+        I'm thinking assume all repos unless repo/ is specified (for special sets)
+            (I ended up just assuming the highest priority repo for special sets, opting for //@special instead)
+        otherwise resolve ambiguity
+  
+        probably not necessary yet
 
     Use more nf icons
 
