@@ -19,13 +19,30 @@ use ureq::{
     // http::header::{CONTENT_LENGTH, CONTENT_TYPE},
 };
 
+pub enum DownloadStatus {
+    Nothing,
+    Tarball,
+    Extra,
+    Both,
+}
+
 /// # Description
 /// Very high level download function for package
 ///
 /// Downloads the tarball and any extra sources
-pub fn download(package: &Package, force: bool, sty: &ProgressStyle) {
-    download_tarball(package, force, sty);
-    download_extra(package, force, sty);
+pub fn download(package: &Package, force: bool, sty: &ProgressStyle) -> DownloadStatus {
+    let tb = download_tarball(package, force, sty);
+    let ex = download_extra(package, force, sty);
+
+    if ex && tb {
+        DownloadStatus::Both
+    } else if ex {
+        DownloadStatus::Extra
+    } else if tb {
+        DownloadStatus::Tarball
+    } else {
+        DownloadStatus::Nothing
+    }
 }
 
 /// # Description
@@ -40,7 +57,8 @@ pub fn download(package: &Package, force: bool, sty: &ProgressStyle) {
 /// - ``download_url()`` returns an error other than Exists
 ///
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
-pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) {
+pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
+    let mut dlct = 0;
     package.data.extra.iter().for_each(|source| {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail(&format!("Invalid extra url: '{}'", source.url));
         let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
@@ -50,7 +68,9 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) {
                 fail!("Failed to get extra url '{}'", source.url);
             }
         }
+        dlct += 1;
     });
+    dlct >= 1
 }
 
 /// # Description
@@ -171,9 +191,9 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 /// - ``download_url()`` returns an error other than Exists
 ///
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
-fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) {
+fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
     let url = package.data.source.url.clone();
-    if url.is_empty() { return }
+    if url.is_empty() { return false }
 
     let file_name = url.split('/').next_back().context("Likely the repo's maintainer's fault").fail("Invalid url");
     let file_name = normalize_tarball(package, file_name);
@@ -187,5 +207,7 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) {
         if !e.to_string().contains("Exists: ") {
             fail!("Failed to download tarball for '{package}': {e}");
         }
+        return false
     }
+    true
 }
