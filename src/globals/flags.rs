@@ -20,6 +20,7 @@ pub static FLAGS: OnceCell<Flags> = OnceCell::new();
 pub struct Flags {
     pub force: bool,
     pub quiet: bool,
+    #[allow(dead_code)] // im too lazy to handle it properly with #[cfg(not(test))]
     pub verbose: bool,
 }
 

@@ -58,6 +58,7 @@ macro_rules! erm {
 ///
 /// Unaffected by the quiet flag, enabled by the verbose flag
 #[macro_export]
+#[cfg(not(test))]
 macro_rules! vpr {
     ($($arg:tt)*) => {{
         use $crate::globals::flags::FLAGS;
@@ -69,6 +70,23 @@ macro_rules! vpr {
                 .unwrap_or("Unknown");
             println!("\x1b[{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
         }
+    }};
+}
+
+/// # Description
+/// Prints to stdout with the verbose formatting
+///
+/// Unaffected by the quiet flag, enabled by the verbose flag
+#[macro_export]
+#[cfg(test)]
+macro_rules! vpr {
+    ($($arg:tt)*) => {{
+        use $crate::globals::config::CONFIG;
+        let f = std::path::Path::new(file!())
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("Unknown");
+        println!("\x1b[{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
     }};
 }
 
