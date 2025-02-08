@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.43" # refactored sets, bunch of repo stuff, added a recursion limit for Fail, and various other fixes
+version = "0.0.44" # install, build, update statuses
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
