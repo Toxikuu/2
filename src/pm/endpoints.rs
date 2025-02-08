@@ -4,9 +4,9 @@
 use crate::{
     build::{logic as bl, script},
     cli::args::Args,
-    comms::log::{msg, pr, erm, vpr},
-    fetch::download::download,
-    package::{Package, parse::expand_set, history},
+    comms::log::{erm, msg, pr, vpr},
+    fetch::download::{download, DownloadStatus},
+    package::{history, parse::expand_set, Package},
     remove::logic as rl,
     utils::{
         fail::Fail,
@@ -85,8 +85,8 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             bl::InstallStatus::Already => {
-                log::warn!("Didn't install '{p}' as it's already installed");
-                erm!("Didn't install '{p}' as it's already installed");
+                log::warn!("Already installed '{p}'");
+                msg!("󰗠  Already installed '{p}'");
             },
             bl::InstallStatus::Dist => {
                 log::info!("Installed '{p}'");
@@ -95,6 +95,11 @@ impl PM<'_> {
             bl::InstallStatus::Source => {
                 log::info!("Built and installed '{p}'");
                 msg!("󰗠  Built and installed '{p}' in {}", stopwatch.display());
+            }
+            bl::InstallStatus::UpdateInstead => {
+                log::warn!("Updating instead of installing '{p}'...");
+                msg!("󰗠  Updating instead of installing '{p}'...");
+                PM::update(p);
             }
         }
     }
@@ -121,8 +126,8 @@ impl PM<'_> {
                 msg!("󰗠  Up-to-date: '{p}'");
             }
             bl::UpdateStatus::NotInstalled => {
-                log::warn!("Didn't update '{p}' because it's not installed");
-                erm!("Didn't update '{p}' because it's not installed");
+                log::warn!("Didn't update '{p}' as it's not installed");
+                erm!("Didn't update '{p}' as it's not installed");
             }
         }
     }
@@ -171,9 +176,12 @@ impl PM<'_> {
             log::info!("Downloading sources for '{p}'...");
             vpr!("Downloading sources for '{p}'...");
 
-            // TODO: add tracking for whether anything was actually downloaded
-            download(p, self.args.force, &STY);
-            log::info!("Downloaded sources for '{p}'");
+            let status = download(p, self.args.force, &STY);
+            if matches!(status, DownloadStatus::Nothing) {
+                log::info!("Didn't download sources for '{p}'");
+            } else {
+                log::info!("Downloaded sources for '{p}'");
+            }
         });
     }
 
