@@ -9,9 +9,17 @@ use crate::{
     globals::config::CONFIG,
 };
 use std::{
-    fmt,
-    panic::Location,
+    cell::Cell, 
+    fmt, 
+    panic::Location, 
+    thread_local,
 };
+
+thread_local! {
+    static ERROR_DEPTH: Cell<usize> = const { Cell::new(0) }
+}
+
+const MAX_ERROR_DEPTH: usize = 16;
 
 #[allow(dead_code)]
 pub enum UnreachableType {
@@ -62,7 +70,16 @@ macro_rules! die {
 ///
 /// If the failure should be unreachable, prompts the user to report it as a bug featuring a github
 /// issue link
-pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailType) {
+pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailType) -> ! {
+    ERROR_DEPTH.with(|depth| {
+        let current = depth.get();
+        if current >= MAX_ERROR_DEPTH {
+            eprintln!("\x1b[31;3;1m  ERROR HANDLING RECURSION DEPTH EXCEEDED\x1b[0m");
+            std::process::exit(222);
+        }
+        depth.set(current + 1);
+    });
+
     if CONFIG.general.show_bug_report_message {
         let link = match fail_type {
             FailType::Unreachable(_) => {
@@ -82,7 +99,7 @@ pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailT
         erm!("{}\n", link);
     }
 
-    let msg1 = format!("In {} on line {}, column {}", location.file(), location.line(), location.column());
+    let msg1 = format!("Failure in {} on line {}, column {}", location.file(), location.line(), location.column());
     let msg2 = format!("[{fail_type}] {msg}");
     logger::get().detach();
     log::debug!("{}", msg1);
@@ -142,7 +159,6 @@ where
         self.unwrap_or_else(|e| {
             let msg = &format!("{msg}: {e:?}");
             report(msg, location, &FailType::Result);
-            unreachable!()
         })
     }
 
@@ -150,7 +166,6 @@ where
         self.unwrap_or_else(|e| {
             let msg = &format!("{msg}: {e:?}");
             report(msg, location, &FailType::Unreachable(UnreachableType::Result));
-            unreachable!()
         })
     }
 }
@@ -159,14 +174,12 @@ impl<T> Fail<T, ()> for Option<T> {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|| {
             report(msg, location, &FailType::Option);
-            unreachable!()
         })
     }
 
     fn ufail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {
         self.unwrap_or_else(|| {
             report(msg, location, &FailType::Unreachable(UnreachableType::Option));
-            unreachable!()
         })
     }
 }
@@ -184,7 +197,6 @@ macro_rules! fail {
             std::panic::Location::caller(),
             &FailType::Explicit
         );
-        unreachable!()
     }};
 }
 
@@ -201,7 +213,6 @@ macro_rules! ufail {
             std::panic::Location::caller(),
             &FailType::Unreachable(UnreachableType::Explicit)
         );
-        unreachable!()
     }};
 }
 
