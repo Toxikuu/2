@@ -2,7 +2,7 @@
 //! Defines the logic for package builds
 
 use crate::{
-    comms::log::{erm, msg, cpr},
+    comms::log::{msg, cpr},
     globals::{config::CONFIG, flags::FLAGS},
     package::Package,
     remove::logic::remove_dead_files_after_update,
@@ -15,6 +15,7 @@ pub enum InstallStatus {
     Already,
     Dist,
     Source,
+    UpdateInstead,
 }
 
 pub enum UpdateStatus {
@@ -35,9 +36,12 @@ pub enum BuildStatus {
 ///
 /// Returns false if the package has already been installed
 pub fn install(package: &Package) -> InstallStatus {
-    if package.data.installed_version == package.version && !FLAGS.get().ufail("Cell issue").force {
-        erm!("Already installed '{}'", package);
-        InstallStatus::Already
+    if !package.data.installed_version.is_empty() && !FLAGS.get().ufail("Cell issue").force {
+        if package.version == package.data.installed_version {
+            InstallStatus::Already
+        } else {
+            InstallStatus::UpdateInstead
+        }
     } else if package.dist_exists() {
         dist_install(package);
         InstallStatus::Dist
@@ -54,7 +58,6 @@ pub fn install(package: &Package) -> InstallStatus {
 /// Returns false if the package has already been built
 pub fn build(package: &Package) -> BuildStatus {
     if package.dist_exists() && !FLAGS.get().ufail("Cell issue").force {
-        erm!("Already built '{}'", package);
         BuildStatus::Already
     } else {
         msg!("󱠇  Building '{}'...", package);
@@ -121,20 +124,15 @@ fn dist_install(package: &Package) {
 pub fn update(package: &Package) -> UpdateStatus {
     let force = FLAGS.get().ufail("Cell issue").force;
     if !package.data.is_installed && !force {
-        log::warn!("Not updating to '{}' as an older version is not installed and force wasn't passed", package);
-        erm!("Missing: '{}'", package);
         return UpdateStatus::NotInstalled
     }
 
     if package.version == package.data.installed_version && !force {
-        log::warn!("Not updating to '{}' as it's already at its newest version", package);
-        erm!("Current: '{}'", package);
         return UpdateStatus::Latest
     }
 
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    // TODO: Make a Package method to check if a dist tarball exists
     let dist_exists = package.dist_exists();
     if !dist_exists {
         build(package);
