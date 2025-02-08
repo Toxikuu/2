@@ -44,4 +44,8 @@ impl Package {
     pub fn is_outdated(&self) -> bool {
         self.data.is_installed && self.data.installed_version != self.version
     }
+
+    pub fn dist_exists(&self) -> bool {
+        Path::new(&format!("/usr/ports/{}/.data/INSTALLED", self.relpath)).exists()
+    }
 }

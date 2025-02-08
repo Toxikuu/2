@@ -9,7 +9,6 @@ use crate::{
     shell::cmd::exec,
     utils::fail::Fail,
 };
-use std::path::Path;
 use super::script;
 
 pub enum InstallStatus {
@@ -39,7 +38,7 @@ pub fn install(package: &Package) -> InstallStatus {
     if package.data.installed_version == package.version && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already installed '{}'", package);
         InstallStatus::Already
-    } else if Path::new(package.data.dist.as_str()).exists() {
+    } else if package.dist_exists() {
         dist_install(package);
         InstallStatus::Dist
     } else {
@@ -54,7 +53,7 @@ pub fn install(package: &Package) -> InstallStatus {
 ///
 /// Returns false if the package has already been built
 pub fn build(package: &Package) -> BuildStatus {
-    if Path::new(package.data.dist.as_str()).exists() && !FLAGS.get().ufail("Cell issue").force {
+    if package.dist_exists() && !FLAGS.get().ufail("Cell issue").force {
         erm!("Already built '{}'", package);
         BuildStatus::Already
     } else {
@@ -136,7 +135,7 @@ pub fn update(package: &Package) -> UpdateStatus {
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
     // TODO: Make a Package method to check if a dist tarball exists
-    let dist_exists = Path::new(package.data.dist.as_str()).exists();
+    let dist_exists = package.dist_exists();
     if !dist_exists {
         build(package);
     }
