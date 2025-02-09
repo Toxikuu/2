@@ -2,9 +2,7 @@
 
 TODO
 
-    Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
-
-    Low priority: add m-remove
+    add m-remove
         also add m-downgrade
 
     Work on mdbook docs
@@ -14,6 +12,9 @@ WIP
     Expand the main repo
 
 DONEISH
+
+    Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
+        Im like 80% sure i did this cus the codes there but idr if i fully implemented it LOL
 
     Have the execution logic as a PM method
         Also pass args to it
