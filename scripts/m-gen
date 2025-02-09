@@ -16,17 +16,16 @@ usage() {
 
 linkhash() {
   mkdir -p /tmp/twohash
-  rm -f /tmp/twohash/target
 
   [ -z "$1" ] && return 0 # don't error when no link is provided
-  wget "$1" -q -O /tmp/twohash/target
+  wget "$1" -q -O /tmp/twohash/"$NAME=$VERS+$1"
 
   if [[ $? -ne 0 ]]; then
     echo -e "\x1b[31;1mError: Failed to download $1\x1b[0m" >&2
     return 1
   fi
 
-  /usr/share/2/bin/u-hash /tmp/twohash/target
+  /usr/share/2/bin/u-hash /tmp/twohash/"$NAME=$VERS+$1"
 
   if [[ $? -ne 0 ]]; then
     echo -e "\x1b[31;1mError: Hashing failed\x1b[0m" >&2
@@ -78,13 +77,10 @@ done
 echo ']' >> info.lock
 
 [ -n "$UPST" ] && printf 'upstream = "%s"\n' "$UPST" >> info.lock
-# all my homies HATE escape sequences
-# why cant languages just have good raw string syntax
 [ -n "$VCMD" ] && printf "version_command = '''%s'''\n" "$VCMD" >> info.lock
 
 mkdir -pv .dist .data .sources .build
 
 popd > /dev/null
-rm -rf /tmp/twohash
 
 msg "$REPO/$NAME-$VERS generated!"

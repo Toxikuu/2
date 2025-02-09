@@ -53,6 +53,12 @@ cd "/usr/ports/$TOREPO/$TONAME"
 
 if [ "$FROMNAME" != "$TONAME" ]; then
   sed -i "0,/^NAME=/s/^NAME=.*/NAME=\"$TONAME\"/" BUILD
+  sed -i "0,/^name = /s/^name = .*/name = \"$TONAME\"/" info.lock
+fi
+
+# TODO: stop using repo in info.lock as it's never read
+if [ "$FROMREPO" != "$TOREPO" ]; then
+  sed -i "2,/^repo = /s/^repo = .*/repo = \"$TOREPO\"/" info.lock
 fi
 
 "$EDITOR" BUILD
