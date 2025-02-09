@@ -1,6 +1,8 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
+use std::path::Path;
+
 use crate::{
     comms::log::{msg, cpr},
     globals::{config::CONFIG, flags::FLAGS},
@@ -133,7 +135,10 @@ pub fn update(package: &Package) -> UpdateStatus {
 
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    let dist_exists = package.dist_exists();
+    let dist_exists = Path::new(
+        &format!("/usr/ports/{}/.dist/{}={}", package.relpath, package.name, package.version)
+    ).exists();
+
     if !dist_exists {
         build(package);
     }
