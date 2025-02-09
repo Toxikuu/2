@@ -38,7 +38,7 @@ echo "VERS: $VERS"
 echo " ### VARIABLES ### "
 echo
 
-read -p "Press enter to continue..." 
+read -p "Press enter to continue..."
 
 [ -e /usr/ports/"$REPO" ] || die "Nonexistent repo: $REPO"
 

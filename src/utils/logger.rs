@@ -81,7 +81,7 @@ impl Logger {
 
     /// # Description
     /// Detaches the logger from any package
-    /// 
+    ///
     /// Logs will only write to the master log when detached
     pub fn detach(&self) {
         *self.relpath.lock().ufail("Failed to lock relpath mutex") = None;

@@ -24,20 +24,20 @@ DONEISH
         I'm thinking assume all repos unless repo/ is specified (for special sets)
             (I ended up just assuming the highest priority repo for special sets, opting for //@special instead)
         otherwise resolve ambiguity
-  
+
         probably not necessary yet
 
     Use more nf icons
 
     Make the downloads actually happen at the start
-  
+
     Add sets for installed, outdated, etc
 
     Migrate from lazy_static to once_cell for everything
         Used std::sync::LazyLock instead
 
     Allow viewing package changelogs with -H
-  
+
     Make -U show the repo as well as the package name
         cus
             main/kernel
@@ -150,7 +150,7 @@ DROPPED
     ~~Add -! to reverse the behavior of (some) flags~~
         ~~For instance, -P shows what packages provide a file, but -!P might show what files a package provides~~
         Would be unintuitive and overly complex
-        
+
 IDEAS
 
     Add a file for enabled repos

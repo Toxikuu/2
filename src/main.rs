@@ -1,5 +1,5 @@
 // src/main.rs
-// 
+//
 //! # 2
 //! 2 is a (mostly) source-based package manager for LFS
 //!

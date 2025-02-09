@@ -15,7 +15,7 @@ use std::sync::Arc;
 
 /// # Description
 /// The package struct
-/// 
+///
 /// ``relpath`` is calculated from repo and name
 ///
 /// Contains package data

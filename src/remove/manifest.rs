@@ -54,8 +54,8 @@ pub fn locate(dir: &str) -> Rc<[PathBuf]> {
         .filter_map(Result::ok)
     {
         vpr!("ENTRY: {:?}", entry);
-        if entry.file_type().is_file() 
-            && is_manifest(&entry) 
+        if entry.file_type().is_file()
+            && is_manifest(&entry)
             && entry.path().with_file_name("INSTALLED").exists()
         {
             manifests.push(entry.into_path());
@@ -124,7 +124,7 @@ pub fn find_unique_paths(manifest: &PathBuf) -> Rc<[String]> {
 /// Finds unique files in an old manifest (dead files)
 pub fn find_dead_files(package: &Package) -> Rc<[String]> {
     let manifests = locate(&format!("/usr/ports/{}/{}/.data", package.repo, package.name));
-    
+
     let data = read_all(&manifests);
     let old_manifest = Path::new(&format!("/usr/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.data.installed_version)).to_path_buf();
 

@@ -52,8 +52,8 @@ impl Set {
         }
 
         if let Some((repo, set)) = str.split_once('/') {
-            Self { 
-                repo: repo.to_string(), 
+            Self {
+                repo: repo.to_string(),
                 set: set.to_string(),
             }
         } else {

@@ -102,7 +102,7 @@ fn get_version(package: &Package) -> String {
 fn display_version(package: &Package, version: &str) {
     let pkg = format!("{}/{}", package.repo, package.name);
     let v = &package.version;
-    
+
     if version.is_empty() {
         return erm!("{pkg} | Failed to get version :(");
     }

@@ -4,9 +4,9 @@
 use crate::{
     comms::{
         r#in::select, log::{erm, pr}
-    }, 
-    globals::config::CONFIG, 
-    package::repos::{self, prioritize}, 
+    },
+    globals::config::CONFIG,
+    package::repos::{self, prioritize},
     utils::fail::{fail, Fail}
 };
 use std::fs;
@@ -82,7 +82,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
 /// Returns an empty vector if no sets are found, otherwise returns a vector of <repo>/@<set>
 fn locate_set(set: &str) -> Vec<String> {
     let pattern = format!(".sets/{set}");
-    
+
     fs::read_dir("/usr/ports")
         .fail("No repos found")
         .filter_map(|r| {
@@ -110,7 +110,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
             locate_set(set)
         };
 
-    if matches.is_empty() { 
+    if matches.is_empty() {
         fail!("Failed to find '@{}' in any repo", set);
     }
 

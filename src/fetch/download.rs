@@ -50,7 +50,7 @@ pub fn download(package: &Package, force: bool, sty: &ProgressStyle) -> Download
 /// provided, doesn't download anything.
 ///
 /// Affected by force
-/// 
+///
 /// **Fail conditions:**
 /// - source path could not be created
 /// - url was invalid
@@ -184,7 +184,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 /// downloading anything.
 ///
 /// Affected by force
-/// 
+///
 /// **Fail conditions:**
 /// - source path could not be created
 /// - url was invalid

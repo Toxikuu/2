@@ -275,7 +275,7 @@ impl PM<'_> {
             if imply { pkgs = expand_set("//@a").to_vec(); }
             else { erm!("Nothing to list"); }
         }
-        
+
         pkgs.sort_by(|a, b| {
             let a = format!("{}/{}", a.repo, a);
             let b = format!("{}/{}", b.repo, b);
@@ -298,7 +298,7 @@ impl PM<'_> {
     fn logs(p: &Package) {
         let log_file_str = format!("/usr/ports/{}/.logs/pkg.log", p.relpath);
         let log_file = Path::new(&log_file_str);
-        
+
         if logger::display(log_file).is_err() {
             erm!("No logs exist for '{}'", p);
         }

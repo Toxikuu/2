@@ -35,7 +35,7 @@ echo "NAME: $NAME"
 echo " ### VARIABLES ### "
 echo
 
-read -p "Press enter to continue..." 
+read -p "Press enter to continue..."
 
 cd "/usr/ports/$REPO/$NAME"
 

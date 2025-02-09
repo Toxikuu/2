@@ -99,7 +99,7 @@ pub fn build(package: &Package) {
     setup(package);
     let command = format!(
     r#"
-    
+
     cd "$BLD"
     2b
     cd "$BLD"
@@ -149,7 +149,7 @@ pub fn post(package: &Package) {
 
     type -t 2z > /dev/null 2>&1 || exit 0 # finish if post is undefined
     2z
-    
+
     ".to_string();
 
     pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in post-install: {}", package, e));

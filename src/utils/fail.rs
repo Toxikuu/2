@@ -9,9 +9,9 @@ use crate::{
     globals::config::CONFIG,
 };
 use std::{
-    cell::Cell, 
-    fmt, 
-    panic::Location, 
+    cell::Cell,
+    fmt,
+    panic::Location,
     thread_local,
 };
 
@@ -122,13 +122,13 @@ pub fn report(msg: &str, location: &'static Location<'static>, fail_type: &FailT
 ///     bail!("hi mom");
 ///     Ok(())
 /// }
-/// 
+///
 /// // ``.fail()`` will also output the error message
 /// fallible_function().fail("Fallible function failed");
 ///
 /// let num: Option<u8> = None;
 /// num.fail("Num was none");
-/// 
+///
 /// let num: Option<u8> = Some(42);
 /// num.ufail("Shouldn't have failed"); // unreachable failure
 ///
@@ -152,7 +152,7 @@ pub trait Fail<T, E> {
 }
 
 impl<T, E> Fail<T, E> for Result<T, E>
-where 
+where
     E: fmt::Debug,
 {
     fn fail_with_location(self, msg: &str, location: &'static Location<'static>) -> T {

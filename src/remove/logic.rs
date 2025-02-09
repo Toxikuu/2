@@ -97,7 +97,7 @@ fn rmf(path: &PathBuf) -> Result<()> {
 /// - the manifest doesn't exist
 /// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
 pub fn remove(package: &Package) -> bool {
-    if !package.data.is_installed && !FLAGS.get().ufail("Cell issue").force { 
+    if !package.data.is_installed && !FLAGS.get().ufail("Cell issue").force {
         erm!("Not installed: '{}'", package);
         return false
     }
@@ -121,7 +121,7 @@ pub fn remove(package: &Package) -> bool {
         if path.is_symlink() {
             rmf(&path).fail("Failed to remove symlink");
         }
-        
+
         if path.is_file() {
             rmf(&path).fail("Failed to remove file");
         }
@@ -185,7 +185,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
         if path.is_symlink() {
             rmf(&path).fail("Failed to remove symlink");
         }
-        
+
         if path.is_file() {
             rmf(&path).fail("Failed to remove file");
         }
@@ -266,7 +266,7 @@ fn prune_logs(package: &Package) {
 /// Deletes all manifests except the current one for a package
 fn prune_manifests(package: &Package) {
     let data = format!("/usr/ports/{}/.data", package.relpath);
-    
+
     let protected_manifest = format!("{}/MANIFEST={}", data, package.version);
     for entry in read_dir(data).fail("Failed to read data directory") {
         let entry = entry.ufail("Invalid directory entry");

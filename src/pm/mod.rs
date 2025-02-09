@@ -35,7 +35,7 @@ impl<'a> PM<'a> {
     /// Creates a new package manager struct from an array of packages
     #[cfg(feature = "parallelism")]
     pub fn new(packages: &'a [Package], args: &'a Args) -> Self {
-        Self { 
+        Self {
             packages,
             args,
             thread_pool: build_pool(packages),

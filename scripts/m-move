@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # m-move (maintainer move) moves a package
-# 
+#
 # Moving packages between repos *is* supported
 
 source /usr/share/2/bin/f-core || exit 211
@@ -40,7 +40,7 @@ echo "TO NAME: $TONAME"
 echo " ### VARIABLES ### "
 echo
 
-read -p "Press enter to continue..." 
+read -p "Press enter to continue..."
 
 [ -e /usr/ports/"$FROMREPO" ] || die "Nonexistent repo: $FROMREPO"
 [ -e /usr/ports/"$TOREPO"   ] || die "Nonexistent repo: $TOREPO"

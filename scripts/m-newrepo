@@ -34,7 +34,7 @@ echo "REMOTE: $REMOTE"
 echo " ### VARIABLES ### "
 echo
 
-read -p "Press enter to continue..." 
+read -p "Press enter to continue..."
 
 [ -e /usr/ports/"$REPO" ] && die 'This repo already exists!'
 
@@ -59,7 +59,7 @@ EOF
 curl -o LICENSE "${LICENSE:-https://www.gnu.org/licenses/gpl-3.0.txt}"
 
 git status -s
-read -p "Press enter to continue..." 
+read -p "Press enter to continue..."
 
 git config user.name "$GITUSER"
 git config user.email "$GITEMAIL"
