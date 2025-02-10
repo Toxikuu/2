@@ -59,7 +59,7 @@ pub fn download(package: &Package, force: bool, sty: &ProgressStyle) -> Download
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
 pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
     let mut dlct = 0;
-    package.data.extra.iter().for_each(|source| {
+    package.extra.iter().for_each(|source| {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail(&format!("Invalid extra url: '{}'", source.url));
         let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
 
@@ -192,7 +192,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 ///
 /// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
 fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
-    let url = package.data.source.url.clone();
+    let url = package.source.url.clone();
     if url.is_empty() { return false }
 
     let file_name = url.split('/').next_back().context("Likely the repo's maintainer's fault").fail("Invalid url");

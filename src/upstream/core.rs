@@ -47,8 +47,8 @@ pub fn sex(command: &str) -> Result<String> {
 #[allow(clippy::missing_const_for_fn)]
 fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
-        upstream: &package.data.upstream,
-        command: &package.data.version_command,
+        upstream: &package.upstream,
+        command: &package.version_command,
     }
 }
 

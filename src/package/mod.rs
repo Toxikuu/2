@@ -29,23 +29,9 @@ pub struct Package {
     pub relpath: String,
 
     pub version: String,
-    pub data: PackageData,
-}
-
-/// # Description
-/// The package data struct
-///
-/// Contains package source
-#[derive(Deserialize, Debug, Clone)]
-pub struct PackageData {
-    #[serde(skip)]
-    pub is_installed: bool,
-    #[serde(skip)]
-    pub installed_version: String,
-    #[serde(skip)]
-    pub dist: String,
-
+    #[serde(default)]
     pub source: PackageSource,
+    #[serde(default)]
     pub extra: Arc<[PackageSource]>,
 
     // I prolly should use Option<> but I'm fucking lazy
@@ -55,12 +41,27 @@ pub struct PackageData {
     #[cfg(feature = "upstream")]
     #[serde(default)]
     pub version_command: String,
+
+    #[serde(skip)]
+    pub data: PackageData,
+}
+
+/// # Description
+/// The package data struct contains extra information about the package
+#[derive(Deserialize, Debug, Default, Clone)]
+pub struct PackageData {
+    #[serde(skip)]
+    pub is_installed: bool,
+    #[serde(skip)]
+    pub installed_version: String,
+    #[serde(skip)]
+    pub dist: String,
 }
 
 /// # Description
 /// The package source struct
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Default, Clone)]
 pub struct PackageSource {
     pub url: Arc<str>, // must be thread safe
-    pub hash: String, // the hash is never cloned, so String
+    pub hash: String,
 }

@@ -207,7 +207,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
 pub fn prune(package: &Package) -> usize {
     let src = format!("/usr/ports/{}/.sources", package.relpath);
 
-    let extra = &package.data.extra;
+    let extra = &package.extra;
     let extra_files: Vec<String> = extra.iter().map(|s| {
         let file_name = Path::new(s.url.as_str())
             .file_name()

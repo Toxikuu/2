@@ -38,13 +38,13 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     }
 
     if !no_source {
-        let tarball = package.data.source.url.split('/').next_back().fail("Invalid url");
+        let tarball = package.source.url.split('/').next_back().fail("Invalid url");
         let filename = normalize_tarball(package, tarball);
-        let knownhash = &package.data.source.hash;
+        let knownhash = &package.source.hash;
         core(&filename, knownhash, relpath).fail("Hash checks failed");
     }
 
-    package.data.extra.iter().for_each(|source| {
+    package.extra.iter().for_each(|source| {
         let filename = Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
         core(&filename, knownhash, relpath).fail("Hash checks failed");
@@ -56,7 +56,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
 ///
 /// The setup process involves checking hashes, cleaning, and extracting the sources to the build directory
 fn setup(package: &Package) {
-    let no_source = package.data.source.url.is_empty();
+    let no_source = package.source.url.is_empty();
     if CONFIG.general.check_hashes { check_hashes(package, no_source, &package.relpath) }
     clean(package);
 
