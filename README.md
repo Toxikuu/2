@@ -11,7 +11,7 @@ package repositories, which contain build-information for individual packages.
 
 **WARNING**
 I'm in the process of transitioning the m-* scripts to their own rust crate, so
-don't use them as a lot og breaking changes were made.
+don't use them as a lot of breaking changes were made.
 
 However, here's a work-in-progress install script:
 ```bash
