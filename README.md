@@ -9,6 +9,10 @@ package repositories, which contain build-information for individual packages.
 ## Installation
 2 is still in early development, and you should expect breaking changes.
 
+**WARNING**
+I'm in the process of transitioning the m-* scripts to their own rust crate, so
+don't use them as a lot og breaking changes were made.
+
 However, here's a work-in-progress install script:
 ```bash
 sudo bash <(curl -fsSL 'https://github.com/Toxikuu/2/raw/refs/heads/master/install.sh')
