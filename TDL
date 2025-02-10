@@ -2,14 +2,16 @@
 
 TODO
 
-    add m-remove
-        also add m-downgrade
+    Investigate a potential bug where -fbi builds twice
+
+    Complete maint functionality
+        then add m-remove, m-downgrade
 
     Work on mdbook docs
 
 WIP
 
-    Expand the main repo
+    Expand the main & xorg repos
 
 DONEISH
 
