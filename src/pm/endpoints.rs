@@ -98,7 +98,7 @@ impl PM<'_> {
             }
             bl::InstallStatus::UpdateInstead => {
                 log::warn!("Updating instead of installing '{p}'...");
-                msg!("󰗠  Updating instead of installing '{p}'...");
+                msg!("󱍷  Updating instead of installing '{p}'...");
                 PM::update(p);
             }
         }
@@ -151,7 +151,7 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        let status = bl::build(p);
+        let status = bl::build(p, false);
         stopwatch.stop();
         match status {
             bl::BuildStatus::Source => {

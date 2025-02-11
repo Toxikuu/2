@@ -48,7 +48,7 @@ pub fn install(package: &Package) -> InstallStatus {
         dist_install(package);
         InstallStatus::Dist
     } else {
-        build(package);
+        build(package, false);
         dist_install(package);
         InstallStatus::Source
     }
@@ -58,8 +58,8 @@ pub fn install(package: &Package) -> InstallStatus {
 /// Builds a package, calling functions in ``super::script``
 ///
 /// Returns false if the package has already been built
-pub fn build(package: &Package) -> BuildStatus {
-    if package.dist_exists() && !FLAGS.get().ufail("Cell issue").force {
+pub fn build(package: &Package, r#override: bool) -> BuildStatus {
+    if package.dist_exists() && !FLAGS.get().ufail("Cell issue").force && !r#override {
         BuildStatus::Already
     } else {
         msg!("󱠇  Building '{}'...", package);
@@ -136,11 +136,11 @@ pub fn update(package: &Package) -> UpdateStatus {
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
     let dist_exists = Path::new(
-        &format!("/usr/ports/{}/.dist/{}={}", package.relpath, package.name, package.version)
+        &format!("/usr/ports/{}/.dist/{}={}.tar.zst", package.relpath, package.name, package.version)
     ).exists();
 
     if !dist_exists {
-        build(package);
+        build(package, true);
     }
 
     dist_install(package);
