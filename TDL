@@ -2,7 +2,9 @@
 
 TODO
 
-    Investigate a potential bug where -fbi builds twice
+    Test install.sh
+
+    Improve release.sh
 
     Complete maint functionality
         then add m-remove, m-downgrade
@@ -14,6 +16,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Investigate a potential bug where -fbi builds twice
 
     Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
         Im like 80% sure i did this cus the codes there but idr if i fully implemented it LOL
