@@ -6,12 +6,12 @@ TODO
 
     Improve release.sh
 
-    Complete maint functionality
-        then add m-remove, m-downgrade
-
     Work on mdbook docs
 
 WIP
+
+    Complete maint functionality
+        add m-downgrade
 
     Expand the main & xorg repos
 
@@ -21,6 +21,7 @@ DONEISH
 
     Attempt to update instead of installing if -i is passed, the package is already installed, and it's outdated
         Im like 80% sure i did this cus the codes there but idr if i fully implemented it LOL
+        Update: it feels like it mostly works, so im up to 90% sure, but ima have to test this some more <<< TODO: Verify
 
     Have the execution logic as a PM method
         Also pass args to it
@@ -160,7 +161,14 @@ DROPPED
 
 IDEAS
 
+    BUILD instruction guessing
+        https://pad.riseup.net/p/buildinstructionguessing-keep
+
     Add a file for enabled repos
+
+    Introduce /etc/2/sysconfig.toml
+        Centralized location for configuring certain system-specific options
+        Would make the installation of certain packages just a little less painful, but may not be worth it idk
 
     Consider using cfg_if
 
@@ -179,6 +187,11 @@ IDEAS
 
 ROADMAP
 
-    Features for 2-1.0.0:
+    Features for 2-0.1.0:
         install script
+        fair maint functionality
         solid documentation with mdbook
+
+    Features for 2-0.2.0:
+        dependency support
+        .part downloads
