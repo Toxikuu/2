@@ -1,6 +1,7 @@
 // src/remove/manifest.rs
 //! Reads the package manifest
 
+use anyhow::{Context, Result};
 use crate::{
     comms::log::vpr,
     package::Package,
@@ -11,7 +12,6 @@ use std::{
     fs,
     path::{Path, PathBuf},
     rc::Rc,
-    result::Result,
     string::ToString,
 };
 use walkdir::{DirEntry, WalkDir};
@@ -88,12 +88,13 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
 /// Backend for ``find_unique_paths``
 ///
 /// Returns the unique lines in reverse order (meaning /path/to/file is above /path/to)
-fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Rc<[String]> {
+fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Result<Rc<[String]>> {
     let mut unique = Vec::new();
 
     // TODO: Consider not failing, rather just warning the user when a manifest isn't found
-    let this_data = all_data.get(this_manifest).fail("Manifest not found");
+    let this_data = all_data.get(this_manifest).context("Missing manifest")?;
     let mut all_other_lines = HashSet::new();
+
     for (path, lines) in all_data {
         if path != this_manifest {
             lines.iter().for_each(|l| {
@@ -109,12 +110,12 @@ fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBu
     });
 
     unique.reverse();
-    unique.into()
+    Ok(unique.into())
 }
 
 /// # Description
 /// Finds paths unique to a manifest
-pub fn find_unique_paths(manifest: &PathBuf) -> Rc<[String]> {
+pub fn find_unique_paths(manifest: &PathBuf) -> Result<Rc<[String]>> {
     let manifests = locate("/usr/ports");
     let data = read_all(&manifests);
     find_unique(&data, manifest)
@@ -122,7 +123,7 @@ pub fn find_unique_paths(manifest: &PathBuf) -> Rc<[String]> {
 
 /// # Description
 /// Finds unique files in an old manifest (dead files)
-pub fn find_dead_files(package: &Package) -> Rc<[String]> {
+pub fn find_dead_files(package: &Package) -> Result<Rc<[String]>> {
     let manifests = locate(&format!("/usr/ports/{}/{}/.data", package.repo, package.name));
 
     let data = read_all(&manifests);

@@ -11,6 +11,7 @@ use crate::{
     package::Package,
     utils::fail::{fail, Fail},
 };
+use log::warn;
 use std::{
     fs::{
         create_dir,
@@ -107,7 +108,10 @@ pub fn remove(package: &Package) -> bool {
 
     if !manifest_path.exists() { fail!("Manifest doesn't exist") }
 
-    let unique = find_unique_paths(&manifest_path.to_path_buf());
+    let Ok(unique) = find_unique_paths(&manifest_path.to_path_buf()) else { 
+        warn!("Missing manifest for {package}");
+        return false
+    };
 
     unique.iter().for_each(|p| {
         let pfx = Path::new(&CONFIG.general.prefix);
@@ -171,7 +175,10 @@ fn remove_dots(package: &Package) {
 pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
 
-    let dead_files = find_dead_files(package);
+    let Ok(dead_files) = find_dead_files(package) else { 
+        warn!("Missing manifest for {package}");
+        return
+    };
 
     dead_files.iter().for_each(|p| {
         let pfx = Path::new(&CONFIG.general.prefix);
@@ -202,84 +209,128 @@ pub fn remove_dead_files_after_update(package: &Package) {
 /// Prunes files for a package
 ///
 /// Pruning involves removing all files from sources except the current tarball and extra files
-///
 /// Optionally also removes old manifests and deletes logs
 pub fn prune(package: &Package) -> usize {
-    let src = format!("/usr/ports/{}/.sources", package.relpath);
+    let src_dir = PathBuf::from("/usr/ports")
+        .join(&package.relpath)
+        .join(".sources");
 
-    let extra = &package.extra;
-    let extra_files: Vec<String> = extra.iter().map(|s| {
-        let file_name = Path::new(s.url.as_str())
-            .file_name()
-            .ufail("File in .sources ends in '..' tf??")
-            .to_string_lossy();
-        format!("{src}/{file_name}")
-    }).collect();
-    let tarball_approx = format!("{src}/{package}");
+    if !src_dir.exists() {
+        return 0
+    }
 
-    let mut count = 0;
-    for entry in read_dir(src).fail("Failed to read sources directory") {
+    let extra_files: Vec<PathBuf> = package.extra.iter()
+        .map(|s| {
+            let file_name = Path::new(s.url.as_str())
+                .file_name()
+                .ufail("File in .sources ends in '..' tf??");
+            src_dir.join(file_name)
+        })
+        .collect();
+
+    let tarball_approx = src_dir.join(package.to_string());
+    let mut pruned_count = 0;
+
+    for entry in read_dir(&src_dir).fail(&format!("Failed to read sources directory '{src_dir:?}'")) {
         let entry = entry.ufail("Invalid source entry");
         let path = entry.path();
 
-        let is_tarball = path.to_string_lossy().starts_with(&tarball_approx);
-        let is_extra_file = extra_files.iter().any(|f| Path::new(f) == path);
-
-        if !is_tarball && !is_extra_file {
-            vpr!("Pruning: {:?}", path);
-            // path should:tm: never point to a dir since it's reading .sources
-            remove_file(path).ufail("Failed to prune file");
-            count += 1;
+        if !path.is_file() {
+            continue
         }
+
+        let should_keep = path.to_string_lossy().starts_with(&*tarball_approx.to_string_lossy())
+            || extra_files.iter().any(|f| f == &path);
+
+        if should_keep {
+            continue
+        }
+
+        vpr!("Pruning: {:?}", path);
+        // path should:tm: never point to a dir since it's reading .sources
+        remove_file(&path).fail(&format!("Failed to prune file '{path:?}'"));
+        pruned_count += 1;
     }
 
-    if CONFIG.general.prune_manifests { prune_manifests(package); }
-    if CONFIG.general.prune_logs { prune_logs(package); }
+    if CONFIG.general.prune_manifests { prune_manifests(package) }
+    if CONFIG.general.prune_logs { prune_logs(package) }
     // IDEA: Maybe consider using hashes for the manifests (might be beyond scope though)
 
-    count
+    pruned_count
 }
 
 /// # Description
 /// Deletes all logs for a package
 fn prune_logs(package: &Package) {
-    let log_dir_str = format!("/usr/ports/{}/.logs", package.relpath);
-    let log_dir = Path::new(&log_dir_str);
+    let log_dir = PathBuf::from("/usr/ports")
+        .join(&package.relpath)
+        .join(".logs");
 
-    if !log_dir.exists() { return }
-    for entry in read_dir(log_dir).fail("Failed to read log directory") {
+    if !log_dir.exists() {
+        return
+    }
+
+    for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory '{log_dir:?}'")) {
         let entry = entry.ufail("Invalid directory entry");
         let path = entry.path();
 
-        let is_log = path.file_name().ufail("File in .data ends in '..' tf??").to_string_lossy().ends_with(".log");
-
-        if is_log {
-            let msg = format!("Pruning log '{path:?}'");
-            vpr!("{}", msg);
-            log::debug!("{}", msg);
-            remove_file(path).fail("Failed to prune log");
+        if !path.is_file() {
+            continue
         }
+
+        if path.file_name().and_then(|f| f.to_str()).is_none() {
+            continue
+        }
+
+        if path.extension().is_some_and(|x| x != "log") {
+            continue
+        }
+
+        let msg = format!("Proning log '{path:?}'");
+        vpr!("{msg}");
+        log::debug!("{msg}");
+        remove_file(&path).fail("Failed to prune log");
     }
 }
 
 /// # Description
-/// Deletes all manifests except the current one for a package
+/// Deletes all manifests except the current (and most recent if the installed version and
+/// latest version differ) manifest for a package
 fn prune_manifests(package: &Package) {
-    let data = format!("/usr/ports/{}/.data", package.relpath);
+    let data_dir = PathBuf::from("/usr/ports")
+        .join(&package.relpath)
+        .join(".data");
 
-    let protected_manifest = format!("{}/MANIFEST={}", data, package.version);
-    for entry in read_dir(data).fail("Failed to read data directory") {
+    let protected_manifests = [
+        data_dir.join(format!("MANIFEST={}", package.version)),
+        data_dir.join(format!("MANIFEST={}", package.data.installed_version)),
+    ];
+
+    if !data_dir.exists() {
+        return // data dir should always exist, but in case it doesn't, give up
+    }
+
+    for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory '{data_dir:?}'")) {
         let entry = entry.ufail("Invalid directory entry");
         let path = entry.path();
 
-        let is_manifest = path.file_name().ufail("File in .data ends in '..' tf??").to_string_lossy().starts_with("MANIFEST=");
-        let is_protected = path.to_string_lossy() == protected_manifest;
-
-        if is_manifest && !is_protected {
-            let msg = format!("Pruning manifest '{path:?}'");
-            vpr!("{}", msg);
-            log::debug!("{}", msg);
-            remove_file(path).fail("Failed to prune manifest");
+        if !path.is_file() {
+            continue
         }
+
+        let Some(file_name) = path.file_name().and_then(|f| f.to_str()) else {
+            continue
+        };
+
+        if !file_name.starts_with("MANIFEST=") {
+            continue
+        }
+
+        if protected_manifests.iter().any(|p| p == &path) {
+            continue
+        }
+
+        log::debug!("Pruning manifest '{path:?}'");
+        remove_file(&path).fail("Failed to prune manifest");
     }
 }
