@@ -12,10 +12,14 @@ WIP
 
     Complete maint functionality
         add m-downgrade
+        improve error handling
 
     Expand the main & xorg repos
 
 DONEISH
+
+    Make cleaning hesitant to remove manifests
+        Also went ahead and refactored the relevant functions
 
     Investigate a potential bug where -fbi builds twice
 
