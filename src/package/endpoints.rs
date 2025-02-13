@@ -46,6 +46,6 @@ impl Package {
     }
 
     pub fn dist_exists(&self) -> bool {
-        Path::new(&format!("/usr/ports/{}/.data/INSTALLED", self.relpath)).exists()
+        Path::new(&self.data.dist).exists()
     }
 }
