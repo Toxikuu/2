@@ -1,13 +1,15 @@
 // src/build/script.rs
 //! Interfaces with $PORT/BUILD
 
-use anyhow::Result;
 use crate::{
     fetch::download::normalize_tarball,
     globals::config::CONFIG,
     package::Package,
-    shell::cmd::{exec, pkgexec},
-    utils::fail::{fail, Fail},
+    shell::cmd::pkgexec,
+    utils::{
+        fail::{fail, Fail},
+        hash::twohash,
+    },
 };
 use std::{
     fs::{create_dir, remove_dir_all},
@@ -15,39 +17,32 @@ use std::{
 };
 
 /// ### Description
-/// Checks the hashes for package sources, dying if they don't match known ones
+/// Checks the hashes for package sources, failing if they don't match known ones
 ///
 /// Known hashes are sourced from Package which is deserialized from info.lock
-///
-/// The m-gen script is responsible for initializing these hashes
+/// ``2lkit -g <package>`` is responsible for generating the info.lock
 fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
-    /// ### Description
-    /// Helper subfunction for checking hashes
-    // TODO: consider using a closure instead, capturing relpath
-    fn core(filename: &str, knownhash: &str, relpath: &str) -> Result<()> {
-        // pkgexec is explicitly not used here as it sets more variables than is necessary
-        let command = format!(r#"
-
-        SRC="/usr/ports/{relpath}/.sources"
-        u-val "$SRC/{filename}" "{knownhash}"
-
-        "#
-        );
-
-        exec(&command)
-    }
+    // helper closure for checking hashes
+    let passes = |filename: &str, knownhash: &str, relpath: &str| -> bool {
+        let file_path = format!("/usr/ports/{relpath}/.sources/{filename}");
+        twohash(&file_path) == knownhash
+    };
 
     if !no_source {
         let tarball = package.source.url.split('/').next_back().fail("Invalid url");
-        let filename = normalize_tarball(package, tarball);
+        let filename = &normalize_tarball(package, tarball);
         let knownhash = &package.source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed");
+        if !passes(filename, knownhash, relpath) {
+            fail!("Hash checks failed")
+        }
     }
 
     package.extra.iter().for_each(|source| {
-        let filename = Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
+        let filename = &Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        core(&filename, knownhash, relpath).fail("Hash checks failed");
+        if !passes(filename, knownhash, relpath) {
+            fail!("Hash checks failed")
+        }
     });
 }
 
