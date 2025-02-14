@@ -2,8 +2,6 @@
 
 TODO
 
-    Do hash-checks in house instead of relying on openssl
-
     Test install.sh
 
     Improve release.sh
@@ -19,6 +17,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Do hash-checks in house instead of relying on openssl
 
     Make cleaning hesitant to remove manifests
         Also went ahead and refactored the relevant functions
