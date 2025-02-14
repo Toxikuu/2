@@ -2,6 +2,8 @@
 
 TODO
 
+    Do hash-checks in house instead of relying on openssl
+
     Test install.sh
 
     Improve release.sh
