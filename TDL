@@ -159,16 +159,20 @@ DROPPED
     Make build.log only include the build logs
         Instead just used pkg.log
 
-    ~~Add -! to reverse the behavior of (some) flags~~
+    Add -! to reverse the behavior of (some) flags
         ~~For instance, -P shows what packages provide a file, but -!P might show what files a package provides~~
         Would be unintuitive and overly complex
 
 IDEAS
 
+    Build time tracking
+        https://pad.riseup.net/p/buildtimetracking-keep
+
     BUILD instruction guessing
         https://pad.riseup.net/p/buildinstructionguessing-keep
 
     Add a file for enabled repos
+        This would mean not having to delete source tarballs, logs, and data when "removing" a repo
 
     Introduce /etc/2/sysconfig.toml
         Centralized location for configuring certain system-specific options
@@ -199,3 +203,8 @@ ROADMAP
     Features for 2-0.2.0:
         dependency support
         .part downloads
+
+    Features for 2-0.3.0:
+        package summaries
+        repo enabling/disabling
+        build time tracking
