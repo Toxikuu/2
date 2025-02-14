@@ -23,7 +23,7 @@ use std::{
 /// ``2lkit -g <package>`` is responsible for generating the info.lock
 fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     // helper closure for checking hashes
-    let passes = |filename: &str, knownhash: &str, relpath: &str| -> bool {
+    let passes = |filename: &str, knownhash: &str| -> bool {
         let file_path = format!("/usr/ports/{relpath}/.sources/{filename}");
         twohash(&file_path) == knownhash
     };
@@ -32,7 +32,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
         let tarball = package.source.url.split('/').next_back().fail("Invalid url");
         let filename = &normalize_tarball(package, tarball);
         let knownhash = &package.source.hash;
-        if !passes(filename, knownhash, relpath) {
+        if !passes(filename, knownhash) {
             fail!("Hash checks failed")
         }
     }
@@ -40,7 +40,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
     package.extra.iter().for_each(|source| {
         let filename = &Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        if !passes(filename, knownhash, relpath) {
+        if !passes(filename, knownhash) {
             fail!("Hash checks failed")
         }
     });
