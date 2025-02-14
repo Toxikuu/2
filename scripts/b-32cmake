@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# b-cmake (build cmake) wraps cmake
+# $CP is the configure path
+
+source "/usr/share/2/bin/f-core" || exit 211
+
+CC="gcc -m32" CXX="g++ -m32"          \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig  \
+cmake \
+    -D CMAKE_INSTALL_PREFIX=/usr      \
+    -D CMAKE_INSTALL_LIBDIR=lib32     \
+    -D CMAKE_BUILD_TYPE=Release       \
+    -D CMAKE_SKIP_INSTALL_RPATH=ON    \
+    -D BUILD_SHARED_LIBS=ON           \
+    "$@"                              \
+    -W no-dev -G Ninja "${CP:-.}"    ||
+die "32-bit cmake failed"
