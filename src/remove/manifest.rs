@@ -3,7 +3,7 @@
 
 use anyhow::{Context, Result};
 use crate::{
-    comms::log::vpr,
+    comms::out::vpr,
     package::Package,
     utils::fail::Fail,
 };

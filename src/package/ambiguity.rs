@@ -3,7 +3,7 @@
 
 use crate::{
     comms::{
-        r#in::select, log::{erm, pr}
+        r#in::select, out::{erm, pr}
     },
     globals::config::CONFIG,
     package::repos::{self, prioritize},

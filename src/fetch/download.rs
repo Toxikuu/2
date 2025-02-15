@@ -5,7 +5,7 @@ use anyhow::{bail, Context};
 use crate::{
     package::Package,
     utils::fail::{fail, ufail, Fail},
-    comms::log::vpr,
+    comms::out::vpr,
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{

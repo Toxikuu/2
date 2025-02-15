@@ -3,5 +3,5 @@
 //! May be moved to utils in the future
 // TODO: Consider moving to utils
 
-pub mod log;
+pub mod out;
 pub mod r#in;

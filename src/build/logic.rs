@@ -4,7 +4,7 @@
 use std::path::Path;
 
 use crate::{
-    comms::log::{msg, cpr},
+    comms::out::{msg, cpr},
     globals::{config::CONFIG, flags::FLAGS},
     package::Package,
     remove::logic::remove_dead_files_after_update,

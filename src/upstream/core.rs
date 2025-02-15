@@ -3,7 +3,7 @@
 
 use anyhow::{bail, Result};
 use crate::{
-    comms::log::{pr, erm, vpr},
+    comms::out::{pr, erm, vpr},
     globals::config::CONFIG,
     package::Package,
 };

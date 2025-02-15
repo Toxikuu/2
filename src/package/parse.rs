@@ -2,7 +2,7 @@
 //! Functions for parsing positional arguments
 
 use crate::{
-    comms::log::erm,
+    comms::out::erm,
     utils::fail::Fail,
 };
 use super::{

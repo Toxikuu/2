@@ -4,7 +4,7 @@
 use crate::{
     build::{logic as bl, script},
     cli::args::Args,
-    comms::log::{erm, msg, pr, vpr},
+    comms::out::{erm, msg, pr, vpr},
     fetch::download::{download, DownloadStatus},
     package::{history, parse::expand_set, Package},
     remove::logic as rl,

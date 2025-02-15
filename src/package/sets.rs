@@ -3,7 +3,7 @@
 
 use anyhow::Result;
 use crate::{
-    comms::log::{erm, pr, vpr},
+    comms::out::{erm, pr, vpr},
     utils::fail::{Fail, fail, ufail},
 };
 use std::{

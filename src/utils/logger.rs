@@ -4,7 +4,7 @@
 use anyhow::Result;
 use log::LevelFilter;
 use crate::{
-    comms::log::erm,
+    comms::out::erm,
     globals::config::CONFIG,
 };
 use log4rs::{

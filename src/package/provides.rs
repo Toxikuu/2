@@ -3,7 +3,7 @@
 
 use anyhow::Context;
 use crate::{
-    comms::log::erm,
+    comms::out::erm,
     pm::PM,
     remove::manifest,
     utils::fail::Fail,

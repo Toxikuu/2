@@ -2,7 +2,7 @@
 //! Functions for dealing with package repos
 
 use crate::{
-    comms::log::{erm, pr, msg},
+    comms::out::{erm, pr, msg},
     shell::cmd::exec,
     utils::fail::Fail,
 };

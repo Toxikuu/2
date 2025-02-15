@@ -4,7 +4,7 @@
 // TODO: consider adding an erm method that discards an error and sends a message
 
 use crate::{
-    comms::log::erm,
+    comms::out::erm,
     utils::logger,
     globals::config::CONFIG,
 };
