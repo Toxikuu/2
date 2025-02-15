@@ -2,6 +2,8 @@
 
 TODO
 
+    Add force pruning
+
     Move the @all alias to @@
         also add @available and alias it to @a
         also make -U imply //@@ like -l does
@@ -13,6 +15,7 @@ TODO
 WIP
 
     Work on mdbook docs
+        Sketch out what each chapter should cover
 
     Complete maint functionality
         add m-downgrade
@@ -210,12 +213,22 @@ IDEAS
     Check hashes for dist installs as well
         Would marginally increase security
 
+    Add git as a supported source format
+        syntax: source variable starts with git+
+        repo is cloned to /usr/ports/<repo>/<package>/.sources/git+name
+        if it exists, the repo is pulled instead
+        tags are checked out here
+        then, the build is done in .build as usual
+
+    Do the zstd compression in-house
+        would maybe allow for a progress bar :pray:
+
 ROADMAP
 
     Features for 2-0.1.0:
-        [-] install script
+        [-] install script (just needs testing now)
         [*] fair maint functionality
-        [ ] solid documentation with mdbook
+        [-] solid documentation with mdbook (wip)
 
     Features for 2-0.2.0:
         dependency support
