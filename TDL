@@ -18,6 +18,10 @@ WIP
 
 DONEISH
 
+    Figure out how to make the message configs have the full escape code in the config for clarity
+        Done
+        I had to use \u00 instead of \x
+
     Do hash-checks in house instead of relying on openssl
 
     Make cleaning hesitant to remove manifests
