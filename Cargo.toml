@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.55" # reorganized docs, force pruning, FLAGS.get().unwrap() -> Flags::grab()
+version = "0.0.56" # moved @a -> @@ for @all, added @available with alias @a
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
