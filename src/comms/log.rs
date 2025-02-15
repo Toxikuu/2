@@ -49,7 +49,6 @@ macro_rules! cpr {
 macro_rules! erm {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        dbg!(&CONFIG.message.danger);
         eprintln!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
     }};
 }
