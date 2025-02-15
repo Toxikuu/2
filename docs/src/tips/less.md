@@ -1,4 +1,5 @@
 # Less
+[//]: TODO: Remove this tbh
 
 ## Abstract
 Less works quite well with 2. This chapter contains a few tips for using them
@@ -33,5 +34,3 @@ most colored output :)
 2 -L whois | less -R
 2 -H whois | less -R
 ```
-
-[//]: # TODO: Implement history.

@@ -1,8 +1,9 @@
 # Introduction
-[Introduction](../../README.md)
+[Introduction](introduction.md)
 
 # Getting Started
 - [Installing](start/install.md)
+- [Configuring](start/configuring.md)
 - [Uninstalling](start/uninstall.md)
 
 # Usage
