@@ -34,6 +34,10 @@ impl Flags {
 
         Self { force, quiet, verbose }
     }
+
+    pub fn grab() -> &'static Self {
+        FLAGS.get().ufail("FLAGS has not been initialized")
+    }
 }
 
 pub fn set(args: &Args) {

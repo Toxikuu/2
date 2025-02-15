@@ -34,8 +34,8 @@ macro_rules! pr {
 macro_rules! cpr {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        use $crate::globals::flags::FLAGS;
-        if !FLAGS.get().unwrap().quiet {
+        use $crate::globals::flags::Flags;
+        if !Flags::grab().quiet {
             println!("{}{}\x1b[0m", CONFIG.message.stdout, format!($($arg)*))
         }
     }};
@@ -61,8 +61,8 @@ macro_rules! erm {
 #[cfg(not(test))]
 macro_rules! vpr {
     ($($arg:tt)*) => {{
-        use $crate::globals::flags::FLAGS;
-        if FLAGS.get().unwrap().verbose {
+        use $crate::globals::flags::Flags;
+        if Flags::grab().verbose {
             use $crate::globals::config::CONFIG;
             let f = std::path::Path::new(file!())
                 .file_name()

@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::{
     comms::out::{msg, cpr},
-    globals::{config::CONFIG, flags::FLAGS},
+    globals::{config::CONFIG, flags::Flags},
     package::Package,
     remove::logic::remove_dead_files_after_update,
     shell::cmd::exec,
@@ -38,7 +38,7 @@ pub enum BuildStatus {
 ///
 /// Returns false if the package has already been installed
 pub fn install(package: &Package) -> InstallStatus {
-    if !package.data.installed_version.is_empty() && !FLAGS.get().ufail("Cell issue").force {
+    if !package.data.installed_version.is_empty() && !Flags::grab().force {
         if package.version == package.data.installed_version {
             InstallStatus::Already
         } else {
@@ -59,7 +59,7 @@ pub fn install(package: &Package) -> InstallStatus {
 ///
 /// Returns false if the package has already been built
 pub fn build(package: &Package, r#override: bool) -> BuildStatus {
-    if package.dist_exists() && !FLAGS.get().ufail("Cell issue").force && !r#override {
+    if package.dist_exists() && !Flags::grab().force && !r#override {
         BuildStatus::Already
     } else {
         msg!("󱠇  Building '{}'...", package);
@@ -124,7 +124,7 @@ fn dist_install(package: &Package) {
 ///
 /// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 pub fn update(package: &Package) -> UpdateStatus {
-    let force = FLAGS.get().ufail("Cell issue").force;
+    let force = Flags::grab().force;
     if !package.data.is_installed && !force {
         return UpdateStatus::NotInstalled
     }
