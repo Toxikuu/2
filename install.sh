@@ -29,7 +29,7 @@ confirm() {
 }
 
 pushd .
-mkdir -pv /usr/{ports,share/2} /etc/2
+mkdir -pv /usr/ports /usr/share/2 /etc/2
 
 cd /usr/share/2
 if [ -e /usr/share/2/.git ]; then
@@ -70,7 +70,7 @@ else
   S=
 fi
 
-"\$S" LOG_LEVEL="\$LOG_LEVEL" /code/2/target/release/two "\$@"
+"\$S" LOG_LEVEL="\$LOG_LEVEL" /usr/share/2/target/release/two "\$@"
 EOF
 
 chmod +x /usr/bin/2
