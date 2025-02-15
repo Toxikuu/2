@@ -104,13 +104,3 @@ impl Config {
 pub static CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| Arc::new(
     Config::load().fail("Failed to load /etc/2/config.toml")
 ));
-//
-// lazy_static! {
-//     /// # Description
-//     /// Shared config object
-//     ///
-//     /// It's evaluated at runtime and available across files
-//     pub static ref CONFIG: Arc<Config> = Arc::new(
-//         Config::load().fail("Failed to load /etc/2/config.toml")
-//     );
-// }
