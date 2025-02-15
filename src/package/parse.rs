@@ -34,7 +34,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 
         let mut p = p.to_string();
         if p.ends_with('/') {
-            p.push_str("@a");
+            p.push_str("@@");
         }
 
         if p.contains('@') {

@@ -272,7 +272,7 @@ impl PM<'_> {
 
         let mut pkgs = packages.to_vec();
         if pkgs.is_empty() {
-            if imply { pkgs = expand_set("//@a").to_vec(); }
+            if imply { pkgs = expand_set("//@@").to_vec(); }
             else { erm!("Nothing to list"); }
         }
 

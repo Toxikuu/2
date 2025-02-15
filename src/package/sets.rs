@@ -84,11 +84,11 @@ impl Set {
     /// # Description
     /// Returns true if a given string is a special set
     fn is_special(&self) -> bool {
-        matches!(self.set.as_str(), "@a" | "@all" | "@o" | "@outdated" | "@i" | "@installed")
+        matches!(self.set.as_str(), "@@" | "@all" | "@o" | "@outdated" | "@i" | "@installed" | "@a" | "@available")
     }
 
     pub fn is_special_set(set: &str) -> bool {
-        matches!(set, "@a" | "@all" | "@o" | "@outdated" | "@i" | "@installed")
+        matches!(set, "@@" | "@all" | "@o" | "@outdated" | "@i" | "@installed" | "@a" | "@available")
     }
 
     fn unravel_special(&self) -> Rc<[String]> {
@@ -97,7 +97,9 @@ impl Set {
             self.outdated()
         } else if matches!(set, "@i" | "@installed") {
             self.installed()
-        } else if matches!(set, "@a" | "@all") {
+        } else if matches!(set, "@a" | "@available") {
+            self.available()
+        } else if matches!(set, "@@" | "@all") {
             self.all()
         } else {
             ufail!("I forgot to add a special set")
@@ -136,7 +138,7 @@ impl Set {
     /// Unravels the special set '@all', which contains every package in a given repo
     /// Output is in the form 'repo/package'
     ///
-    /// alias: @a
+    /// alias: @@
     fn all(&self) -> Rc<[String]> {
         let dirs = self.dirs();
         let entries = dirs.iter()
@@ -186,6 +188,19 @@ impl Set {
     }
 
     /// # Description
+    /// Unravels the special set '@available', which contains every available package in a repo
+    ///
+    /// alias: @a
+    fn available(&self) -> Rc<[String]> {
+        self.all()
+            .iter()
+            .filter(|p| !Path::new(&format!("/usr/ports/{p}/.data/INSTALLED")).exists())
+            .cloned()
+            .collect::<Vec<_>>()
+            .into()
+    }
+
+    /// # Description
     /// Unravels the special set '@outdated', which contains every outdated package in a repo
     ///
     /// alias: @o
@@ -224,7 +239,16 @@ mod tests {
 
     #[test]
     fn unravel_tox_all() {
-        let set = Set::new("tox/@a");
+        let set = Set::new("tox/@@");
+        let members = set.unravel();
+        dbg!(&set);
+        dbg!(&members);
+        assert!(members.is_ok());
+    }
+
+    #[test]
+    fn unravel_all_available() {
+        let set = Set::new("//@a");
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
