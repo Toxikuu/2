@@ -32,7 +32,7 @@ fn format_history(history: &str) -> String {
             &CONFIG.message.default.trim()
         };
 
-        let _ = writeln!(formatted, "  \x1b[{style}{line}");
+        let _ = writeln!(formatted, "  {style}{line}");
     }
 
     formatted
@@ -44,5 +44,5 @@ pub fn view(package: &Package) {
     let history = read_history(package);
     let history = format_history(&history);
 
-    println!("\x1b[{}Changelog for '{package}':\n\n{history}", CONFIG.message.prompt);
+    println!("{}Changelog for '{package}':\n\n{history}", CONFIG.message.prompt);
 }

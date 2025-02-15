@@ -10,7 +10,7 @@
 macro_rules! msg {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        println!("\x1b[{}{}\x1b[0m", CONFIG.message.message, format!($($arg)*))
+        println!("{}{}\x1b[0m", CONFIG.message.message, format!($($arg)*))
     }};
 }
 
@@ -22,7 +22,7 @@ macro_rules! msg {
 macro_rules! pr {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        println!("\x1b[{}{}\x1b[0m", CONFIG.message.default, format!($($arg)*))
+        println!("{}{}\x1b[0m", CONFIG.message.default, format!($($arg)*))
     }};
 }
 
@@ -36,7 +36,7 @@ macro_rules! cpr {
         use $crate::globals::config::CONFIG;
         use $crate::globals::flags::FLAGS;
         if !FLAGS.get().unwrap().quiet {
-            println!("\x1b[{}{}\x1b[0m", CONFIG.message.stdout, format!($($arg)*))
+            println!("{}{}\x1b[0m", CONFIG.message.stdout, format!($($arg)*))
         }
     }};
 }
@@ -49,7 +49,8 @@ macro_rules! cpr {
 macro_rules! erm {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        eprintln!("\x1b[{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
+        dbg!(&CONFIG.message.danger);
+        eprintln!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
     }};
 }
 
@@ -68,7 +69,7 @@ macro_rules! vpr {
                 .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("Unknown");
-            println!("\x1b[{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
+            println!("{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
         }
     }};
 }
@@ -86,7 +87,7 @@ macro_rules! vpr {
             .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("Unknown");
-        println!("\x1b[{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
+        println!("{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
     }};
 }
 

@@ -61,7 +61,7 @@ pub fn exec(command: &str) -> Result<()> {
         for line in reader.lines() {
             let line = line.ufail("Failed to read stderr");
 
-            let msg = format!("\x1b[{}{line}", CONFIG.message.stderr);
+            let msg = format!("{}{line}", CONFIG.message.stderr);
             cpr!("{}", msg);
             log::trace!("{}", msg);
         }

@@ -118,7 +118,7 @@ fn format_second_half(v: &str, version: &str) -> String {
     if v == version {
         format!("{v} ~ {version}")
     } else {
-        format!("{v} ~ \x1b[{}{version}\x1b[0m", CONFIG.message.danger.trim())
+        format!("{v} ~ {}{version}\x1b[0m", CONFIG.message.danger.trim())
     }
 }
 

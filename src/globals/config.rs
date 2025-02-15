@@ -64,8 +64,7 @@ pub struct FlagsConfig {
 /// # Description
 /// Part of the config struct
 ///
-/// Config options for message formatting. Uses ansi escape codes. \x1b[ is implied, with the code
-/// itself belonging to the user. The terminating m is not implied.
+/// Config options for message formatting. Uses ansi escape codes.
 #[derive(Deserialize, Debug)]
 pub struct MessageConfig {
     pub danger: String,

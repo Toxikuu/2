@@ -58,7 +58,7 @@ impl fmt::Display for FailType {
 macro_rules! die {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        println!("\x1b[{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*));
+        println!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*));
 
         std::panic::set_hook(Box::new(|_| {})); // suppress all panic output
         panic!();

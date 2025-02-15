@@ -188,11 +188,12 @@ fn color_lines(file: &Path) -> Result<String> {
     let mut contents = fs::read_to_string(file)?;
 
     contents = contents.lines().map(|l| {
-             if l.contains(" TRACE ") { format!("\x1b[0;{}{l}\n", CONFIG.message.stdout .trim()) }
-        else if l.contains(" DEBUG ") { format!("\x1b[0;{}{l}\n", CONFIG.message.verbose.trim()) }
-        else if l.contains(" INFO  ") { format!("\x1b[0;{}{l}\n", CONFIG.message.message.trim()) }
-        else if l.contains(" WARN  ") { format!("\x1b[0;{}{l}\n", CONFIG.message.prompt .trim()) }
-        else if l.contains(" ERROR ") { format!("\x1b[0;{}{l}\n", CONFIG.message.danger .trim()) }
+        // formatting reset is declared at the start cus ifykyk
+             if l.contains(" TRACE ") { format!("\x1b[0m{}{l}\n", CONFIG.message.stdout .trim()) }
+        else if l.contains(" DEBUG ") { format!("\x1b[0m{}{l}\n", CONFIG.message.verbose.trim()) }
+        else if l.contains(" INFO  ") { format!("\x1b[0m{}{l}\n", CONFIG.message.message.trim()) }
+        else if l.contains(" WARN  ") { format!("\x1b[0m{}{l}\n", CONFIG.message.prompt .trim()) }
+        else if l.contains(" ERROR ") { format!("\x1b[0m{}{l}\n", CONFIG.message.danger .trim()) }
         else { format!("{l}\n") }
     }).collect();
 
