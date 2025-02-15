@@ -6,7 +6,7 @@ use crate::{
     comms::out::{erm, cpr, vpr},
     globals::{
         config::CONFIG,
-        flags::FLAGS,
+        flags::Flags,
     },
     package::Package,
     utils::fail::{fail, Fail},
@@ -98,7 +98,7 @@ fn rmf(path: &PathBuf) -> Result<()> {
 /// - the manifest doesn't exist
 /// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
 pub fn remove(package: &Package) -> bool {
-    if !package.data.is_installed && !FLAGS.get().ufail("Cell issue").force {
+    if !package.data.is_installed && !Flags::grab().force {
         erm!("Not installed: '{}'", package);
         return false
     }
@@ -210,6 +210,8 @@ pub fn remove_dead_files_after_update(package: &Package) {
 ///
 /// Pruning involves removing all files from sources except the current tarball and extra files
 /// Optionally also removes old manifests and deletes logs
+///
+/// If force is true, will also prune the current tarball
 pub fn prune(package: &Package) -> usize {
     let src_dir = PathBuf::from("/usr/ports")
         .join(&package.relpath)
@@ -236,13 +238,15 @@ pub fn prune(package: &Package) -> usize {
         let path = entry.path();
 
         if !path.is_file() {
+            warn!("Detected non-file {path:?} in {src_dir:?}");
             continue
         }
 
         let should_keep = path.to_string_lossy().starts_with(&*tarball_approx.to_string_lossy())
             || extra_files.iter().any(|f| f == &path);
 
-        if should_keep {
+        // don't continue if force is passed, meaning the path gets pruned
+        if should_keep && !Flags::grab().force {
             continue
         }
 
@@ -301,6 +305,7 @@ fn prune_manifests(package: &Package) {
         .join(&package.relpath)
         .join(".data");
 
+    // these manifests aren't pruned, regardless of force
     let protected_manifests = [
         data_dir.join(format!("MANIFEST={}", package.version)),
         data_dir.join(format!("MANIFEST={}", package.data.installed_version)),
