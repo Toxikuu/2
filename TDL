@@ -4,10 +4,6 @@ TODO
 
     Work on the releases script
 
-    Move the @all alias to @@
-        also add @available and alias it to @a
-        also make -U imply //@@ like -l does
-
     Test install.sh
 
     Improve release.sh
@@ -24,6 +20,10 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Move the @all alias to @@
+        also add @available and alias it to @a
+        also make -U imply //@@ like -l does
 
     Add force pruning
 
