@@ -2,6 +2,10 @@
 
 TODO
 
+    Move the @all alias to @@
+        also add @available and alias it to @a
+        also make -U imply //@@ like -l does
+
     Test install.sh
 
     Improve release.sh
@@ -17,6 +21,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Rename comms/log.rs to comms/out.rs for clarity
 
     Figure out how to make the message configs have the full escape code in the config for clarity
         Done
