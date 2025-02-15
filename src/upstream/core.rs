@@ -7,6 +7,7 @@ use crate::{
     globals::config::CONFIG,
     package::Package,
 };
+use log::debug;
 use serde::Deserialize;
 use std::process::Command;
 
@@ -125,6 +126,10 @@ fn format_second_half(v: &str, version: &str) -> String {
 /// # Description
 /// High level function for checking and displaying upstream package versions
 pub fn upstream(package: &Package) {
+    if package.upstream.is_empty() {
+        debug!("No upstream specified for '{package}'");
+        return
+    }
     let mut version = String::new();
     for _ in 0..CONFIG.upstream.retries {
         version = get_version(package);
