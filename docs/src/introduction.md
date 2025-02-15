@@ -4,16 +4,12 @@
 2 is a source-based package manager for LFS. It packages packages into
 distribution tarballs, allowing for rapid reinstalls, while not compromising on
 the perks of low-level build-process control. It uses /usr/ports to store
-package repositories, which contain build-information for individual packages.
+package repositories, which contain build information for individual packages.
 
 ## Installation
 2 is still in early development, and you should expect breaking changes.
 
-**WARNING**
-I'm in the process of transitioning the m-* scripts to their own rust crate, so
-don't use them as a lot of breaking changes were made.
-
-However, here's a work-in-progress install script:
+Here's a work-in-progress install script:
 ```bash
 sudo bash <(curl -fsSL 'https://github.com/Toxikuu/2/raw/refs/heads/master/install.sh')
 ```
