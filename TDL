@@ -2,7 +2,7 @@
 
 TODO
 
-    Add force pruning
+    Work on the releases script
 
     Move the @all alias to @@
         also add @available and alias it to @a
@@ -24,6 +24,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Add force pruning
 
     Rename comms/log.rs to comms/out.rs for clarity
 
