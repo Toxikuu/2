@@ -6,9 +6,9 @@ TODO
 
     Improve release.sh
 
-    Work on mdbook docs
-
 WIP
+
+    Work on mdbook docs
 
     Complete maint functionality
         add m-downgrade
@@ -185,6 +185,8 @@ IDEAS
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
 
     Rayon everywhere
+        There's a fair bit of overhead with doing this
+        Async might be the play but I lowkey hate async
 
     Look into using --dereference with tar
 
@@ -195,12 +197,15 @@ IDEAS
         Might not even be worth doing tbh
         Having it in a hardcoded spot is probably for the best
 
+    Check hashes for dist installs as well
+        Would marginally increase security
+
 ROADMAP
 
     Features for 2-0.1.0:
-        install script
-        fair maint functionality
-        solid documentation with mdbook
+        [-] install script
+        [*] fair maint functionality
+        [ ] solid documentation with mdbook
 
     Features for 2-0.2.0:
         dependency support
