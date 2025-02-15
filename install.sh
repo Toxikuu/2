@@ -51,8 +51,9 @@ confirm 'Replace repo priority?' && ln -sfv "$PWD"/repo_priority.txt /etc/2/
 if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
     if ! command -v rustup > /dev/null 2>&1; then
         echo "You don't have rustup; using precompiled binary instead" >&2
-        : # TODO: Add wget release url
-        # TODO: Also add a releases script and figure out gha etc
+        mkdir -pv target/release
+        cd target/release
+        wget 'https://github.com/Toxikuu/2/releases/latest/download/two'
     fi
 
     rustup toolchain install nightly || true
