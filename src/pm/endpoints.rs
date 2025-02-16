@@ -2,17 +2,11 @@
 //! Defines endpoints for PM
 
 use crate::{
-    build::{logic as bl, script},
-    cli::args::Args,
-    comms::out::{erm, msg, pr, vpr},
-    fetch::download::{download, DownloadStatus},
-    package::{history, parse::expand_set, Package},
-    remove::logic as rl,
-    utils::{
+    build::{logic as bl, script}, cli::args::Args, comms::out::{erm, msg, pr, vpr}, fetch::download::{download, DownloadStatus}, globals::config::CONFIG, package::{history, parse::expand_set, Package}, remove::logic as rl, utils::{
         fail::Fail,
         logger,
         time::Stopwatch,
-    },
+    }
 };
 #[cfg(feature = "upstream")]
 use crate::upstream::core::upstream;
@@ -276,11 +270,13 @@ impl PM<'_> {
             else { erm!("Nothing to list"); }
         }
 
-        pkgs.sort_by(|a, b| {
-            let a = format!("{}/{}", a.repo, a);
-            let b = format!("{}/{}", b.repo, b);
-            a.cmp(&b)
-        });
+        if CONFIG.general.alphebetize {
+            pkgs.sort_by(|a, b| {
+                let a = format!("{}/{}", a.repo, a);
+                let b = format!("{}/{}", b.repo, b);
+                a.cmp(&b)
+            });
+        }
 
         for p in &pkgs {
             let status = format_package_status(p);

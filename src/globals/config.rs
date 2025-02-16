@@ -38,6 +38,7 @@ pub struct GeneralConfig {
     pub log_level: String,
     pub prune_manifests: bool,
     pub prune_logs: bool,
+    pub alphebetize: bool,
 }
 
 /// # Description
