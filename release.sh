@@ -25,26 +25,30 @@ fail() {
 pushd . > /dev/null
 cd "$SCRIPT_DIR"
 
-# ensure dependencies are up-to-date
+info 'Ensuring dependencies are up to date...'
 rustup override set nightly
 cargo update
 
-# check for unused dependencies
+info 'Checking for unused dependencies...'
 out=$(cargo udeps | tee /dev/tty)
 if ! echo "$out" | grep -q 'All deps seem to have been used.'; then
   fail 'Unused dependencies detected'
 fi
 
-# check for security vulnerabilities
+info 'Checking for security vulnerabilities...'
 out=$(cargo audit | tee /dev/tty)
 if echo "$out" | grep -q 'Vulnerable crates found!'; then
   fail 'Failed security audit'
 fi
 
+info 'Running tests...'
+cargo nextest run || fail 'Some tests failed'
+
+info 'Building the release binary...'
 cargo build --release
 cargo strip || fail 'Failed to strip binary. Are you missing cargo-strip?'
 
-# organize release
+info 'Organizing the release...'
 rm -rf release
 mkdir -v release
 
@@ -52,7 +56,10 @@ for i in "target/release/two" "Cargo.lock"; do
   cp -v "$i" release
 done
 
-# check all bash scripts
-find . -print0 -type f -name '*.sh' | xargs -0 shellcheck -s bash
+info 'Validating all scripts...'
+( find . -type f -name '*.sh' -print0
+  find scripts -type f -print0
+) | xargs -0 shellcheck -s bash || warn 'Scripts failed validation'
 
 popd > /dev/null
+info 'Done!'
