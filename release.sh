@@ -2,7 +2,7 @@
 # this release script is meant to be used by me, and assumes several
 # rust-developer-specific crates are globally installed
 
-set -e
+set -e +x
 
 # assume the script isn't moved out of the source dir because why would it be
 # stolen from https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
