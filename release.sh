@@ -29,9 +29,15 @@ fail() {
 pushd . > /dev/null
 cd "$SCRIPT_DIR"
 
-info 'Pushing...'
-git push
-good 'Pushed'
+info 'Ensuring git status is good...'
+if [ "$(git status -s | wc -l)" -ne 0 ]; then
+  fail 'Some changes were not committed'
+fi
+if ! git status | grep -q 'Your branch is up to date with'; then
+  info 'Pusing local changes...'
+  git push
+fi
+good 'Git status passing'
 
 info 'Ensuring dependencies are up to date...'
 rustup override set nightly
@@ -43,12 +49,6 @@ if ! echo "$out" | grep -q 'Locking 0 packages to'; then
   good 'Automatically updated dependencies'
 fi
 good 'Dependency versions passing'
-
-info 'Ensuring all changes were committed...'
-if [ "$(git status -s | wc -l)" -ne 0 ]; then
-  fail 'Some changes were not committed'
-fi
-good 'Git status passing'
 
 info 'Checking for unused dependencies...'
 out=$(cargo udeps | tee /dev/tty)
