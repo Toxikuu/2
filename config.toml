@@ -26,6 +26,9 @@ auto_sync = false
 [removal]
 remove_sources = false
 remove_dist = true
+prune_logs = true
+prune_manifests = true
+prune_dist = true
 
 [general]
 prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)
@@ -34,8 +37,6 @@ show_bug_report_message = true
 check_hashes = false
 auto_ambiguity = true
 log_level = "trace" # one of: trace, debug, info, warn, error
-prune_logs = true
-prune_manifests = true
 alphebetize = false
 
 [upstream]
