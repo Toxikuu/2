@@ -83,10 +83,13 @@ done
 good 'Release made'
 
 info 'Validating all scripts...'
-( find . -type f -name '*.sh' -print0
+if ( find . -type f -name '*.sh' -print0
   find scripts -type f -print0
-) | xargs -0 shellcheck -s bash || warn 'Scripts failed validation'
-good 'Scripts passing'
+) | xargs -0 shellcheck -s bash; then
+  good 'Scripts passing'
+else
+  warn 'Scripts failed validation'
+fi
 
 popd > /dev/null
 info 'Done!'
