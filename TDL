@@ -2,6 +2,8 @@
 
 TODO
 
+    Check modtime on info.lock whenever --build is called
+
     Work on the releases script
 
     Test install.sh
@@ -9,7 +11,6 @@ TODO
 WIP
 
     Work on mdbook docs
-        Sketch out what each chapter should cover
 
     Complete maint functionality
         add m-downgrade
@@ -18,6 +19,9 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Move flag explanations out of packages/ and into flags/
+        also covered all of the flags
 
     Add a configure option for whether dist tarballs should be deleted
         ended up removing remove_dots as well
