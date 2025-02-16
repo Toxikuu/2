@@ -150,7 +150,11 @@ pub fn remove(package: &Package) -> bool {
 /// # Description
 /// Removes and recreates ``$PORT/.sources``
 fn remove_sources(package: &Package) {
-    let srcdir = format!("/usr/ports/{}/{}/.sources", package.repo, package.name);
+    let srcdir = PathBuf::from("/usr/ports")
+        .join(&package.repo)
+        .join(&package.name)
+        .join(".sources");
+
     remove_dir_all(&srcdir).ufail("Failed to remove .sources");
     create_dir(&srcdir).ufail("Failed to recreate .sources");
 }
@@ -158,8 +162,9 @@ fn remove_sources(package: &Package) {
 /// # Description
 /// Removes and recreates ``$PORT/.dist`` and ``$PORT/.data``
 fn remove_dots(package: &Package) {
-    let portdir_str = format!("/usr/ports/{}/{}", package.repo, package.name);
-    let portdir = Path::new(&portdir_str);
+    let portdir = PathBuf::from("/usr/ports")
+        .join(&package.repo)
+        .join(&package.name);
 
     // lazy rm -rf .d{ata,ist}/{,.}*
     // these should never fail (unless maybe .data doesnt exist [which shouldn't happen anyway])
@@ -168,6 +173,29 @@ fn remove_dots(package: &Package) {
 
     remove_dir_all(portdir.join(".dist")).ufail("Failed to remove .dist");
     create_dir(portdir.join(".dist")).ufail("Failed to recreate .dist");
+}
+
+fn remove_dist(package: &Package) {
+    let distdir = PathBuf::from("/usr/ports")
+        .join(&package.repo)
+        .join(&package.name)
+        .join(".dist");
+
+    if !distdir.exists() {
+        return erm!("Dist dir doesn't exist for '{package}'")
+    }
+
+    let Ok(dists) = read_dir(distdir) else {
+        return erm!("Failed to read dist dir for '{package}'")
+    };
+
+    for d in dists.flatten() {
+        let d = d.path();
+        if let Err(e) = rmf(&d) {
+            warn!("Failed to remove dist '{}': {e}", d.display());
+            erm!("Failed to remove dist '{}': {e}", d.display());
+        }
+    }
 }
 
 /// # Description
