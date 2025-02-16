@@ -27,7 +27,17 @@ cd "$SCRIPT_DIR"
 
 info 'Ensuring dependencies are up to date...'
 rustup override set nightly
-cargo update
+out=$(cargo update)
+if ! echo "$out" | grep -q 'Locking 0 packages to'; then
+  git add Cargo.lock
+  git commit -m "updated dependencies"
+  git push
+fi
+
+info 'Ensuring all changes were committed...'
+if [ $(git status -s | wc -l) != 0 ]; then
+  fail 'Some changes were not committed'
+fi
 
 info 'Checking for unused dependencies...'
 out=$(cargo udeps | tee /dev/tty)
