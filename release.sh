@@ -27,7 +27,7 @@ cd "$SCRIPT_DIR"
 
 info 'Ensuring dependencies are up to date...'
 rustup override set nightly
-out=$(cargo update)
+out=$(cargo update | tee /dev/tty)
 if ! echo "$out" | grep -q 'Locking 0 packages to'; then
   git add Cargo.lock
   git commit -m "updated dependencies"
@@ -35,7 +35,7 @@ if ! echo "$out" | grep -q 'Locking 0 packages to'; then
 fi
 
 info 'Ensuring all changes were committed...'
-if [ $(git status -s | wc -l) != 0 ]; then
+if [ "$(git status -s | wc -l)" -ne 0 ]; then
   fail 'Some changes were not committed'
 fi
 
