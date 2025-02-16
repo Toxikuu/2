@@ -108,7 +108,7 @@ pub fn remove(package: &Package) -> bool {
 
     if !manifest_path.exists() { fail!("Manifest doesn't exist") }
 
-    let Ok(unique) = find_unique_paths(&manifest_path.to_path_buf()) else { 
+    let Ok(unique) = find_unique_paths(&manifest_path.to_path_buf()) else {
         warn!("Missing manifest for {package}");
         return false
     };
@@ -191,7 +191,7 @@ fn remove_dist(package: &Package) {
 pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
 
-    let Ok(dead_files) = find_dead_files(package) else { 
+    let Ok(dead_files) = find_dead_files(package) else {
         warn!("Missing manifest for {package}");
         return
     };
