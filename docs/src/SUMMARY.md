@@ -9,6 +9,7 @@
 
 # Usage
 - [Usage](usage/README.md)
+    - [Generic Flags](usage/flags/README.md)
     - [Packages](usage/packages/README.md)
         - [Installing Packages](usage/packages/installing.md)
         - [Updating Packages](usage/packages/updating.md)
@@ -25,15 +26,22 @@
 
 # Advanced Usage
 - [Advanced Usage](advanced/README.md)
-    [//]: # Basically, custom packages should exist in your personal repo
-    - [Customizing Packages](advanced/packages/custom.md)
     - [2lkit](advanced/2lkit.md)
-    - [Creating a Repository](advanced/repos/newrepo.md)
-    - [Creating Ports](advanced/ports/creating.md)
-    - [Auxiliary Build Files](advanced/ports/auxiliary.md)
-    - [Revising Ports](advanced/ports/revising.md)
-    - [Updating Ports](advanced/ports/updating.md)
-    - [Upstream Version Checking](advanced/ports/upstream.md)
+    - [Repos](advanced/repos/README.md)
+        - [Creating Repos](advanced/repos/creating.md)
+        - [Deleting Repos](advanced/repos/creating.md)
+    - [Ports](advanced/ports/README.md)
+        - [Anatomy](advanced/ports/anatomy/README.md)
+            - [Dotfiles](advanced/ports/anatomy/dotfiles.md)
+            - [BUILD](advanced/ports/anatomy/build.md)
+            - [CHANGELOG](advanced/ports/anatomy/changelog.md)
+            - [info.lock](advanced/ports/anatomy/info.md)
+        - [Creating Ports](advanced/ports/creating.md)
+            - [Auxiliary Build Files](advanced/ports/auxiliary.md)
+        - [Revising Ports](advanced/ports/revising.md)
+        - [Updating Ports](advanced/ports/updating.md)
+            - [Upstream Version Checking](advanced/ports/upstream.md)
+        - [Moving Ports](advanced/ports/moving.md)
 
 # Tips & Tricks
 - [Tips & Tricks](tips/README.md)
