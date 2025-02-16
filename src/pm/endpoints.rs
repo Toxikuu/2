@@ -306,14 +306,18 @@ impl PM<'_> {
     #[cfg(feature = "upstream")]
     fn upstream(&self) {
         Self::ready();
+
+        let mut pkgs = self.packages.to_vec();
+        if pkgs.is_empty() { pkgs = expand_set("//@@").to_vec() }
+
         #[cfg(not(feature = "parallelism"))]
-        self.packages.iter().for_each(|p| {
+        pkgs.iter().for_each(|p| {
             upstream(p);
         });
 
         #[cfg(feature = "parallelism")]
         self.thread_pool.install(|| {
-            self.packages.par_iter().for_each(|p| {
+            pkgs.par_iter().for_each(|p| {
                 upstream(p);
             });
         });
