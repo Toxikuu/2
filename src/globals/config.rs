@@ -36,7 +36,7 @@ pub struct GeneralConfig {
     pub check_hashes: bool,
     pub auto_ambiguity: bool,
     pub log_level: String,
-    pub alphebetize: bool,
+    pub alphabetize: bool,
 }
 
 /// # Description

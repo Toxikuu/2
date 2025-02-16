@@ -270,7 +270,7 @@ impl PM<'_> {
             else { erm!("Nothing to list"); }
         }
 
-        if CONFIG.general.alphebetize {
+        if CONFIG.general.alphabetize {
             pkgs.sort_by(|a, b| {
                 let a = format!("{}/{}", a.repo, a);
                 let b = format!("{}/{}", b.repo, b);

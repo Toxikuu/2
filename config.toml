@@ -37,7 +37,7 @@ show_bug_report_message = true
 check_hashes = false
 auto_ambiguity = true
 log_level = "trace" # one of: trace, debug, info, warn, error
-alphebetize = false
+alphabetize = true
 
 [upstream]
 max_threads = 64
