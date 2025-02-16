@@ -8,8 +8,6 @@ TODO
 
 WIP
 
-    Add a configure option for whether dist tarballs should be deleted
-
     Work on mdbook docs
         Sketch out what each chapter should cover
 
@@ -20,6 +18,9 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Add a configure option for whether dist tarballs should be deleted
+        ended up removing remove_dots as well
 
     Add an option to toggle alphebitization when listing
 
