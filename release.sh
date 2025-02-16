@@ -39,6 +39,21 @@ if ! git status | grep -q 'Your branch is up to date with'; then
 fi
 good 'Git status passing'
 
+info 'Checking for trailing white space...'
+matches=$(rg ' $' --files-with-matches)
+if [ -n "$matches" ]; then
+  warn "Detected trailing white space in the following files:"
+  for f in $matches; do
+    warn " - $f"
+    sed -i 's/[ \t]*$//' "$f"
+    git add "$f"
+  done
+  good "Removed trailing white space in ${#matches[@]} files"
+  git commit -m "removed trailing white space"
+  git push
+fi
+good 'Trailing white space passing'
+
 info 'Ensuring dependencies are up to date...'
 rustup override set nightly
 out=$(cargo update 2>&1 | tee /dev/tty)
