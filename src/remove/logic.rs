@@ -137,9 +137,13 @@ pub fn remove(package: &Package) -> bool {
         cpr!("'{}' -x", p);
     });
 
-    // NOTE: the manifest is not removed as prune will handle it
-    let status_file = format!("/usr/ports/{}/{}/.data/INSTALLED", package.repo, package.name);
-    remove_file(status_file).fail("Failed to remove the status file");
+    // NOTE: the manifest is not removed as prune handles that
+    let status_file = PathBuf::from("/usr/ports")
+        .join(&package.repo)
+        .join(&package.name)
+        .join(".data")
+        .join("INSTALLED");
+    rmf(&status_file).fail("Failed to remove the status file");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
     if CONFIG.removal.remove_dist { remove_dist(package) }
@@ -264,28 +268,29 @@ pub fn prune(package: &Package) -> usize {
 
         vpr!("Pruning: {:?}", path);
         // path should:tm: never point to a dir since it's reading .sources
-        remove_file(&path).fail(&format!("Failed to prune file '{path:?}'"));
+        rmf(&path).fail(&format!("Failed to prune file '{path:?}'"));
         pruned_count += 1;
     }
 
-    if CONFIG.general.prune_manifests { prune_manifests(package) }
-    if CONFIG.general.prune_logs { prune_logs(package) }
-    // IDEA: Maybe consider using hashes for the manifests (might be beyond scope though)
+    if CONFIG.removal.prune_manifests { pruned_count += prune_manifests(package) }
+    if CONFIG.removal.prune_logs { pruned_count += prune_logs(package) }
+    if CONFIG.removal.prune_dist { pruned_count += prune_dist(package) }
 
     pruned_count
 }
 
 /// # Description
 /// Deletes all logs for a package
-fn prune_logs(package: &Package) {
+fn prune_logs(package: &Package) -> usize {
     let log_dir = PathBuf::from("/usr/ports")
         .join(&package.relpath)
         .join(".logs");
 
     if !log_dir.exists() {
-        return
+        return 0
     }
 
+    let mut pruned_count = 0;
     for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory '{log_dir:?}'")) {
         let entry = entry.ufail("Invalid directory entry");
         let path = entry.path();
@@ -294,28 +299,31 @@ fn prune_logs(package: &Package) {
             continue
         }
 
-        if path.file_name().and_then(|f| f.to_str()).is_none() {
-            continue
-        }
-
-        if path.extension().is_some_and(|x| x != "log") {
+        if path.file_name().and_then(|f| f.to_str()).is_none()
+        || path.extension().is_some_and(|x| x != "log") {
             continue
         }
 
         let msg = format!("Proning log '{path:?}'");
         vpr!("{msg}");
         log::debug!("{msg}");
-        remove_file(&path).fail("Failed to prune log");
+        rmf(&path).fail("Failed to prune log");
+        pruned_count += 1;
     }
+    pruned_count
 }
 
 /// # Description
 /// Deletes all manifests except the current (and most recent if the installed version and
 /// latest version differ) manifest for a package
-fn prune_manifests(package: &Package) {
+fn prune_manifests(package: &Package) -> usize {
     let data_dir = PathBuf::from("/usr/ports")
         .join(&package.relpath)
         .join(".data");
+
+    if !data_dir.exists() {
+        return 0 // data dir should always exist, but in case it doesn't, give up
+    }
 
     // these manifests aren't pruned, regardless of force
     let protected_manifests = [
@@ -323,15 +331,13 @@ fn prune_manifests(package: &Package) {
         data_dir.join(format!("MANIFEST={}", package.data.installed_version)),
     ];
 
-    if !data_dir.exists() {
-        return // data dir should always exist, but in case it doesn't, give up
-    }
-
+    let mut pruned_count = 0;
     for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory '{data_dir:?}'")) {
         let entry = entry.ufail("Invalid directory entry");
         let path = entry.path();
 
         if !path.is_file() {
+            warn!("Detected non-file {path:?} in {data_dir:?}");
             continue
         }
 
@@ -339,15 +345,54 @@ fn prune_manifests(package: &Package) {
             continue
         };
 
-        if !file_name.starts_with("MANIFEST=") {
-            continue
-        }
-
-        if protected_manifests.iter().any(|p| p == &path) {
+        if !file_name.starts_with("MANIFEST=")
+        || protected_manifests.iter().any(|p| p == &path) {
             continue
         }
 
         log::debug!("Pruning manifest '{path:?}'");
-        remove_file(&path).fail("Failed to prune manifest");
+        rmf(&path).fail("Failed to prune manifest");
+        pruned_count += 1;
     }
+    pruned_count
+}
+
+fn prune_dist(package: &Package) -> usize {
+    let dist_dir = PathBuf::from("/usr/ports")
+        .join(&package.repo)
+        .join(&package.name)
+        .join(".dist");
+
+    if !dist_dir.exists() {
+        return 0 // data dir should always exist, but in case it doesn't, give up
+    }
+
+    let protected_dists = [
+        dist_dir.join(format!("{}={}.tar.zst", package.name, package.version)),
+        dist_dir.join(format!("{}={}.tar.zst", package.name, package.data.installed_version)),
+    ];
+
+    let mut pruned_count = 0;
+    for entry in read_dir(&dist_dir).fail(&format!("Failed to read data directory '{dist_dir:?}'")).flatten() {
+        let path = entry.path();
+
+        if !path.is_file() {
+            warn!("Detected non-file {path:?} in {dist_dir:?}");
+            continue
+        }
+
+        let Some(file_name) = path.file_name().and_then(|f| f.to_str()) else {
+            continue
+        };
+
+        if !file_name.ends_with(".tar.zst")
+        || protected_dists.iter().any(|p| p == &path) {
+            continue
+        }
+
+        log::debug!("Pruning dist '{path:?}'");
+        rmf(&path).fail("Failed to prune dist");
+        pruned_count += 1;
+    }
+    pruned_count
 }
