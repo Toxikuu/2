@@ -2,6 +2,10 @@
 
 TODO
 
+    Use an inherit-esque system instead of *-* scripts
+        add a script called 'with' which sources files in a specific directory
+        these files contain functions for a specific build system or task
+
     Make -L show the master log if no arguments were passed
 
     Make -s sync all repos if no arguments were passed
