@@ -48,7 +48,7 @@ pub struct GeneralConfig {
 #[derive(Deserialize, Debug)]
 pub struct RemovalConfig {
     pub remove_sources: bool,
-    pub remove_dots: bool,
+    pub remove_dist: bool,
 }
 
 /// # Description

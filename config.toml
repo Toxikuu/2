@@ -25,7 +25,7 @@ auto_sync = false
 
 [removal]
 remove_sources = false
-remove_dots = false
+remove_dist = true
 
 [general]
 prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)

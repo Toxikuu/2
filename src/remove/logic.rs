@@ -142,7 +142,7 @@ pub fn remove(package: &Package) -> bool {
     remove_file(status_file).fail("Failed to remove the status file");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
-    if CONFIG.removal.remove_dots { remove_dots(package) }
+    if CONFIG.removal.remove_dist { remove_dist(package) }
 
     true
 }
@@ -157,22 +157,6 @@ fn remove_sources(package: &Package) {
 
     remove_dir_all(&srcdir).ufail("Failed to remove .sources");
     create_dir(&srcdir).ufail("Failed to recreate .sources");
-}
-
-/// # Description
-/// Removes and recreates ``$PORT/.dist`` and ``$PORT/.data``
-fn remove_dots(package: &Package) {
-    let portdir = PathBuf::from("/usr/ports")
-        .join(&package.repo)
-        .join(&package.name);
-
-    // lazy rm -rf .d{ata,ist}/{,.}*
-    // these should never fail (unless maybe .data doesnt exist [which shouldn't happen anyway])
-    remove_dir_all(portdir.join(".data")).ufail("Failed to remove .data");
-    create_dir(portdir.join(".data")).ufail("Failed to recreate .data");
-
-    remove_dir_all(portdir.join(".dist")).ufail("Failed to remove .dist");
-    create_dir(portdir.join(".dist")).ufail("Failed to recreate .dist");
 }
 
 fn remove_dist(package: &Package) {
