@@ -1,5 +1,6 @@
 # Introduction
 [Introduction](introduction.md)
+[Standards](standards.md)
 
 # Getting Started
 - [Getting Started](start/README.md)
@@ -9,7 +10,11 @@
 
 # Usage
 - [Usage](usage/README.md)
-    - [Generic Flags](usage/flags/README.md)
+    - [Flags](usage/flags/README.md)
+        - [Generic](usage/flags/generic.md)
+        - [Package](usage/flags/package.md)
+        - [Special](usage/flags/special.md)
+        - [Afterword](usage/flags/afterword.md)
     - [Packages](usage/packages/README.md)
         - [Installing Packages](usage/packages/installing.md)
         - [Updating Packages](usage/packages/updating.md)

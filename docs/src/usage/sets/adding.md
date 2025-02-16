@@ -37,35 +37,25 @@ would like access to catfetch (you would like access to catfetch), read
 Let's install @essentials, since I haven't posted a screenshot to r/unixporn in
 almost half an hour.
 ```
- $ 2 -i @essentials
+ $ 2 -qi @essentials
 󰗠  neofetch=7.1.0.tar.gz            [00:00:00] [================================================================] 93.16 KiB/93.16 KiB
 󰗠  pfetch=0.6.0.tar.gz              [00:00:00] [================================================================] 17.02 KiB/17.02 KiB
 󰗠  fastfetch=2.36.1.tar.gz          [00:00:00] [================================================================] 1.12 MiB/1.12 MiB
 󰗠  catfetch=1.0.1.tar.gz            [00:00:00] [================================================================] 13.31 KiB/13.31 KiB
+󱠇  Building 'neofetch=7.1.0'...
 󰐗  Installing 'neofetch=7.1.0'...
-/usr
-/usr/bin
-/usr/bin/neofetch
-/usr/share
-/usr/share/man
-/usr/share/man/man1
-/usr/share/man/man1/neofetch.1
-󰗠  Installed 'neofetch=7.1.0' in 19.428 ms
+󰗠  Built and installed 'neofetch=7.1.0' in 144.465 ms
+󱠇  Building 'pfetch=0.6.0'...
 󰐗  Installing 'pfetch=0.6.0'...
-/usr
-/usr/bin
-/usr/bin/pfetch
-󰗠  Installed 'pfetch=0.6.0' in 17.698 ms
+󰗠  Built and installed 'pfetch=0.6.0' in 75.390 ms
+󱠇  Building 'fastfetch=2.36.1'...
 󰐗  Installing 'fastfetch=2.36.1'...
-/usr
-/usr/bin
-/usr/bin/fastfetch
-󰗠  Installed 'fastfetch=2.36.1' in 19.757 ms
+󰗠  Built and installed 'fastfetch=2.36.1' in 13.015 s
+󱠇  Building 'catfetch=1.0.1'...
 󰐗  Installing 'catfetch=1.0.1'...
-/usr
-/usr/bin
-/usr/bin/catfetch
-󰗠  Installed 'catfetch=1.0.1' in 17.573 ms
+󰗠  Built and installed 'catfetch=1.0.1' in 617.573 ms
 ```
 
-Now I can post that screenshot!
+Now I can post this awesome screenshot!
+
+![The awesome screenshot in question](../../assets/fetch.png)

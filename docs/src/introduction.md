@@ -1,20 +1,20 @@
-# 2
+# Introduction
 
-## Info
-2 is a source-based package manager for LFS. It packages packages into
-distribution tarballs, allowing for rapid reinstalls, while not compromising on
-the perks of low-level build-process control. It uses /usr/ports to store
-package repositories, which contain build information for individual packages.
+## Welcome
+Hi, welcome to the 2 documentation! I'm going to do my best to explain how 2
+works, and how to use it, all while trying not to bore you to death.
 
-## Installation
-2 is still in early development, and you should expect breaking changes.
+## Organization
+This documentation is organized sorta like a book. I've split it into a few
+(hopefully sensible) chapters. Fair warning, the hardest learning curve is at
+the start, but you don't have to understand all the stuff from the beginning,
+as it's built on throughout the book.
 
-Here's a work-in-progress install script:
-```bash
-sudo bash <(curl -fsSL 'https://github.com/Toxikuu/2/raw/refs/heads/master/install.sh')
-```
+## Rationale
+If you know, you know. (Yes, I'm gatekeeping the rationale from you to keep you
+reading. It should make sense as you read, otherwise I'm a shitty author.)
 
-## Credits
-- Huge thanks to the maintainers and readers of the [*LFS
-books](https://www.linuxfromscratch.org/), both for inspiration and support.
-- Thanks to the authors of the various rust crates 2 depends on.
+## Call to Action
+Go on then, read! Here's a quote from hit platformer Celeste for encouragement:
+
+> "Just breathe. You can do this." — Madeline Celeste
