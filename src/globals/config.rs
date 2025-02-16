@@ -36,8 +36,6 @@ pub struct GeneralConfig {
     pub check_hashes: bool,
     pub auto_ambiguity: bool,
     pub log_level: String,
-    pub prune_manifests: bool,
-    pub prune_logs: bool,
     pub alphebetize: bool,
 }
 
@@ -46,9 +44,13 @@ pub struct GeneralConfig {
 ///
 /// Config options for package removal
 #[derive(Deserialize, Debug)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct RemovalConfig {
     pub remove_sources: bool,
     pub remove_dist: bool,
+    pub prune_manifests: bool,
+    pub prune_logs: bool,
+    pub prune_dist: bool,
 }
 
 /// # Description
