@@ -5,7 +5,7 @@ source "/usr/share/2/bin/f-core" || exit 211
 
 NAME="${NAME:-$1}"
 
-[ -z "$NAME" ] && die '$NAME is undefined'
+[ -z "$NAME" ] && die "\$NAME is undefined"
 [ -z "$1" ] || shift
 
 pip3 install --no-index         \

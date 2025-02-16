@@ -6,7 +6,7 @@ pathremove () {
   local IFS=':'
   local NEWPATH
   local DIR
-  local PATHVARIABLE=${2:-PATH}
+  local PATHVARIABLE="${2:-PATH}"
 
   for DIR in ${!PATHVARIABLE} ; do
     if [ "$DIR" != "$1" ] ; then
@@ -14,19 +14,19 @@ pathremove () {
     fi
   done
 
-  export $PATHVARIABLE="$NEWPATH"
+  export "$PATHVARIABLE"="$NEWPATH"
 }
 
 pathprepend () {
   export -f pathprepend
-  pathremove $1 $2
-  local PATHVARIABLE=${2:-PATH}
-  export $PATHVARIABLE="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+  pathremove "$1" "$2"
+  local PATHVARIABLE="${2:-PATH}"
+  export "$PATHVARIABLE"="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
 }
 
 pathappend () {
   export -f pathappend
-  pathremove $1 $2
-  local PATHVARIABLE=${2:-PATH}
-  export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+  pathremove "$1" "$2"
+  local PATHVARIABLE="${2:-PATH}"
+  export "$PATHVARIABLE"="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }

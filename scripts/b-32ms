@@ -4,12 +4,12 @@
 source "/usr/share/2/bin/f-core" || exit 211
 set -e
 
-PKG_CONFIG_PATH="/usr/lib32/pkgconfig" \
+CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"     \
+CXXFLAGS="${CXXFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}" \
+PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}" \
 CC="${CC:-gcc -m32}"    \
 CXX="${CXX:-g++ -m32}"  \
-CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}" \
-CXXFLAGS="${CFLAGS}"    \
-meson setup ${CP:-.}    \
+meson setup "${CP:-.}"  \
   --prefix=/usr         \
   --libdir=/usr/lib32   \
   --buildtype=release   \
