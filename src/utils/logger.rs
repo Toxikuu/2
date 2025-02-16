@@ -2,28 +2,33 @@
 //! Logging-related utilities
 
 use anyhow::Result;
-use log::LevelFilter;
 use crate::{
     comms::out::erm,
     globals::config::CONFIG,
 };
+use log::LevelFilter;
 use log4rs::{
     append::file::FileAppender,
-    encode::pattern::PatternEncoder,
     config::{Config, Appender, Root, Logger as L4L},
+    encode::pattern::PatternEncoder,
     Handle,
 };
+use regex::Regex;
 use std::{
-    fs,
-    io::{self, Write},
+    collections::VecDeque,
+    fs::{self, File},
+    io::{BufRead, BufReader},
     path::{Path, PathBuf},
     str::FromStr,
-    sync::{Mutex, Once, OnceLock},
+    sync::{LazyLock, Mutex, Once, OnceLock}
 };
 use super::fail::Fail;
 
 static LOGGER: OnceLock<Logger> = OnceLock::new();
 static LOG_INIT: Once = Once::new();
+/// # Description
+/// Regex pattern for matching against 2's logs
+static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").ufail("Invalid regex"));
 
 /// # Description
 /// Retrieve the log level
@@ -180,58 +185,114 @@ pub fn init(master_log: impl Into<PathBuf>) {
     LOGGER.get().ufail("Failed to access logger instance").init();
 }
 
+
+// DISPLAYING LOGS
+
 /// # Description
-/// Formats the lines for logs
-///
-/// Used with ``display()``
-fn color_lines(file: &Path) -> Result<String> {
-    let mut contents = fs::read_to_string(file)?;
+/// Struct for log entries
+/// Delimited by the entry regex
+#[derive(Debug)]
+struct LogEntry {
+    level: LevelFilter,
+    message: String,
+}
 
-    contents = contents.lines().map(|l| {
-        // formatting reset is declared at the start cus ifykyk
-             if l.contains(" TRACE ") { format!("\x1b[0m{}{l}\n", CONFIG.message.stdout .trim()) }
-        else if l.contains(" DEBUG ") { format!("\x1b[0m{}{l}\n", CONFIG.message.verbose.trim()) }
-        else if l.contains(" INFO  ") { format!("\x1b[0m{}{l}\n", CONFIG.message.message.trim()) }
-        else if l.contains(" WARN  ") { format!("\x1b[0m{}{l}\n", CONFIG.message.prompt .trim()) }
-        else if l.contains(" ERROR ") { format!("\x1b[0m{}{l}\n", CONFIG.message.danger .trim()) }
-        else { format!("{l}\n") }
-    }).collect();
-
-    Ok(contents)
+impl LogEntry {
+    /// # Description
+    /// Returns a formatted log message based on the log level
+    fn color(&self) -> String {
+        let message = &self.message;
+        match self.level {
+            LevelFilter::Trace => format!("\x1b[0m{}{message}", CONFIG.message.stdout .trim()),
+            LevelFilter::Debug => format!("\x1b[0m{}{message}", CONFIG.message.verbose.trim()),
+            LevelFilter::Info  => format!("\x1b[0m{}{message}", CONFIG.message.message.trim()),
+            LevelFilter::Warn  => format!("\x1b[0m{}{message}", CONFIG.message.prompt .trim()),
+            LevelFilter::Error => format!("\x1b[0m{}{message}", CONFIG.message.danger .trim()),
+            LevelFilter::Off   => message.to_string(),
+        }
+    }
 }
 
 /// # Description
-/// Displays formatted logs
-///
-/// Used with the -L flag to view a package's logs
-pub fn display(file: &Path) -> Result<()> {
-    let log_level = get_log_level();
+/// Collects all logs from a log file's bufreader
+/// Ignores invalid lines
+/// Panics if a log entry is missing a log level
+fn collect_logs<R: BufRead>(reader: R) -> VecDeque<LogEntry> {
+    let mut logs = VecDeque::new();
+    let mut curr = String::new();
 
-    color_lines(file)?.lines().for_each(|l| {
-        if let Some(level) = extract_log_level(l) {
-            if level <= log_level {
-                writeln!(io::stdout(), "{l}\x1b[0m").ufail("Failed to write to stdout");
-            }
+    for line in reader.lines().map_while(Result::ok) {
+        if RE.captures(&line).is_some() 
+        && !curr.is_empty() {
+                logs.push_back(curr.clone());
+                curr.clear();
         }
-    });
 
-    Ok(())
+        curr.push_str(&line);
+        curr.push('\n');
+    }
+
+    if !curr.is_empty() {
+        logs.push_back(curr);
+    }
+
+    logs.into_iter()
+        .filter_map(|entry| {
+            extract_log_level(&entry)
+                .map(|level| LogEntry { level, message: entry })  
+        })
+            .collect()
+    // logs.iter().map(|e| {
+    //     let level = extract_log_level(e).ufail(&format!("Log entry '{e}' is missing a level"));
+    //     let message = e.to_string();
+    //     LogEntry { level, message }
+    // }).collect::<Vec<_>>().into()
+}
+
+/// # Description
+/// Displays formatted logs for a log file
+pub fn display(log_file: &Path) {
+    let log_level = get_log_level();
+    let f = File::open(log_file).ufail("Failed to open file");
+    let reader = BufReader::new(f);
+    let mut log_entries = collect_logs(reader);
+    log_entries.iter_mut()
+        .filter(|e| e.level <= log_level)
+        .for_each(|e| {
+            e.message = e.color();
+            print!("{}", e.message);
+        });
 }
 
 /// # Description
 /// Parses the log level for a line from a log file
-fn extract_log_level(line: &str) -> Option<LevelFilter> {
-    if line.contains(" TRACE ") {
-        Some(LevelFilter::Trace)
-    } else if line.contains(" DEBUG ") {
-        Some(LevelFilter::Debug)
-    } else if line.contains(" INFO  ") {
-        Some(LevelFilter::Info)
-    } else if line.contains(" WARN  ") {
-        Some(LevelFilter::Warn)
-    } else if line.contains(" ERROR ") {
-        Some(LevelFilter::Error)
-    } else {
-        None
+fn extract_log_level(entry: &str) -> Option<LevelFilter> {
+    [
+        (" TRACE ", LevelFilter::Trace),
+        (" DEBUG ", LevelFilter::Debug),
+        (" INFO  ", LevelFilter::Info),
+        (" WARN  ", LevelFilter::Warn),
+        (" ERROR ", LevelFilter::Error)
+    ] 
+        .iter()
+        .find_map(|(tag, level)| entry.contains(tag).then_some(*level))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+    use crate::erm;
+
+    use super::display;
+
+    // return result for test skipping
+    #[test]
+    fn display_master_log() {
+        let master_log = PathBuf::from("/var/log/2/master.log");
+        if !master_log.exists() {
+            erm!("Skipping test: master_log doesn't exist");
+        }
+
+        display(&master_log);
     }
 }

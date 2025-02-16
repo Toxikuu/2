@@ -14,7 +14,7 @@ use indicatif::ProgressStyle;
 use once_cell::sync::Lazy;
 #[cfg(feature = "parallelism")]
 use rayon::prelude::*;
-use std::path::Path;
+use std::path::PathBuf;
 use super::PM;
 
 /// # Description
@@ -60,13 +60,13 @@ impl PM<'_> {
             if a.build    { Self::build   (p) }
             if a.install  { Self::install (p) }
             if a.update   { Self::update  (p) }
-            if a.logs     { Self::logs    (p) }
             if a.history  { Self::history (p) }
         });
 
         if a.prune    { self.prune () }
         if a.clean    { self.clean () }
         if a.list     { self.list  () }
+        if a.logs     { self.logs  () }
     }
 
     /// # Description
@@ -291,12 +291,26 @@ impl PM<'_> {
     //
     /// # Description
     /// Displays the logs for a package
-    fn logs(p: &Package) {
-        let log_file_str = format!("/usr/ports/{}/.logs/pkg.log", p.relpath);
-        let log_file = Path::new(&log_file_str);
+    pub fn logs(&self) {
+        Self::ready();
 
-        if logger::display(log_file).is_err() {
-            erm!("No logs exist for '{}'", p);
+        let pkgs = self.packages;
+        if pkgs.is_empty() { 
+            let log_file = PathBuf::from("/var/log/2/master.log");
+            return logger::display(&log_file);
+        }
+
+        for p in pkgs {
+            let log_file = PathBuf::from("/usr/ports")
+                .join(&p.relpath)
+                .join(".logs/pkg.log");
+
+            if !log_file.exists() {
+                erm!("No logs for {p}");
+                continue
+            }
+
+            logger::display(&log_file);
         }
     }
 
