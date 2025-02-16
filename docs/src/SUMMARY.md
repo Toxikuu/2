@@ -16,16 +16,18 @@
         - [Special](usage/flags/special.md)
         - [Afterword](usage/flags/afterword.md)
     - [Packages](usage/packages/README.md)
-        - [Installing Packages](usage/packages/installing.md)
-        - [Updating Packages](usage/packages/updating.md)
-        - [Removing Packages](usage/packages/removing.md)
-        - [Listing Packages](usage/packages/listing.md)
+        - [Using Packages](usage/packages/using.md)
+        - [How Packages Work](usage/packages/how.md)
+        <!-- - [Installing Packages](usage/packages/installing.md) -->
+        <!-- - [Updating Packages](usage/packages/updating.md) -->
+        <!-- - [Removing Packages](usage/packages/removing.md) -->
+        <!-- - [Listing Packages](usage/packages/listing.md) -->
     - [Sets](usage/sets/README.md)
-        - [Using sets](usage/sets/using.md)
+        - [Using Sets](usage/sets/using.md)
         - [Adding Sets](usage/sets/adding.md)
         - [Special Sets](usage/sets/special.md)
     - [Repos](usage/repos/README.md)
-        - [Listing Repos](usage/repos/listing.md)
+        - [Using Repos](usage/repos/using.md)
         - [Adding Repos](usage/repos/adding.md)
         - [Syncing Repos](usage/repos/syncing.md)
 
