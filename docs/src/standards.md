@@ -24,6 +24,15 @@ then, but overall, I'm trying to keep things grammatically correct. However, if
 something's clearer when grammatically incorrect, I prefer clarity (for
 instance, using a dependent clause as a sentence to emphasize pauses).
 
+### Code Blocks
+Snips are shown as a ``...``.
+
+Command code blocks don't use any syntax highlighting. Commands start with `` $
+`` for a regular user and `` # `` for the root user. Lines with neither are for
+displaying stdout and stderr.
+
+Other code blocks may have syntax highlighting.
+
 ### Errata
 I'm tryna follow my standards, so if I fuck up, kindly let me know. Or unkindly
 let me know; I don't mind.
