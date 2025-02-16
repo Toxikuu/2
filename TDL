@@ -2,6 +2,10 @@
 
 TODO
 
+    Make -L show the master log if no arguments were passed
+
+    Make -s sync all repos if no arguments were passed
+
     Check modtime on info.lock whenever --build is called
 
     Work on the releases script
@@ -20,6 +24,8 @@ WIP
 
 DONEISH
 
+    Make -U expand to //@@ if no arguments were passed
+
     Move flag explanations out of packages/ and into flags/
         also covered all of the flags
 
@@ -30,7 +36,6 @@ DONEISH
 
     Move the @all alias to @@
         also add @available and alias it to @a
-        also make -U imply //@@ like -l does
 
     Add force pruning
 
