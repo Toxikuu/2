@@ -6,9 +6,9 @@ TODO
 
     Test install.sh
 
-    Improve release.sh
-
 WIP
+
+    Add a configure option for whether dist tarballs should be deleted
 
     Work on mdbook docs
         Sketch out what each chapter should cover
@@ -20,6 +20,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Add an option to toggle alphebitization when listing
 
     Move the @all alias to @@
         also add @available and alias it to @a
@@ -224,6 +226,18 @@ IDEAS
 
     Do the zstd compression in-house
         would maybe allow for a progress bar :pray:
+
+    use indicatif's pb.println() for building logs
+        would be a collosal pain in the ass
+        but would look nice
+
+    consider allowing //package
+        ex: //tree would be parsed into the tree package from *every* repo that contains it
+
+    consider adding package categories
+        some of these categories will raise warnings
+            im thinking one for critical packages
+            would warn the user about removing glibc for instance
 
 ROADMAP
 
