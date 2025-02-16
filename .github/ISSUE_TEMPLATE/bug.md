@@ -2,9 +2,8 @@
 name: Bug
 about: Issue template for bugs
 title: "[BUG] <brief description>"
-labels: bug
+labels: Bug
 assignees: Toxikuu
-
 ---
 
 **Output**
