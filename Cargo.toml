@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.56" # moved @a -> @@ for @all, added @available with alias @a
+version = "0.0.57" # alphebetization config option, documentation
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
