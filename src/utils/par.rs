@@ -17,5 +17,5 @@ pub fn build_pool(packages: &[Package]) -> ThreadPool {
         .num_threads(num_threads)
         .stack_size(CONFIG.upstream.stack_size * 1024)
         .build()
-        .ufail("Failed to build thread pool")
+        .fail("Failed to build thread pool")
 }

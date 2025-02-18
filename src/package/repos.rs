@@ -19,7 +19,7 @@ pub fn find_all() -> Rc<[String]> {
     let dir = "/usr/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
 
-    let repos: Rc<[String]> = entries.map(|f| f.ufail("Invalid entry?").file_name().into_string().ufail("Invalid unicode?")).collect();
+    let repos: Rc<[String]> = entries.map(|f| f.fail("Invalid entry?").file_name().into_string().fail("Invalid unicode?")).collect();
     if repos.is_empty() {
         erm!("No repos available!");
     }

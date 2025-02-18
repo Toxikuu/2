@@ -3,9 +3,7 @@
 
 use anyhow::{bail, Context};
 use crate::{
-    package::Package,
-    utils::fail::{fail, ufail, Fail},
-    comms::out::vpr,
+    comms::out::vpr, package::Package, utils::fail::{BoolFail, Fail}
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
@@ -64,9 +62,7 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
         let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
 
         if let Err(e) = download_url(&source.url, &out, force, sty) {
-            if !e.to_string().contains("Exists: ") {
-                fail!("Failed to get extra url '{}'", source.url);
-            }
+            e.to_string().contains("Exists: ").or_fail(&format!("Failed to get extra url '{}'", source.url));
         }
         dlct += 1;
     });
@@ -85,7 +81,7 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
 /// - the file path cannot be created (unlikely)
 /// - random buffer-related rw failures (unlikely)
 pub fn download_url(url: &str, out: &str, force: bool, sty: &ProgressStyle) -> anyhow::Result<String> {
-    let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).ufail("Invalid output path");
+    let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid output path");
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
@@ -173,7 +169,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
         ".tar.lzo"                                       => format!("{package}.tar.lzo" ),
         ".tar.xz"   | ".txz"                             => format!("{package}.tar.xz"  ),
         ".tar.zst"  | ".tzst"                            => format!("{package}.tar.zst" ),
-        _ => ufail!("Unsupported tarball extension: {}", ext),
+        _ => unreachable!("Unsupported tarball extension: {}", ext),
     };
 
     to
@@ -199,14 +195,12 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool
     let file_name = normalize_tarball(package, file_name);
 
     let srcpath = format!("/usr/ports/{}/.sources/", package.relpath);
-    fs::create_dir_all(&srcpath).ufail("Failed to create source path");
+    fs::create_dir_all(&srcpath).fail("Failed to create source path");
     let out = format!("{}/{}", &srcpath, &file_name);
 
     vpr!("Downloading tarball...");
     if let Err(e) = download_url(&url, &out, force, sty) {
-        if !e.to_string().contains("Exists: ") {
-            fail!("Failed to download tarball for '{package}': {e}");
-        }
+        e.to_string().contains("Exists: ").or_fail(&format!("Failed to download tarball for '{package}': {e}"));
         return false
     }
     true

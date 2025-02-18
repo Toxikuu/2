@@ -7,7 +7,7 @@ use crate::{
     package::Package,
     shell::cmd::pkgexec,
     utils::{
-        fail::{fail, Fail},
+        fail::{BoolFail, Fail},
         hash::twohash,
     },
 };
@@ -32,17 +32,13 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
         let tarball = package.source.url.split('/').next_back().fail("Invalid url");
         let filename = &normalize_tarball(package, tarball);
         let knownhash = &package.source.hash;
-        if !passes(filename, knownhash) {
-            fail!("Hash checks failed")
-        }
+        passes(filename, knownhash).or_fail(&format!("Hash checks failed for '{filename}' for '{package}'"));
     }
 
     package.extra.iter().for_each(|source| {
         let filename = &Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
         let knownhash = &source.hash;
-        if !passes(filename, knownhash) {
-            fail!("Hash checks failed")
-        }
+        passes(filename, knownhash).or_fail(&format!("Hash checks failed for '{filename}' for '{package}'"));
     });
 }
 
@@ -81,7 +77,7 @@ fn setup(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in setup: {}", package, e));
+    pkgexec!(&command, package).fail(&format!("Build for '{package}' died in setup"));
 }
 
 /// ### Description
@@ -110,7 +106,7 @@ pub fn build(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died: {}", package, e));
+    pkgexec!(&command, package).fail(&format!("Build for '{package}' died"));
 }
 
 /// ### Description
@@ -147,7 +143,7 @@ pub fn post(package: &Package) {
 
     ".to_string();
 
-    pkgexec!(&command, package).unwrap_or_else(|e| fail!("Build for '{}' died in post-install: {}", package, e));
+    pkgexec!(&command, package).fail(&format!("Build for '{package}' died in post-install"));
 }
 
 /// ### Description
@@ -156,6 +152,7 @@ pub fn post(package: &Package) {
 /// Deletes and recreates the .build directory
 pub fn clean(package: &Package) {
     let dir = format!("/usr/ports/{}/.build", package.relpath);
-    remove_dir_all(&dir).unwrap_or_else(|e| fail!("Failed to clean '{}': {}", package, e));
-    create_dir(&dir).ufail("Failed to recreate .build");
+
+    remove_dir_all(&dir).fail(&format!("Failed to clean '{package}'"));
+    create_dir(&dir).fail("Failed to recreate .build");
 }

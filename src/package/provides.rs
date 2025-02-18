@@ -20,7 +20,7 @@ fn find_manifests_with_path(path: &str) -> Vec<PathBuf> {
     manifest::locate("/usr/ports")
         .iter()
         .filter_map(|m| {
-        let contents = fs::read_to_string(m).ufail("Failed to read manifest");
+        let contents = fs::read_to_string(m).fail("Failed to read manifest");
         let lines = contents.lines();
         for line in lines {
             if line == path {
@@ -61,7 +61,7 @@ pub fn provides(path: &str) {
     match total {
         0 => erm!("No installed packages provide '{path}'"),
         1 => {
-            let package = get_package_from_manifest(manifests.first().ufail("1 != 1"));
+            let package = get_package_from_manifest(manifests.first().fail("1 != 1"));
             let packages = [package; 1];
             PM::list_packages(&packages, &format!("1 installed package provides '{path}'"), false);
         }

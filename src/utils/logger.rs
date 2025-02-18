@@ -28,7 +28,7 @@ static LOGGER: OnceLock<Logger> = OnceLock::new();
 static LOG_INIT: Once = Once::new();
 /// # Description
 /// Regex pattern for matching against 2's logs
-static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").ufail("Invalid regex"));
+static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").fail("Invalid regex"));
 
 /// # Description
 /// Retrieve the log level
@@ -79,8 +79,8 @@ impl Logger {
     /// This writes logs to that package's log file, located at ``$PORT/.logs/pkg.log`` and to the
     /// master log
     pub fn attach(&self, relpath: &str) {
-        *self.relpath.lock().ufail("Failed to lock relpath mutex") = Some(relpath.to_string());
-        self.refresh().ufail("Failed to refresh logger");
+        *self.relpath.lock().fail("Failed to lock relpath mutex") = Some(relpath.to_string());
+        self.refresh().fail("Failed to refresh logger");
         log::debug!("Log attached");
     }
 
@@ -89,8 +89,8 @@ impl Logger {
     ///
     /// Logs will only write to the master log when detached
     pub fn detach(&self) {
-        *self.relpath.lock().ufail("Failed to lock relpath mutex") = None;
-        self.refresh().ufail("Failed to refresh logger");
+        *self.relpath.lock().fail("Failed to lock relpath mutex") = None;
+        self.refresh().fail("Failed to refresh logger");
         log::debug!("Log detached");
     }
 
@@ -98,9 +98,9 @@ impl Logger {
     /// Initializes the logger
     pub fn init(&self) {
         LOG_INIT.call_once(|| {
-            let config = self.build_config().ufail("Failed to build initial config");
-            let handle = log4rs::init_config(config).ufail("Failed to initialize logger");
-            *self.handle.lock().ufail("Failed to lock handle mutex") = Some(handle);
+            let config = self.build_config().fail("Failed to build initial config");
+            let handle = log4rs::init_config(config).fail("Failed to initialize logger");
+            *self.handle.lock().fail("Failed to lock handle mutex") = Some(handle);
         });
     }
 
@@ -135,10 +135,10 @@ impl Logger {
         let mut root_builder = Root::builder()
             .appender("master");
 
-        if let Some(ref rp) = *self.relpath.lock().ufail("Failed to lock relpath mutex") {
+        if let Some(ref rp) = *self.relpath.lock().fail("Failed to lock relpath mutex") {
             let build_log_str = format!("/usr/ports/{rp}/.logs/pkg.log");
             let build_log = Path::new(&build_log_str);
-            let log_dir = build_log.parent().ufail("Broken relpath");
+            let log_dir = build_log.parent().fail("Broken relpath");
 
             fs::create_dir_all(log_dir)?;
 
@@ -159,7 +159,7 @@ impl Logger {
     /// Refreshes the logger config
     fn refresh(&self) -> Result<()> {
         let config = self.build_config()?;
-        if let Some(handle) = self.handle.lock().ufail("Failed to lock handle mutex").as_ref() {
+        if let Some(handle) = self.handle.lock().fail("Failed to lock handle mutex").as_ref() {
             handle.set_config(config);
         }
         Ok(())
@@ -174,15 +174,15 @@ impl Logger {
 /// logger::get().detach()
 /// ```
 pub fn get<'s>() -> &'s Logger {
-    LOGGER.get().ufail("Logger not initialized (my bad)")
+    LOGGER.get().fail("Logger not initialized (my bad)")
 }
 
 /// # Description
 /// Initialize the logger object
 pub fn init(master_log: impl Into<PathBuf>) {
     let logger = Logger::new(master_log);
-    LOGGER.set(logger).ufail("Logger already initialized (my bad)");
-    LOGGER.get().ufail("Failed to access logger instance").init();
+    LOGGER.set(logger).fail("Logger was already initialized");
+    LOGGER.get().fail("Failed to access logger instance").init();
 }
 
 
@@ -217,7 +217,7 @@ impl LogEntry {
 /// Collects all logs from a log file's bufreader
 /// Ignores invalid lines
 /// Panics if a log entry is missing a log level
-fn collect_logs<R: BufRead>(reader: R) -> VecDeque<LogEntry> {
+fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
     let mut logs = VecDeque::new();
     let mut curr = String::new();
 
@@ -241,19 +241,14 @@ fn collect_logs<R: BufRead>(reader: R) -> VecDeque<LogEntry> {
             extract_log_level(&entry)
                 .map(|level| LogEntry { level, message: entry })  
         })
-            .collect()
-    // logs.iter().map(|e| {
-    //     let level = extract_log_level(e).ufail(&format!("Log entry '{e}' is missing a level"));
-    //     let message = e.to_string();
-    //     LogEntry { level, message }
-    // }).collect::<Vec<_>>().into()
+        .collect()
 }
 
 /// # Description
 /// Displays formatted logs for a log file
 pub fn display(log_file: &Path) {
     let log_level = get_log_level();
-    let f = File::open(log_file).ufail("Failed to open file");
+    let f = File::open(log_file).fail("Failed to open file");
     let reader = BufReader::new(f);
     let mut log_entries = collect_logs(reader);
     log_entries.iter_mut()

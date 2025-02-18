@@ -23,7 +23,7 @@ const BAR: &str = "{prefix:.red} {msg:32.red} [{elapsed_precise}] [{bar:64.red/b
 
 static STY: Lazy<ProgressStyle> = Lazy::new(|| {
     ProgressStyle::with_template(BAR)
-        .ufail("Invalid bar template")
+        .fail("Invalid bar template")
         .progress_chars("=>-")
 });
 

@@ -33,6 +33,7 @@ pub struct GeneralConfig {
     pub prefix: String,
     pub clean_after_build: bool,
     pub show_bug_report_message: bool,
+    pub show_failure_location: bool,
     pub check_hashes: bool,
     pub auto_ambiguity: bool,
     pub log_level: String,

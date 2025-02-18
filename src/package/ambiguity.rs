@@ -7,7 +7,7 @@ use crate::{
     },
     globals::config::CONFIG,
     package::repos::{self, prioritize},
-    utils::fail::{fail, Fail}
+    utils::fail::{BoolFail, Fail},
 };
 use std::fs;
 use walkdir::WalkDir;
@@ -45,7 +45,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
     let mut matches = locate(name);
     prioritize(&mut matches);
 
-    if matches.is_empty() { fail!("Failed to find '{}' in any repo", name) }
+    matches.is_empty().and_fail(&format!("Failed to find '{name}' in any repo"));
     if let [only] = matches.as_slice() { return only.to_string() }
 
     erm!("Ambiguous: '{}'", name);
@@ -54,7 +54,7 @@ pub fn resolve_ambiguity(name: &str) -> String {
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().ufail("Schrodinger's empty vector");
+        let m = matches.first().fail("Schrodinger's empty vector");
         pr!("Auto-selected '{}'", m);
         return m.to_string()
     }
@@ -86,7 +86,7 @@ fn locate_set(set: &str) -> Vec<String> {
     fs::read_dir("/usr/ports")
         .fail("No repos found")
         .filter_map(|r| {
-            let repo = r.ok().ufail("Unknown failure in locate_set()").path();
+            let repo = r.ok().fail("Unknown failure in locate_set()").path();
 
             if repo.join(&pattern).exists() {
                 repo.file_name()
@@ -110,10 +110,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
             locate_set(set)
         };
 
-    if matches.is_empty() {
-        fail!("Failed to find '@{}' in any repo", set);
-    }
-
+    matches.is_empty().and_fail(&format!("Failed to find '{set}' in any repo"));
     if let [only] = matches.as_slice() { return only.to_string() }
 
     prioritize(&mut matches);
@@ -124,7 +121,7 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().ufail("Schrodinger's empty vector");
+        let m = matches.first().fail("Schrodinger's empty vector");
         pr!("Auto-selected '{}'", m);
         return m.clone()
     }

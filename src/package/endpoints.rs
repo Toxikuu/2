@@ -3,11 +3,11 @@
 
 use crate::{
     comms::out::vpr,
-    utils::fail::{fail, Fail},
+    utils::fail::{BoolFail, Fail},
 };
 use std::{
     fs,
-    path::Path,
+    path::{Path, PathBuf},
 };
 use super::Package;
 
@@ -16,14 +16,15 @@ impl Package {
     /// Creates a package given its repo and name
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
-        if name.starts_with('.') { fail!("Invalid package name") }
+        name.starts_with('.').and_fail("Invalid package name");
 
-        let toml_path_str = format!("/usr/ports/{repo}/{name}/info.lock");
-        let toml_path = Path::new(&toml_path_str);
-        if !toml_path.exists() { fail!("{} does not exist", &toml_path_str) }
-        let toml_contents = fs::read_to_string(toml_path).ufail(&format!("Something is very wrong with {}", &toml_path_str));
+        let toml_path = PathBuf::from("/usr/ports")
+            .join(repo)
+            .join(name)
+            .join("info.lock");
+        let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read info.lock");
 
-        let mut package: Self = toml::de::from_str(&toml_contents).ufail(&format!("Invalid syntax in info.lock for '{repo}/{name}'"));
+        let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in info.lock");
         let status_path = toml_path.with_file_name(".data/INSTALLED");
 
         vpr!("Status path: {:?}", status_path);

@@ -4,7 +4,7 @@
 use anyhow::Result;
 use crate::{
     comms::out::{erm, pr, vpr},
-    utils::fail::{Fail, fail, ufail},
+    utils::fail::{BoolFail, Fail},
 };
 use std::{
     fmt::{self, Display, Formatter},
@@ -39,9 +39,7 @@ impl Display for Set {
 
 impl Set {
     pub fn new(str: &str) -> Self {
-        if !Self::is(str) {
-            fail!("Not a set: '{str}'");
-        }
+        Self::is(str).or_fail(&format!("Not a set: '{str}'"));
 
         // handle all repos
         if let Some(set) = str.strip_prefix("//") {
@@ -58,7 +56,7 @@ impl Set {
             }
         } else {
             let stupid_intermediate = resolve_set_ambiguity(str);
-            let (repo, _) = stupid_intermediate.split_once('/').ufail("Somehow resolved ambiguity without returning repo/set");
+            let (repo, _) = stupid_intermediate.split_once('/').fail("Somehow resolved ambiguity without returning repo/set");
             Self {
                 repo: repo.to_string(),
                 set: str.to_string(),
@@ -102,7 +100,7 @@ impl Set {
         } else if matches!(set, "@@" | "@all") {
             self.all()
         } else {
-            ufail!("I forgot to add a special set")
+            unreachable!("I forgot to add a special set")
         }
     }
 
@@ -151,15 +149,15 @@ impl Set {
                 if entry.file_type().fail("Failed to get entry filetype").is_dir() {
                     let repo = entry.path()
                         .parent()
-                        .ufail("Very strange repo layout?")
+                        .fail("Very strange repo layout?")
                         .file_name()
-                        .ufail("Missing filename?")
+                        .fail("Missing filename?")
                         .to_str()
-                        .ufail("Unicode")
+                        .fail("Unicode")
                         .to_string();
                     let pkg = entry.file_name()
                         .to_str()
-                        .ufail("Unicode")
+                        .fail("Unicode")
                         .to_string();
 
                     if pkg.starts_with('.') {
@@ -208,7 +206,7 @@ impl Set {
         self.all()
             .iter()
             .filter(|p| {
-                let (repo, name) = p.split_once('/').ufail(&format!("Misformatted package {p}"));
+                let (repo, name) = p.split_once('/').fail(&format!("Misformatted package {p}"));
                 super::Package::new(repo, name).is_outdated()
             })
             .cloned()

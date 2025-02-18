@@ -3,13 +3,13 @@
 
 use anyhow::{bail, Result};
 use crate::{
-    comms::out::{erm, cpr, vpr},
+    comms::out::{cpr, erm, vpr},
     globals::{
         config::CONFIG,
         flags::Flags,
     },
     package::Package,
-    utils::fail::{fail, Fail},
+    utils::fail::{BoolFail, Fail},
 };
 use log::warn;
 use std::{
@@ -106,7 +106,7 @@ pub fn remove(package: &Package) -> bool {
     let manifest = format!("/usr/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.version);
     let manifest_path = Path::new(&manifest);
 
-    if !manifest_path.exists() { fail!("Manifest doesn't exist") }
+    manifest_path.exists().or_fail("Manifest doesn't exist");
 
     let Ok(unique) = find_unique_paths(&manifest_path.to_path_buf()) else {
         warn!("Missing manifest for {package}");
@@ -159,8 +159,8 @@ fn remove_sources(package: &Package) {
         .join(&package.name)
         .join(".sources");
 
-    remove_dir_all(&srcdir).ufail("Failed to remove .sources");
-    create_dir(&srcdir).ufail("Failed to recreate .sources");
+    remove_dir_all(&srcdir).fail("Failed to remove .sources");
+    create_dir(&srcdir).fail("Failed to recreate .sources");
 }
 
 fn remove_dist(package: &Package) {
@@ -241,7 +241,7 @@ pub fn prune(package: &Package) -> usize {
         .map(|s| {
             let file_name = Path::new(s.url.as_str())
                 .file_name()
-                .ufail("File in .sources ends in '..' tf??");
+                .fail("File in .sources ends in '..' tf??");
             src_dir.join(file_name)
         })
         .collect();
@@ -250,7 +250,7 @@ pub fn prune(package: &Package) -> usize {
     let mut pruned_count = 0;
 
     for entry in read_dir(&src_dir).fail(&format!("Failed to read sources directory '{src_dir:?}'")) {
-        let entry = entry.ufail("Invalid source entry");
+        let entry = entry.fail("Invalid source entry");
         let path = entry.path();
 
         if !path.is_file() {
@@ -292,7 +292,7 @@ fn prune_logs(package: &Package) -> usize {
 
     let mut pruned_count = 0;
     for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory '{log_dir:?}'")) {
-        let entry = entry.ufail("Invalid directory entry");
+        let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
         if !path.is_file() {
@@ -333,7 +333,7 @@ fn prune_manifests(package: &Package) -> usize {
 
     let mut pruned_count = 0;
     for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory '{data_dir:?}'")) {
-        let entry = entry.ufail("Invalid directory entry");
+        let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
         if !path.is_file() {

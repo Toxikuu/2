@@ -28,7 +28,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 
         if let Some(i) = p.find('=') {
             let msg = format!("Version control is not supported; stripping version for '{p}'");
-            erm!("{}", msg); log::warn!("{}", msg);
+            erm!("{msg}"); log::warn!("{msg}");
             p = &p[..i];
         }
 
@@ -47,7 +47,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
             p = resolve_ambiguity(&p);
         }
 
-        let (repo, name) = p.split_once('/').ufail("Package does not contain '/'");
+        let (repo, name) = p.split_once('/').fail("Invalid syntax");
         parsed.push(Package::new(repo, name));
     }
     parsed
@@ -72,7 +72,7 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
             p = resolve_ambiguity(&p);
         }
 
-        let (repo, name) = p.split_once('/').ufail("p does not contain '/'");
+        let (repo, name) = p.split_once('/').fail("p does not contain '/'");
         Package::new(repo, name)
     }).collect()
 }

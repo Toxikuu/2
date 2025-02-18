@@ -36,10 +36,10 @@ impl Flags {
     }
 
     pub fn grab() -> &'static Self {
-        FLAGS.get().ufail("FLAGS has not been initialized")
+        FLAGS.get().fail("FLAGS has not been initialized")
     }
 }
 
 pub fn set(args: &Args) {
-    FLAGS.set(Flags::new(args)).ufail("FLAGS was reinitialized");
+    FLAGS.set(Flags::new(args)).fail("FLAGS was reinitialized");
 }
