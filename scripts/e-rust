@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# e-rust (environment rust) environment for build using rust
-
-source /usr/share/2/bin/f-path
-
-pathprepend /opt/cargo/bin
-rustup default nightly

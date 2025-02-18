@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# The rust build system
+
+# sane defaults
+pathprepend /opt/cargo/bin
+rustup default nightly
+
+# cargo build --release wrapper
+cbr() {
+    export -f cbr
+    RUSTFLAGS="${RUSTFLAGS:--C target-cpu=native -C strip=debuginfo -C codegen-units=8}"
+    cargo build --release "$@"
+}

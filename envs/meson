@@ -1,0 +1,32 @@
+# Meson build system
+
+ms() {
+    export -f ms
+    [[ -n "NO_CLEAN" ]] || rm -rf build
+    mkdir -pv build
+    cd        build
+
+    if [[ -z "$m32" ]]; then
+        CFLAGS="${CFLAGS:--02 -march=native -pipe}"
+        CXXFLAGS="${CXXFLAGS:-$CFLAGS}"
+
+        meson setup ..          \
+            --prefix=/usr       \
+            --buildtype=release \
+            --strip "$@"       ||
+        die "Meson setup failed"
+    else
+        CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"
+        CXXFLAGS="${CXXFLAGS:-CFLAGS}"
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
+        CC="${CC:-gcc -m32}"
+        CXX="${CXX:-g++ -m32}"
+
+        meson setup ..          \
+            --prefix=/usr       \
+            --libdir=/usr/lib32 \
+            --buildtype=release \
+            --strip "$@"       ||
+        die "Meson setup (m32) failed"
+    fi
+}

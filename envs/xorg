@@ -1,0 +1,35 @@
+# Some useful stuff for xorg
+
+export XORG_CONFIG=(
+    --prefix=/usr                 
+    --sysconfdir=/etc             
+    --localstatedir=/var          
+    --disable-static              
+    --enable-static=no            
+    --enable-shared=yes           
+    --enable-docs=no              
+    --disable-docs                
+    --disable-devel-docs          
+    --without-docs                
+    --disable-dependency-tracking 
+    --disable-option-checking     
+    --with-appdefaultdir=/etc/X11/app-defaults
+)
+
+export XORG_CONFIG_32=(
+    --prefix=/usr                 
+    --sysconfdir=/etc             
+    --localstatedir=/var          
+    --disable-static              
+    --enable-static=no            
+    --enable-shared=yes           
+    --enable-docs=no              
+    --disable-docs                
+    --disable-devel-docs          
+    --without-docs                
+    --disable-dependency-tracking 
+    --disable-option-checking     
+    --with-appdefaultdir=/etc/X11/app-defaults
+    --libdir=/usr/lib32            
+    --host=i686-pc-linux-gnu       
+)

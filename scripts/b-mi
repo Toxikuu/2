@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# b-mi (build make install) wraps make install
-
-source "/usr/share/2/bin/f-core" || exit 211
-
-make DESTDIR="$D" "$@" install || die "make install failed"

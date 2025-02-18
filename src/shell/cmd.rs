@@ -30,7 +30,6 @@ pub fn exec(command: &str) -> Result<()> {
     // initialize the bash environment
     let command = format!(
     r"
-    source /usr/share/2/bin/e-core || exit 211
     {command}
     "
     );
@@ -49,7 +48,7 @@ pub fn exec(command: &str) -> Result<()> {
     let stdout_thread = thread::spawn(move || {
         let reader = BufReader::new(stdout);
         for line in reader.lines() {
-            let line = line.ufail("Failed to read stdout");
+            let line = line.fail("Failed to read stdout");
 
             cpr!("{}", line);
             log::trace!("{}", line);
@@ -59,7 +58,7 @@ pub fn exec(command: &str) -> Result<()> {
     let stderr_thread = thread::spawn(move || {
         let reader = BufReader::new(stderr);
         for line in reader.lines() {
-            let line = line.ufail("Failed to read stderr");
+            let line = line.fail("Failed to read stderr");
 
             let msg = format!("{}{line}", CONFIG.message.stderr);
             cpr!("{}", msg);
@@ -73,8 +72,8 @@ pub fn exec(command: &str) -> Result<()> {
         bail!("Command failed");
     }
 
-    stdout_thread.join().ufail("Failed to join the stdout thread");
-    stderr_thread.join().ufail("Failed to join the stderr thread");
+    stdout_thread.join().fail("Failed to join the stdout thread");
+    stderr_thread.join().fail("Failed to join the stderr thread");
 
     Ok(())
 }
@@ -90,6 +89,9 @@ macro_rules! pkgexec {
         let relpath = &$pkg.relpath;
         let command = format!(
         r#"
+        set -e
+        source /usr/share/2/envs/core || exit 211
+
         export PORT="/usr/ports/{}"
         export SRC="$PORT/.sources"
         export BLD="$PORT/.build"

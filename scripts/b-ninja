@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# b-ninja (build ninja) wraps ninja
-
-source "/usr/share/2/bin/f-core" || exit 211
-
-ninja "$@" || die "ninja failed"

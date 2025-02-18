@@ -1,0 +1,17 @@
+# Ninja build system
+
+nj() {
+    export -f nj
+    ninja "$@" || die "Ninja failed"
+}
+
+ni() {
+    export -f ni
+    if [[ -z "$m32" ]]; then
+        DESTDIR="$D" ninja install "$@" || die "Ninja install failed"
+    else
+        DESTDIR="$BLD/32DEST" ninja install "$@" || die "Ninja install (m32) failed"
+        mkdir -pv "$D/usr/lib32"
+        cp -av "$BLD/32DEST/usr/lib32/"* "$D/usr/lib32"
+    fi
+}

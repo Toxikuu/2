@@ -63,12 +63,10 @@ popd
 The following commands will create all necessary symlinks:
 ```bash
 pushd .
-cd /usr/share/2
 
-ln -sfv scripts bin
-ln -siv "$PWD"/config.toml /etc/2/
-ln -siv "$PWD"/exclusions.txt /etc/2/
-ln -siv "$PWD"/repo_priority.txt /etc/2/
+for f in config.toml exclusions.txt repo_priority.txt; do
+    ln -siv /usr/share/2/"$f" /etc/2/
+done
 
 popd
 ```

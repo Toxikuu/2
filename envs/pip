@@ -1,0 +1,29 @@
+# The pip build system
+
+# pip build wrapper
+pipb() {
+    export -f pipb
+    pip3 wheel -w dist         \
+        --no-cache-dir         \
+        --no-build-isolation   \
+        --no-deps "$@" "$BLD" ||
+    die "Pip build failed"
+}
+
+# pip install wrapper
+pipi() {
+    export -f pipi
+    NAME="${NAME:-$1}"
+    [ -z "$NAME" ] && die "\$NAME is undefined"
+    [ -z "$1" ] || shift
+
+    pip3 install \
+        --no-index         \
+        --no-deps          \
+        --no-user          \
+        --root="$D"        \
+        --ignore-installed \
+        --no-warn-script-location \
+        --find-links dist "$NAME" "$@" ||
+    die "Pip install failed"
+}

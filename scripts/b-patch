@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# b-patch (build patch) wraps patch
-
-source "/usr/share/2/bin/f-core" || exit 211
-
-patch --verbose -Np1 -i "$@" ||
-die 'patch failed'
