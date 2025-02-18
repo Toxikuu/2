@@ -25,4 +25,6 @@ There are also significant breaking changes with this version.
     - Added, improved, and simplified abstractions
 - Significant improvements to log-display logic
     - You can actually see multiline log entries now!
-- General Refactoring
+- General refactoring
+- Release script
+    - I also added a release script
