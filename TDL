@@ -2,21 +2,19 @@
 
 TODO
 
-    Use an inherit-esque system instead of *-* scripts
-        add a script called 'with' which sources files in a specific directory
-        these files contain functions for a specific build system or task
-
-    Make -L show the master log if no arguments were passed
+    Move /usr/ports to /var/ports
+        Nightmare! (maybe, its probably fine actually)
 
     Make -s sync all repos if no arguments were passed
 
     Check modtime on info.lock whenever --build is called
-
-    Work on the releases script
+        Also store the modtime somewhere
 
     Test install.sh
 
 WIP
+
+    Migrate repos to new build api
 
     Work on mdbook docs
 
@@ -27,6 +25,16 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Work on the releases script
+
+    Make -L show the master log if no arguments were passed
+
+    Use an inherit-esque system instead of *-* scripts
+        add a script called 'with' which sources files in a specific directory
+        these files contain functions for a specific build system or task
+
+        finish writing the env files
 
     Make -U expand to //@@ if no arguments were passed
 
