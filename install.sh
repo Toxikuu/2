@@ -5,29 +5,29 @@ set -e
 [ "$EUID" -ne 0 ] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
 
 confirm() {
-  local default="${2:-n}"
-  local prompt="${1:-Are you sure?}"
+    local default="${2:-n}"
+    local prompt="${1:-Are you sure?}"
 
-  default="${default,,}"
+    default="${default,,}"
 
-  if [[ "$default" == "y" ]]; then
-    prompt+=" [Y/n] "
-  else
-    prompt+=" [y/N] "
-  fi
+    if [[ "$default" == "y" ]]; then
+        prompt+=" [Y/n] "
+    else
+        prompt+=" [y/N] "
+    fi
 
-  while true; do
-    read -r -p "$prompt" ans
-    ans=${ans,,}
+    while true; do
+        read -r -p "$prompt" ans
+        ans=${ans,,}
 
-    [[ -z "$ans" ]] && ans="$default"
+        [[ -z "$ans" ]] && ans="$default"
 
-    case "$ans" in
-      y|yes) return 0 ;;
-      n|no) return 1 ;;
-      *) echo "Please answer yes or no" >&2 ;;
-    esac
-  done
+        case "$ans" in
+            y|yes) return 0 ;;
+            n|no) return 1 ;;
+            *) echo "Please answer yes or no" >&2 ;;
+        esac
+    done
 }
 
 pushd .
@@ -43,8 +43,6 @@ fi
 if [ ! -e /usr/ports/main ]; then
     git clone https://github.com/Toxikuu/2-main.git /usr/ports/main
 fi
-
-ln -sfv scripts bin
 
 confirm 'Replace config?' && ln -sfv "$PWD"/config.toml /etc/2/
 confirm 'Replace exclusions?' && ln -sfv "$PWD"/exclusions.txt /etc/2/
@@ -66,11 +64,11 @@ cat << EOF > /usr/bin/2
 #!/usr/bin/env bash
 
 if command -v sudo >/dev/null 2>&1; then
-  S=sudo
+    S=sudo
 elif command -v doas >/dev/null 2>&1; then
-  S=doas
+    S=doas
 else
-  S=
+    S=
 fi
 
 "\$S" LOG_LEVEL="\$LOG_LEVEL" /usr/share/2/target/release/two "\$@"
