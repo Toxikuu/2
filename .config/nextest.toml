@@ -1,0 +1,8 @@
+[profile.default]
+fail-fast = false
+status-level = "pass"
+
+[[profile.default.overrides]]
+filter = "package(two) and test(/.*display_master_log/)"
+slow-timeout = "15s" # this test can be quite slow if you have a long master log
+ignore = true 
