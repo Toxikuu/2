@@ -1,8 +1,9 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
-use std::path::Path;
+use std::{path::Path, time::{Duration, UNIX_EPOCH}};
 
+use anyhow::{Result, Context};
 use crate::{
     comms::out::{msg, cpr},
     globals::{config::CONFIG, flags::Flags},
@@ -55,11 +56,29 @@ pub fn install(package: &Package) -> InstallStatus {
 }
 
 /// # Description
+/// Returns the modtime of a path
+// TODO: Use this once I implement package stats
+fn modtime(file: &Path) -> Result<Duration> {
+    Ok(
+        file.metadata()
+            .context(format!("Failed to fetch metadata for {file:?}"))?
+            .modified()
+            .context(format!("Failed to get modtime for {file:?}"))?
+            .duration_since(UNIX_EPOCH)
+            .fail("Time travel detected wtf!")
+    )
+}
+
+/// # Description
 /// Builds a package, calling functions in ``super::script``
 ///
 /// Returns false if the package has already been built
 pub fn build(package: &Package, r#override: bool) -> BuildStatus {
-    if package.dist_exists() && !Flags::grab().force && !r#override {
+    let lockfile = package.data.port_dir.join("info.lock");
+
+    let built = package.dist_exists() && !Flags::grab().force && !r#override;
+
+    if built {
         BuildStatus::Already
     } else {
         msg!("󱠇  Building '{}'...", package);
@@ -84,24 +103,23 @@ fn dist_install(package: &Package) {
     PREFIX={}
     mkdir -pv "$PREFIX"
 
-    tar xvf {} -C "$PREFIX"         \
+    tar xvf {:?} -C "$PREFIX"       \
         --strip-components=1        \
         --keep-directory-symlink    \
         --exclude-from='/etc/2/exclusions.txt' |
     sed -e 's@/$@@' \
         -e 's@^D@@' \
         -e '/^$/d'  |
-    tee /usr/ports/{}/.data/MANIFEST={}
-    echo "{}" > /usr/ports/{}/.data/INSTALLED
+    tee {:?}/.data/MANIFEST={}
+    echo "{}" > {:?}/.data/INSTALLED
 
-    # TODO: consider only using ldconfig once after a chain of dist installs, and after building and installing
     ldconfig
 
     "#,
     CONFIG.general.prefix,
     package.data.dist,
-    package.relpath, package.version,
-    package.version, package.relpath,
+    package.data.port_dir, package.version,
+    package.version, package.data.port_dir,
     );
 
     msg!("󰐗  Installing '{package}'...");
@@ -129,16 +147,13 @@ pub fn update(package: &Package) -> UpdateStatus {
         return UpdateStatus::NotInstalled
     }
 
-    if package.version == package.data.installed_version && !force {
+    if !package.is_outdated() && !force {
         return UpdateStatus::Latest
     }
 
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    let dist_exists = Path::new(
-        &format!("/usr/ports/{}/.dist/{}={}.tar.zst", package.relpath, package.name, package.version)
-    ).exists();
-
+    let dist_exists = package.dist_exists();
     if !dist_exists {
         build(package, true);
     }

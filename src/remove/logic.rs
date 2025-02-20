@@ -138,11 +138,7 @@ pub fn remove(package: &Package) -> bool {
     });
 
     // NOTE: the manifest is not removed as prune handles that
-    let status_file = PathBuf::from("/usr/ports")
-        .join(&package.repo)
-        .join(&package.name)
-        .join(".data")
-        .join("INSTALLED");
+    let status_file = package.data.port_dir.join(".data").join("INSTALLED");
     rmf(&status_file).fail("Failed to remove the status file");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
@@ -154,21 +150,13 @@ pub fn remove(package: &Package) -> bool {
 /// # Description
 /// Removes and recreates ``$PORT/.sources``
 fn remove_sources(package: &Package) {
-    let srcdir = PathBuf::from("/usr/ports")
-        .join(&package.repo)
-        .join(&package.name)
-        .join(".sources");
-
+    let srcdir = package.data.port_dir.join(".sources");
     remove_dir_all(&srcdir).fail("Failed to remove .sources");
     create_dir(&srcdir).fail("Failed to recreate .sources");
 }
 
 fn remove_dist(package: &Package) {
-    let distdir = PathBuf::from("/usr/ports")
-        .join(&package.repo)
-        .join(&package.name)
-        .join(".dist");
-
+    let distdir = package.data.port_dir.join(".dist");
     if !distdir.exists() {
         return erm!("Dist dir doesn't exist for '{package}'")
     }
@@ -229,10 +217,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
 ///
 /// If force is true, will also prune the current tarball
 pub fn prune(package: &Package) -> usize {
-    let src_dir = PathBuf::from("/usr/ports")
-        .join(&package.relpath)
-        .join(".sources");
-
+    let src_dir = package.data.port_dir.join(".sources");
     if !src_dir.exists() {
         return 0
     }
@@ -282,10 +267,7 @@ pub fn prune(package: &Package) -> usize {
 /// # Description
 /// Deletes all logs for a package
 fn prune_logs(package: &Package) -> usize {
-    let log_dir = PathBuf::from("/usr/ports")
-        .join(&package.relpath)
-        .join(".logs");
-
+    let log_dir = package.data.port_dir.join(".logs");
     if !log_dir.exists() {
         return 0
     }
@@ -317,10 +299,7 @@ fn prune_logs(package: &Package) -> usize {
 /// Deletes all manifests except the current (and most recent if the installed version and
 /// latest version differ) manifest for a package
 fn prune_manifests(package: &Package) -> usize {
-    let data_dir = PathBuf::from("/usr/ports")
-        .join(&package.relpath)
-        .join(".data");
-
+    let data_dir = package.data.port_dir.join(".data");
     if !data_dir.exists() {
         return 0 // data dir should always exist, but in case it doesn't, give up
     }
@@ -358,11 +337,7 @@ fn prune_manifests(package: &Package) -> usize {
 }
 
 fn prune_dist(package: &Package) -> usize {
-    let dist_dir = PathBuf::from("/usr/ports")
-        .join(&package.repo)
-        .join(&package.name)
-        .join(".dist");
-
+    let dist_dir = package.data.port_dir.join(".dist");
     if !dist_dir.exists() {
         return 0 // data dir should always exist, but in case it doesn't, give up
     }

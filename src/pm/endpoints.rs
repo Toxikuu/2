@@ -301,10 +301,7 @@ impl PM<'_> {
         }
 
         for p in pkgs {
-            let log_file = PathBuf::from("/usr/ports")
-                .join(&p.relpath)
-                .join(".logs/pkg.log");
-
+            let log_file = p.data.port_dir.join(".logs").join("pkg.log");
             if !log_file.exists() {
                 erm!("No logs for {p}");
                 continue

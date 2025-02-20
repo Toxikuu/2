@@ -21,10 +21,10 @@ use std::{
 ///
 /// Known hashes are sourced from Package which is deserialized from info.lock
 /// ``2lkit -g <package>`` is responsible for generating the info.lock
-fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
+fn check_hashes(package: &Package, no_source: bool) {
     // helper closure for checking hashes
     let passes = |filename: &str, knownhash: &str| -> bool {
-        let file_path = format!("/usr/ports/{relpath}/.sources/{filename}");
+        let file_path = package.data.port_dir.join(".sources").join(filename);
         twohash(&file_path) == knownhash
     };
 
@@ -48,7 +48,7 @@ fn check_hashes(package: &Package, no_source: bool, relpath: &str) {
 /// The setup process involves checking hashes, cleaning, and extracting the sources to the build directory
 fn setup(package: &Package) {
     let no_source = package.source.url.is_empty();
-    if CONFIG.general.check_hashes { check_hashes(package, no_source, &package.relpath) }
+    if CONFIG.general.check_hashes { check_hashes(package, no_source) }
     clean(package);
 
     let command = format!(

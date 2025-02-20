@@ -11,7 +11,7 @@ use crate::globals::config::CONFIG;
 /// # Description
 /// Reads $PORT/CHANGELOG into a string
 fn read_history(package: &Package) -> String {
-    let changelog = format!("/usr/ports/{}/CHANGELOG", package.relpath);
+    let changelog = package.data.port_dir.join("CHANGELOG");
     fs::read_to_string(changelog).unwrap_or_default()
 }
 

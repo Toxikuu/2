@@ -41,7 +41,6 @@ mod shell;
 mod upstream;
 mod utils;
 
-use anyhow::Result;
 use cli::{
     args::Args,
     version as v,
@@ -53,7 +52,7 @@ use utils::{fail::BoolFail, logger};
 
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
-fn main() -> Result<()> {
+fn main() {
     let args = initialize();
     // TODO: test against args to determine which need root privileges before erroring out
     unsafe { libc::geteuid() == 0 }.or_fail("2 requires root privileges");
@@ -65,7 +64,6 @@ fn main() -> Result<()> {
 
     logger::get().detach();
     log::info!("Finished all tasks\n\n\t----------------\n");
-    Ok(())
 }
 
 /// ### Description

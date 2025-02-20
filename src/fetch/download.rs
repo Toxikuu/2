@@ -1,7 +1,7 @@
 // src/fetch/download.rs
 //! Defines download functions
 
-use anyhow::{bail, Context};
+use anyhow::{bail, Context, Result};
 use crate::{
     comms::out::vpr, package::Package, utils::fail::{BoolFail, Fail}
 };
@@ -59,7 +59,7 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
     let mut dlct = 0;
     package.extra.iter().for_each(|source| {
         let file_name = source.url.rsplit_once('/').map(|(_, name)| name.to_string()).fail(&format!("Invalid extra url: '{}'", source.url));
-        let out = format!("/usr/ports/{}/.sources/{}", package.relpath, file_name);
+        let out = package.data.port_dir.join(".sources").join(&file_name);
 
         if let Err(e) = download_url(&source.url, &out, force, sty) {
             e.to_string().contains("Exists: ").or_fail(&format!("Failed to get extra url '{}'", source.url));
@@ -80,8 +80,8 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
 /// - the http status is not 200
 /// - the file path cannot be created (unlikely)
 /// - random buffer-related rw failures (unlikely)
-pub fn download_url(url: &str, out: &str, force: bool, sty: &ProgressStyle) -> anyhow::Result<String> {
-    let file_name = out.rsplit_once('/').map(|(_, name)| name.to_string()).fail("Invalid output path");
+pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> Result<String> {
+    let file_name = out.file_name().context("Failed to get filename")?.to_string_lossy().to_string();
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
@@ -194,9 +194,9 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool
     let file_name = url.split('/').next_back().context("Likely the repo's maintainer's fault").fail("Invalid url");
     let file_name = normalize_tarball(package, file_name);
 
-    let srcpath = format!("/usr/ports/{}/.sources/", package.relpath);
+    let srcpath = package.data.port_dir.join(".sources");
     fs::create_dir_all(&srcpath).fail("Failed to create source path");
-    let out = format!("{}/{}", &srcpath, &file_name);
+    let out = srcpath.join(file_name);
 
     vpr!("Downloading tarball...");
     if let Err(e) = download_url(&url, &out, force, sty) {

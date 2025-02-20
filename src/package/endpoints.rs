@@ -18,26 +18,25 @@ impl Package {
         // avoid problems with .sets, .git, etc
         name.starts_with('.').and_fail("Invalid package name");
 
-        let toml_path = PathBuf::from("/usr/ports")
-            .join(repo)
-            .join(name)
-            .join("info.lock");
+        let relpath = format!("{repo}/{name}");
+        let port_dir = PathBuf::from("/usr/ports").join(&relpath);
+
+        let toml_path = port_dir.join("info.lock");
         let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read info.lock");
 
         let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in info.lock");
-        let status_path = toml_path.with_file_name(".data/INSTALLED");
+        let status_path = port_dir.join(".data").join("INSTALLED");
+
+        package.relpath = relpath;
+
+        let dist_tb = format!("{name}={}.tar.zst", package.version);
 
         vpr!("Status path: {:?}", status_path);
         package.data.is_installed = status_path.exists();
 
-        let relpath = format!("{repo}/{name}");
-
-        package.repo = repo.to_string();
-        package.name = name.to_string();
-
         package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();
-        package.data.dist = format!("/usr/ports/{relpath}/.dist/{package}.tar.zst");
-        package.relpath = relpath;
+        package.data.dist = port_dir.join(".dist").join(&dist_tb);
+        package.data.port_dir = port_dir;
 
         package
     }

@@ -11,7 +11,7 @@ pub mod sets;
 pub mod traits;
 
 use serde::Deserialize;
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 /// # Description
 /// The package struct
@@ -21,9 +21,7 @@ use std::sync::Arc;
 /// Contains package data
 #[derive(Deserialize, Debug, Clone)]
 pub struct Package {
-    #[serde(skip)]
     pub name: String,
-    #[serde(skip)]
     pub repo: String,
     #[serde(skip)]
     pub relpath: String,
@@ -55,7 +53,9 @@ pub struct PackageData {
     #[serde(skip)]
     pub installed_version: String,
     #[serde(skip)]
-    pub dist: String,
+    pub dist: PathBuf,
+    #[serde(skip)]
+    pub port_dir: PathBuf,
 }
 
 /// # Description

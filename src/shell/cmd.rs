@@ -86,13 +86,12 @@ pub fn exec(command: &str) -> Result<()> {
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{
         use $crate::shell::cmd::exec;
-        let relpath = &$pkg.relpath;
         let command = format!(
         r#"
         set -e
         source /usr/share/2/envs/core || exit 211
 
-        export PORT="/usr/ports/{}"
+        export PORT={:?}
         export SRC="$PORT/.sources"
         export BLD="$PORT/.build"
         export D="$BLD/D"
@@ -101,7 +100,7 @@ macro_rules! pkgexec {
 
         {}
         "#,
-        relpath,
+        $pkg.data.port_dir,
         $cmd,
         );
 
