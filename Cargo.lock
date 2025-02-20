@@ -84,9 +84,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.95"
+version = "1.0.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
+checksum = "6b964d184e89d9b6b67dd2715bc8e74cf3107fb2b529990c90cf517326150bf4"
 
 [[package]]
 name = "arc-swap"
@@ -873,7 +873,7 @@ dependencies = [
 
 [[package]]
 name = "two"
-version = "0.0.70"
+version = "0.0.71"
 dependencies = [
  "anyhow",
  "base64",
@@ -900,9 +900,9 @@ checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.16"
+version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a210d160f08b701c8721ba1c726c11662f877ea6b7094007e1ca9a1041945034"
+checksum = "00e2473a93778eb0bad35909dff6a10d28e63f792f16ed15e404fca9d5eeedbe"
 
 [[package]]
 name = "unicode-width"
@@ -918,9 +918,9 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
 name = "ureq"
-version = "3.0.5"
+version = "3.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2916852be768844b6e9cbe107358b5bc40a696bd6dc8e036c9f80c731242c9c"
+checksum = "ca2e2dbdf4e95780e5d41804fab88b928a24585721018409eb429b1d29356bde"
 dependencies = [
  "base64",
  "flate2",
@@ -1181,9 +1181,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59690dea168f2198d1a3b0cac23b8063efcd11012f10ae4698f284808c8ef603"
+checksum = "0e7f4ea97f6f78012141bcdb6a216b2609f0979ada50b20ca5b52dde2eac2bb1"
 dependencies = [
  "memchr",
 ]
