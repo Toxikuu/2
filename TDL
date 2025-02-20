@@ -2,6 +2,12 @@
 
 TODO
 
+    Add package types
+        Need to add critical so i dont remove glibc (again)
+
+    Serialize more metadata into package locks
+        Also consider renaming info.lock to LOCK
+
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
 
@@ -9,12 +15,11 @@ TODO
 
     Check modtime on info.lock whenever --build is called
         Also store the modtime somewhere
+        Would be stored in .data/STATS
 
     Test install.sh
 
 WIP
-
-    Migrate repos to new build api
 
     Work on mdbook docs
 
@@ -25,6 +30,8 @@ WIP
     Expand the main & xorg repos
 
 DONEISH
+
+    Migrate repos to new build api
 
     Work on the releases script
 
