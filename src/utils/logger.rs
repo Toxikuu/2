@@ -126,6 +126,7 @@ impl Logger {
             .appender(Appender::builder().build("master", Box::new(master_log_file)))
             // tell ureq to stfu
             .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
+            .logger(L4L::builder().build("rustls::conn",        LevelFilter::Info))
             .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
             .logger(L4L::builder().build("ureq::tls",           LevelFilter::Info))
             .logger(L4L::builder().build("ureq::unversioned",   LevelFilter::Warn))
