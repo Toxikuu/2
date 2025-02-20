@@ -295,7 +295,7 @@ impl PM<'_> {
         Self::ready();
 
         let pkgs = self.packages;
-        if pkgs.is_empty() { 
+        if pkgs.is_empty() {
             let log_file = PathBuf::from("/var/log/2/master.log");
             return logger::display(&log_file);
         }

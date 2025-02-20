@@ -222,7 +222,7 @@ fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
     let mut curr = String::new();
 
     for line in reader.lines().map_while(Result::ok) {
-        if RE.captures(&line).is_some() 
+        if RE.captures(&line).is_some()
         && !curr.is_empty() {
                 logs.push_back(curr.clone());
                 curr.clear();
@@ -239,7 +239,7 @@ fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
     logs.into_iter()
         .filter_map(|entry| {
             extract_log_level(&entry)
-                .map(|level| LogEntry { level, message: entry })  
+                .map(|level| LogEntry { level, message: entry })
         })
         .collect()
 }
@@ -268,7 +268,7 @@ fn extract_log_level(entry: &str) -> Option<LevelFilter> {
         (" INFO  ", LevelFilter::Info),
         (" WARN  ", LevelFilter::Warn),
         (" ERROR ", LevelFilter::Error)
-    ] 
+    ]
         .iter()
         .find_map(|(tag, level)| entry.contains(tag).then_some(*level))
 }

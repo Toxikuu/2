@@ -112,7 +112,7 @@ impl<T> Fail<T, ()> for Option<T> {
             None => {
                 let location = Location::caller();
                 report(msg, location);
-            } 
+            }
         }
     }
 }
