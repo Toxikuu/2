@@ -13,6 +13,7 @@ I made a few fairly large changes. Not as bad as with 0.0.70, but I was still qu
 - Added the `--summary` flag
 - Minor refactoring
 - Moved info.lock -> LOCK
+- Fixes and tweaks in the env files
 
 
 # 2=0.0.71
