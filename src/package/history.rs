@@ -6,7 +6,10 @@ use std::{
     fmt::Write,
     fs,
 };
-use crate::globals::config::CONFIG;
+use crate::{
+    globals::config::CONFIG,
+    utils::fail::Fail,
+};
 
 /// # Description
 /// Reads $PORT/CHANGELOG into a string
@@ -32,7 +35,7 @@ fn format_history(history: &str) -> String {
             &CONFIG.message.default.trim()
         };
 
-        let _ = writeln!(formatted, "  {style}{line}");
+        writeln!(formatted, "  \x1b[0m{style}{line}").fail("Failed to write line?");
     }
 
     formatted
