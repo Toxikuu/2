@@ -40,7 +40,7 @@ fi
 good 'Git status passing'
 
 info 'Checking for trailing white space...'
-matches=$(rg ' $' --files-with-matches)
+matches=$(rg ' $' --files-with-matches || :)
 if [ -n "$matches" ]; then
     warn "Detected trailing white space in the following files:"
     for f in $matches; do
