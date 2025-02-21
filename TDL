@@ -2,34 +2,37 @@
 
 TODO
 
-    Add package types
-        Need to add critical so i dont remove glibc (again)
-
-    Serialize more metadata into package locks
-        Also consider renaming info.lock to LOCK
-
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
 
-    Make -s sync all repos if no arguments were passed
+    Make -S sync all repos if no arguments were passed
 
     Check modtime on info.lock whenever --build is called
         Also store the modtime somewhere
         Would be stored in .data/STATS
+        I gotta make .data/STATS
 
     Test install.sh
 
 WIP
 
     Work on mdbook docs
+        Existing documentation probably needs updating too
 
     Complete maint functionality
         add m-downgrade
         improve error handling
 
     Expand the main & xorg repos
+        Add categories for the packages
 
 DONEISH
+
+    Serialize more metadata into package locks
+        Also consider renaming info.lock to LOCK
+
+    Add package types
+        Need to add critical so i dont remove glibc (again)
 
     Migrate repos to new build api
 
