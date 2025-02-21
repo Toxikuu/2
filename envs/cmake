@@ -2,9 +2,11 @@
 
 cm() {
     export -f cm
+
     [[ -n "$NO_CLEAN" ]] || rm -rf build
     mkdir -pv build
     cd        build
+
     _shared_opts=(
         -D CMAKE_INSTALL_PREFIX=/usr
         -D CMAKE_BUILD_TYPE=Release
@@ -21,8 +23,6 @@ cm() {
         CC="gcc -m32" CXX="g++ -m32"
         PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
 
-        CC="gcc -m32" CXX="g++ -m32"           \
-        PKG_CONFIG_PATH="/usr/lib32/pkgconfig" \
         cmake "${_shared_opts[@]}"             \
             -D CMAKE_INSTALL_LIBDIR=lib32      \
             "$@" ..                           ||
