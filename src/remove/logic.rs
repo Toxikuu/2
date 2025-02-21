@@ -98,17 +98,30 @@ fn rmf(path: &PathBuf) -> Result<()> {
 /// - the manifest doesn't exist
 /// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
 pub fn remove(package: &Package) -> bool {
+    let category = check_categories(package);
     if !package.data.is_installed && !Flags::grab().force {
-        erm!("Not installed: '{}'", package);
+        warn!("Not installed: '{package}'");
+        erm!("Not installed: '{package}'");
         return false
     }
 
-    let manifest = format!("/usr/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.version);
-    let manifest_path = Path::new(&manifest);
+    if category == Categories::Critical {
+        warn!("Refusing to remove critical package: '{package}'");
+        erm!("Refusing to remove critical package: '{package}'");
+        return false
+    }
 
-    manifest_path.exists().or_fail("Manifest doesn't exist");
+    if category == Categories::Core {
+        warn!("Removing core package: '{package}'");
+        erm!("Removing core package: '{package}'");
+    }
 
-    let Ok(unique) = find_unique_paths(&manifest_path.to_path_buf()) else {
+    let manifest_name = format!("MANIFEST={}", package.version);
+    let manifest = package.data.port_dir.join(".data").join(manifest_name);
+
+    manifest.exists().or_fail("Manifest doesn't exist");
+
+    let Ok(unique) = find_unique_paths(&manifest) else {
         warn!("Missing manifest for {package}");
         return false
     };
@@ -180,7 +193,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
 
     let Ok(dead_files) = find_dead_files(package) else {
-        warn!("Missing manifest for {package}");
+        warn!("Missing manifest for '{package}'");
         return
     };
 
@@ -190,7 +203,8 @@ pub fn remove_dead_files_after_update(package: &Package) {
         let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            erm!("Retaining protected path: {:?}", path); return
+            erm!("Retaining protected path: {path:?}");
+            return
         }
 
         if path.is_symlink() {
@@ -370,4 +384,26 @@ fn prune_dist(package: &Package) -> usize {
         pruned_count += 1;
     }
     pruned_count
+}
+
+#[derive(PartialEq)]
+enum Categories {
+    Critical,
+    Core,
+    Uncategorized,
+    Other,
+}
+
+fn check_categories(p: &Package) -> Categories {
+    p.categories
+        .as_ref()
+        .map_or(Categories::Uncategorized, |catg| {
+            if catg.iter().any(|s| s == "critical") {
+                Categories::Critical
+            } else if catg.iter().any(|s| s == "core") {
+                Categories::Core
+            } else {
+                Categories::Other
+            }
+        })
 }
