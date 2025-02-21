@@ -69,13 +69,13 @@ impl Package {
 
     pub fn summarize(&self) {
         let status = &self.data.status;
-        let sty = if status.contains("Available") { "\x1b[30m" } 
+        let sty = if status.contains("Available") { "\x1b[30m" }
             else if status.contains("Outdated") { "\x1b[1;31m" }
             else { "\x1b[1;36m" };
 
         msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
 
-        if let Some(desc) = &self.description { pr!("\x1b[37m {desc}") } 
+        if let Some(desc) = &self.description { pr!("\x1b[37m {desc}") }
         else { pr!("\x1b[37m No description provided") }
 
         // TODO: Convert upstream to option
