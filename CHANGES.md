@@ -1,9 +1,27 @@
+# 2=0.0.74
+**Notes**
+I made a few fairly large changes. Not as bad as with 0.0.70, but I was still quite bad about versioning (oops!). I'm gonna call it 3 patches.
+
+**Changes**
+- Moved nextest.toml -> .config/nextest.toml
+- Quieted some logs for rustls
+- Fixed a history formatting bugfix
+- Added new fields for packages
+    - The new fields are description, dependencies, categories, and timestamps
+- Added package category checking before removal
+    - You can no longer (easily) remove glibc!
+- Added the `--summary` flag
+- Minor refactoring
+- Moved info.lock -> LOCK
+
+
 # 2=0.0.71
 **Changes**
 - Added the field port_dir to package
     - Refactored stuff to use it
 - Introduced the currently-unused modtime function
 - Fixed a typo in the previous changelog
+
 
 # 2=0.0.70
 **Notes**
