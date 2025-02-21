@@ -154,7 +154,6 @@ tsed() {
 cfg() {
     export -f cfg
     CP="${CP:-.}"
-    DONT_DISABLE_STATIC="${DONT_DISABLE_STATIC}"
 
     # to disable disable-static, set DONT_DISABLE_STATIC=true or =1
     if [[ "${DONT_DISABLE_STATIC}" == "true" || "${DONT_DISABLE_STATIC}" == "1" ]]; then
