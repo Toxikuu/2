@@ -2,7 +2,7 @@
 
 ms() {
     export -f ms
-    [[ -n "NO_CLEAN" ]] || rm -rf build
+    [[ -n "$NO_CLEAN" ]] || rm -rf build
     mkdir -pv build
     cd        build
 
