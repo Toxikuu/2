@@ -74,7 +74,7 @@ fn modtime(file: &Path) -> Result<Duration> {
 ///
 /// Returns false if the package has already been built
 pub fn build(package: &Package, r#override: bool) -> BuildStatus {
-    let lockfile = package.data.port_dir.join("info.lock");
+    let lockfile = package.data.port_dir.join("LOCK");
 
     let built = package.dist_exists() && !Flags::grab().force && !r#override;
 

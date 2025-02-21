@@ -19,8 +19,8 @@ use std::{
 /// ### Description
 /// Checks the hashes for package sources, failing if they don't match known ones
 ///
-/// Known hashes are sourced from Package which is deserialized from info.lock
-/// ``2lkit -g <package>`` is responsible for generating the info.lock
+/// Known hashes are sourced from Package which is deserialized from LOCK
+/// ``2lkit -g <package>`` is responsible for generating the LOCK
 fn check_hashes(package: &Package, no_source: bool) {
     // helper closure for checking hashes
     let passes = |filename: &str, knownhash: &str| -> bool {

@@ -42,7 +42,7 @@
             - [Dotfiles](advanced/ports/anatomy/dotfiles.md)
             - [BUILD](advanced/ports/anatomy/build.md)
             - [CHANGELOG](advanced/ports/anatomy/changelog.md)
-            - [info.lock](advanced/ports/anatomy/info.md)
+            - [LOCK](advanced/ports/anatomy/info.md)
         - [Creating Ports](advanced/ports/creating.md)
             - [Auxiliary Build Files](advanced/ports/auxiliary.md)
         - [Revising Ports](advanced/ports/revising.md)

@@ -21,10 +21,10 @@ impl Package {
         let relpath = format!("{repo}/{name}");
         let port_dir = PathBuf::from("/usr/ports").join(&relpath);
 
-        let toml_path = port_dir.join("info.lock");
-        let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read info.lock");
+        let toml_path = port_dir.join("LOCK");
+        let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read LOCK");
 
-        let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in info.lock");
+        let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in LOCK");
         let status_path = port_dir.join(".data").join("INSTALLED");
 
         package.relpath = relpath;

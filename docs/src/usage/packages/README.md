@@ -47,7 +47,7 @@ Below is the file hierarchy for main/tree:
 │   └──  tree=2.2.1.tar.gz
 ├──  BUILD
 ├──  CHANGELOG
-└──  info.lock
+└──  LOCK
 ```
 
 #### .build
@@ -78,7 +78,7 @@ glance inside it. The BUILD file is documented in depth in [Chapter
 This file is an automatically generated log of changes to BUILD. It is also
 covered in depth in [Chapter 3.4](../../advanced/ports).
 
-#### info.lock
+#### LOCK
 This file is another automatically generated file. It is a toml-formatted lock,
 containing information about a package parsed by 2. It is documented in depth
 in [Chapter 3.4](../../advanced/ports/).
