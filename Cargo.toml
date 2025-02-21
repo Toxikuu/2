@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.71" # refactoring (package.data.port_dir added)
+version = "0.0.74" # see CHANGES.md
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
