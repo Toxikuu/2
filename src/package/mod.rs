@@ -23,10 +23,13 @@ use std::{path::PathBuf, sync::Arc};
 pub struct Package {
     pub name: String,
     pub repo: String,
+    pub version: String,
+    pub timestamp: String,
+    pub description: Option<String>,
+    pub categories: Option<Vec<String>>,
+
     #[serde(skip)]
     pub relpath: String,
-
-    pub version: String,
     #[serde(default)]
     pub source: PackageSource,
     #[serde(default)]
@@ -56,6 +59,8 @@ pub struct PackageData {
     pub dist: PathBuf,
     #[serde(skip)]
     pub port_dir: PathBuf,
+    #[serde(skip)]
+    pub status: Arc<str>,
 }
 
 /// # Description
