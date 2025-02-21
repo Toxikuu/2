@@ -2,6 +2,13 @@
 
 TODO
 
+    Add a flag that can be used to view a package's BUILD
+
+    Use pedantic shellcheck options
+        As with clippy, to ensure code quality
+
+    Add a qa check to ensure stuff was installed to $D when building
+
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
 
@@ -24,7 +31,7 @@ WIP
         improve error handling
 
     Expand the main & xorg repos
-        Add categories for the packages
+        Add categories for more packages
 
 DONEISH
 
@@ -215,6 +222,9 @@ DROPPED
         Would be unintuitive and overly complex
 
 IDEAS
+
+    Build functions in LOCK
+        This should be doable with declare -f, though I'm not certain it's desirable
 
     Build time tracking
         https://pad.riseup.net/p/buildtimetracking-keep
