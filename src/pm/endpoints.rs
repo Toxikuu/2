@@ -61,6 +61,7 @@ impl PM<'_> {
             if a.install  { Self::install (p) }
             if a.update   { Self::update  (p) }
             if a.history  { Self::history (p) }
+            if a.summary  { p.summarize() }
         });
 
         if a.prune    { self.prune () }
@@ -279,10 +280,9 @@ impl PM<'_> {
         }
 
         for p in &pkgs {
-            let status = format_package_status(p);
             let package_info = format!("  \x1b[0;37m{}/{}", p.repo, p);
             let width = 48 - package_info.len();
-            pr!("{} {:<width$} ~ {}", package_info, " ", status);
+            pr!("{} {:<width$} ~ {}", package_info, " ", p.data.status);
         };
     }
 
@@ -337,20 +337,4 @@ impl PM<'_> {
     fn history(p: &Package) {
         history::view(p);
     }
-}
-
-/// # Description
-/// Displays the logs for a package
-fn format_package_status(package: &Package) -> String {
-    let iv = &package.data.installed_version;
-
-    if !package.data.is_installed {
-        return "\x1b[0;30mAvailable".to_string()
-    }
-
-    if *iv != package.version {
-        return format!("\x1b[1;31mOutdated ({iv})")
-    }
-
-    format!("\x1b[1;36mInstalled {iv}")
 }
