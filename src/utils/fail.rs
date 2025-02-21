@@ -106,13 +106,11 @@ where
 
 impl<T> Fail<T, ()> for Option<T> {
     #[track_caller]
+    #[allow(clippy::option_if_let_else)] // enclosures complicate track caller
     fn fail(self, msg: &str) -> T {
-        match self {
-            Some(t) => t,
-            None => {
-                let location = Location::caller();
-                report(msg, location);
-            }
+        if let Some(t) = self { t } else {
+            let location = Location::caller();
+            report(msg, location);
         }
     }
 }
