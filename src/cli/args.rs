@@ -71,7 +71,6 @@ pub struct Args {
     /// The files that are pruned include old manifests, logs, and sources
     ///
     /// If combined with force, removes current package sources, too
-    /// TODO: Implement forced pruning
     #[arg(short = 'p', long)]
     pub prune: bool,
 
@@ -83,14 +82,18 @@ pub struct Args {
     #[arg(short = 'L', long)]
     pub logs: bool,
 
+    /// Displays the history for a package
+    #[arg(short = 'H', long)]
+    pub history: bool,
+
+    /// Dsiplays the summary for a package
+    #[arg(short = 's', long)]
+    pub summary: bool,
+
     /// Retrieves upstream versions for packages
     #[cfg(feature = "upstream")]
     #[arg(short = 'U', long)]
     pub upstream: bool,
-
-    /// View the history for a package
-    #[arg(short = 'H', long)]
-    pub history: bool,
 
     // Type: Special
     // Arguments that don't reference packages
@@ -111,7 +114,7 @@ pub struct Args {
     pub add_repos: Vec<String>,
 
     /// Syncs one or more repos
-    #[arg(short = 's', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
+    #[arg(short = 'S', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
     pub sync_repos: Vec<String>,
 
     /// See which packages provide a path
