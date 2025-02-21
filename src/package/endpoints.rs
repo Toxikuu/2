@@ -2,7 +2,7 @@
 //! Defines endpoints for the package struct
 
 use crate::{
-    comms::out::vpr,
+    comms::out::{vpr, msg, pr},
     utils::fail::{BoolFail, Fail},
 };
 use std::{
@@ -37,6 +37,7 @@ impl Package {
         package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();
         package.data.dist = port_dir.join(".dist").join(&dist_tb);
         package.data.port_dir = port_dir;
+        package.status();
 
         package
     }
@@ -47,5 +48,37 @@ impl Package {
 
     pub fn dist_exists(&self) -> bool {
         Path::new(&self.data.dist).exists()
+    }
+
+    /// # Description
+    /// Returns a package's (formatted) status
+    fn status(&mut self) {
+        self.data.status = {
+            let iv = &self.data.installed_version;
+
+            let status = if !self.data.is_installed {
+                "\x1b[0;30mAvailable".to_string()
+            } else if self.is_outdated() {
+                format!("\x1b[1;31mOutdated ({iv})")
+            } else {
+                format!("\x1b[1;36mInstalled {iv}")
+            };
+            status.into()
+        }
+    }
+
+    pub fn summarize(&self) {
+        let status = &self.data.status;
+        let sty = if status.contains("Available") { "\x1b[30m" } 
+            else if status.contains("Outdated") { "\x1b[1;31m" }
+            else { "\x1b[1;36m" };
+
+        msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
+
+        if let Some(desc) = &self.description { pr!("\x1b[37m {desc}") } 
+        else { pr!("\x1b[37m No description provided") }
+
+        // TODO: Convert upstream to option
+        pr!("\x1b[37m󰘬 {}", self.upstream);
     }
 }
