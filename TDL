@@ -9,8 +9,6 @@ TODO
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
 
-    Make -S sync all repos if no arguments were passed
-
     Check modtime on info.lock whenever --build is called
         Also store the modtime somewhere
         Would be stored in .data/STATS
@@ -31,6 +29,8 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Make -S sync all repos if no arguments were passed
 
     Use pedantic shellcheck options
         As with clippy, to ensure code quality

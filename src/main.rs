@@ -53,11 +53,11 @@ use utils::{fail::BoolFail, logger};
 /// ### Description
 /// Takes arguments from the environment and calls PM or other functions accordingly
 fn main() {
-    let args = initialize();
+    let mut args = initialize();
     // TODO: test against args to determine which need root privileges before erroring out
     unsafe { libc::geteuid() == 0 }.or_fail("2 requires root privileges");
 
-    handle_special_args(&args);
+    handle_special_args(&mut args);
 
     let packages = parse::parse(&args.packages);
     PM::new(&packages, &args).run();
@@ -88,12 +88,15 @@ fn initialize() -> Args {
 
 /// ### Description
 /// Handles special arguments if any were passed
-fn handle_special_args(args: &Args) {
+fn handle_special_args(args: &mut Args) {
     if args.version { v::display() }
 
     args.provides.iter  ().for_each(|p| provides::provides(p));
     args.add_repos.iter ().for_each(|r| repos::add (r));
-    args.sync_repos.iter().for_each(|r| repos::sync(r));
+    if let Some(repos) = &mut args.sync_repos {
+        if repos.is_empty() { *repos = repos::find_all().to_vec(); } 
+        repos.iter().for_each(|r| repos::sync(r));
+    }
     args.list_sets.iter ().for_each(|r| sets::list (r));
 
     if args.list_repos { repos::list() }

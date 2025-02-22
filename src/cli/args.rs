@@ -113,9 +113,9 @@ pub struct Args {
     #[arg(short = 'a', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
     pub add_repos: Vec<String>,
 
-    /// Syncs one or more repos
-    #[arg(short = 'S', long, value_name = "REPO", value_delimiter = ' ', num_args = 1..)]
-    pub sync_repos: Vec<String>,
+    /// Syncs repos
+    #[arg(short = 'S', long, value_name = "REPO", value_delimiter = ' ', num_args = 0..)]
+    pub sync_repos: Option<Vec<String>>,
 
     /// See which packages provide a path
     #[arg(short = 'P', long, value_name = "PATH", value_delimiter = ' ', num_args = 1..)]
