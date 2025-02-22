@@ -1,3 +1,15 @@
+# 2=0.0.76
+**Changes**
+- Tweaked scripts to satisfy shellcheck
+- Implied all for sync_repos
+
+
+# 2=0.0.75
+**Changes**
+- Enforced stricter code quality in shell scripts through pedantic shellcheck flags
+- Added shell completions
+
+
 # 2=0.0.74
 **Notes**
 I made a few fairly large changes. Not as bad as with 0.0.70, but I was still quite bad about versioning (oops!). I'm gonna call it 3 patches.
