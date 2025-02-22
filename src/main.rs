@@ -94,7 +94,7 @@ fn handle_special_args(args: &mut Args) {
     args.provides.iter  ().for_each(|p| provides::provides(p));
     args.add_repos.iter ().for_each(|r| repos::add (r));
     if let Some(repos) = &mut args.sync_repos {
-        if repos.is_empty() { *repos = repos::find_all().to_vec(); } 
+        if repos.is_empty() { *repos = repos::find_all().to_vec(); }
         repos.iter().for_each(|r| repos::sync(r));
     }
     args.list_sets.iter ().for_each(|r| sets::list (r));
