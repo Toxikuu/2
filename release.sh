@@ -100,7 +100,7 @@ good 'Release made'
 info 'Validating all scripts...'
 if ( find . -type f -name '*.sh' -print0
     find envs -type f -print0
-    ) | xargs -0 shellcheck -s bash; then
+    ) | xargs -0 shellcheck -S style -s bash -o all; then
     good 'Scripts passing'
 else
     warn 'Scripts failed validation'

@@ -4,9 +4,6 @@ TODO
 
     Add a flag that can be used to view a package's BUILD
 
-    Use pedantic shellcheck options
-        As with clippy, to ensure code quality
-
     Add a qa check to ensure stuff was installed to $D when building
 
     Move /usr/ports to /var/ports
@@ -34,6 +31,9 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Use pedantic shellcheck options
+        As with clippy, to ensure code quality
 
     Serialize more metadata into package locks
         Also consider renaming info.lock to LOCK
