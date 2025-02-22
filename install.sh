@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
+# 2's install script
+#
+# shellcheck disable=SC2250,SC2310
 
 set -e
 
-[ "$EUID" -ne 0 ] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
+[[ "$EUID" -ne 0 ]] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
 
 confirm() {
     local default="${2:-n}"
@@ -34,13 +37,13 @@ pushd .
 mkdir -pv /usr/ports /usr/share/2 /etc/2
 
 cd /usr/share/2
-if [ -e /usr/share/2/.git ]; then
+if [[ -e /usr/share/2/.git ]]; then
     git pull
 else
     git clone https://github.com/Toxikuu/2.git .
 fi
 
-if [ ! -e /usr/ports/main ]; then
+if [[ ! -e /usr/ports/main ]]; then
     git clone https://github.com/Toxikuu/2-main.git /usr/ports/main
 fi
 

@@ -1,14 +1,15 @@
 # Meson build system
+# shellcheck disable=SC2154
 
 ms() {
     export -f ms
-    [[ -n "$NO_CLEAN" ]] || rm -rf build
+    [[ -n "${NO_CLEAN}" ]] || rm -rf build
     mkdir -pv build
-    cd        build
+    cd build || die "Failed to enter build directory"
 
-    if [[ -z "$m32" ]]; then
+    if [[ -z "${m32}" ]]; then
         CFLAGS="${CFLAGS:--02 -march=native -pipe}"
-        CXXFLAGS="${CXXFLAGS:-$CFLAGS}"
+        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
 
         meson setup ..          \
             --prefix=/usr       \
@@ -17,7 +18,7 @@ ms() {
         die "Meson setup failed"
     else
         CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"
-        CXXFLAGS="${CXXFLAGS:-CFLAGS}"
+        CXXFLAGS="${CXXFLAGS:-{CFLAGS}}"
         PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
         CC="${CC:-gcc -m32}"
         CXX="${CXX:-g++ -m32}"

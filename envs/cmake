@@ -1,11 +1,12 @@
 # Cmake build system
+# shellcheck disable=SC2154
 
 cm() {
     export -f cm
 
-    [[ -n "$NO_CLEAN" ]] || rm -rf build
+    [[ -n "${NO_CLEAN}" ]] || rm -rf build
     mkdir -pv build
-    cd        build
+    cd build || die "Failed to enter build directory"
 
     _shared_opts=(
         -D CMAKE_INSTALL_PREFIX=/usr
@@ -16,7 +17,7 @@ cm() {
         -G Ninja
     )
 
-    if [[ -z "$m32" ]]; then
+    if [[ -z "${m32}" ]]; then
         cmake "${_shared_opts[@]}" "$@" .. ||
         die "Cmake failed"
     else

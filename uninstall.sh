@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # :(
 
-[ "$EUID" -ne 0 ] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
+[[ "${EUID}" -ne 0 ]] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
 
 confirm() {
     local default="${2:-n}"
@@ -9,19 +9,19 @@ confirm() {
 
     default="${default,,}"
 
-    if [[ "$default" == "y" ]]; then
+    if [[ "${default}" == "y" ]]; then
         prompt+=" [Y/n] "
     else
         prompt+=" [y/N] "
     fi
 
     while true; do
-        read -r -p "$prompt" ans
+        read -r -p "${prompt}" ans
         ans=${ans,,}
 
-        [[ -z "$ans" ]] && ans="$default"
+        [[ -z "${ans}" ]] && ans="${default}"
 
-        case "$ans" in
+        case "${ans}" in
             y|yes) return 0 ;;
             n|no) return 1 ;;
             *) echo "Please answer yes or no" >&2 ;;

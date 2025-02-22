@@ -12,6 +12,7 @@ with() {
     for f in "$@"; do
         file="/usr/share/2/envs/${f}"
         if test -f "${file}"; then
+            # shellcheck disable=SC1090
             source "${file}"
         else
             echo "Could not source ${file}" >&2
@@ -49,9 +50,9 @@ warn() {
     export -f warn
     local width=80
 
-    echo -e "\x1b[31;1m ### WARNING ###\x1b[0m"       >&2
-    echo -e "\x1b[31;1m$1\x1b[0m" | fold -s -w $width >&2
-    echo -e "\x1b[31;1m ### WARNING ###\x1b[0m"       >&2
+    echo -e "\x1b[31;1m ### WARNING ###\x1b[0m"           >&2
+    echo -e "\x1b[31;1m$1\x1b[0m" | fold -s -w "${width}" >&2
+    echo -e "\x1b[31;1m ### WARNING ###\x1b[0m"           >&2
 }
 
 confirm() {
@@ -61,19 +62,19 @@ confirm() {
 
     default="${default,,}" # lowercase
 
-    if [[ "$default" == "y" ]]; then
+    if [[ "${default}" == "y" ]]; then
         prompt+=" [Y/n] "
     else
         prompt+=" [y/N] "
     fi
 
     while true; do
-        read -r -p "$prompt" ans
+        read -r -p "${prompt}" ans
         ans=${ans,,}
 
-        [[ -z "$ans" ]] && ans="$default"
+        [[ -z "${ans}" ]] && ans="${default}"
 
-        case "$ans" in
+        case "${ans}" in
             y|yes) return 0 ;;
             n|no) return 1 ;;
             *) echo "Please answer yes or no" >&2 ;;
@@ -90,71 +91,11 @@ tpatch() {
     die "Patch failed"
 }
 
-# Stolen from void, adapted for use here
-# https://github.com/void-linux/void-packages/blob/master/common/environment/setup/vsed.sh
-tsed() {
-    export -f tsed
-    local files=() regexes=() OPTIND OPTSTRING="ie:" has_inline=
-
-    while getopts "$OPTSTRING" opt; do
-        case $opt in
-            i) has_inline=1 ;;
-            e) regexes+=("$OPTARG") ;;
-            *) ;;
-        esac
-    done
-
-    if ! [ "$has_inline" ]; then
-        echo "'-i' not specified" >&2
-        return 1
-    fi
-
-    shift $((OPTIND - 1))
-
-    if [ ${#regexes[@]} -eq 0 ] && [ $# -ge 2 ]; then
-        regexes+=("$1")
-        shift
-    fi
-
-    if [ ${#regexes[@]} -eq 0 ]; then
-        echo "No regexes specified" >&2
-        return 1
-    fi
-
-    for i; do
-        files+=("$i")
-    done
-
-    if [ ${#files[@]} -eq 0 ]; then
-        echo "No files specified" >&2
-        return 1
-    fi
-
-    for f in "${files[@]}"; do
-        # md5sum is used as speed supersedes security here
-        old_digest=$(md5sum "$f" | cut -d' ' -f1)
-
-        for rx in "${regexes[@]}"; do
-            sed -i "$rx" "$f" || {
-                echo "Failed with regex '$rx' on file '$f'" >&2
-                return 1
-            }
-
-            new_digest=$(sha256sum "$f" | cut -d' ' -f1)
-
-            if [ "$old_digest" = "$new_digest" ]; then
-                echo "Regex '$rx' didn't change file '$f'" >&2
-            else
-                echo "Regex '$rx' modified file '$f'"
-            fi
-        done
-    done
-}
-
 cfg() {
     export -f cfg
     CP="${CP:-.}"
 
+    # shellcheck disable=SC2154
     # to disable disable-static, set DONT_DISABLE_STATIC=true or =1
     if [[ "${DONT_DISABLE_STATIC}" == "true" || "${DONT_DISABLE_STATIC}" == "1" ]]; then
         unset DS
@@ -164,23 +105,25 @@ cfg() {
 
     unset DONT_DISABLE_STATIC
 
-    # to enable , set DS=anything
-    if [[ -z "$m32" ]]; then
+    # to enable, set DS=anything
+    if [[ -z "${m32}" ]]; then
         CC="${CC:-gcc}"
         CXX="${CXX:-g++}"
         CFLAGS="${CFLAGS:--O2 -march=native -pipe}"
-        CXXFLAGS="${CXXFLAGS:-$CFLAGS}"
+        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
 
-        "$CP/configure" --prefix=/usr $DS "$@" ||
+        # shellcheck disable=SC2248,SC2250
+        "${CP}/configure" --prefix=/usr $DS "$@" ||
         die "Configure failed"
     else
         CC="${CC:-gcc -m32}"
         CXX="${CXX:-g++ -m32}"
         CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"
-        CXXFLAGS="${CXXFLAGS:-$CFLAGS}"
+        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
         PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
 
-        "$CP/configure" --prefix=/usr \
+        # shellcheck disable=SC2248,SC2250
+        "${CP}/configure" --prefix=/usr \
             --libdir=/usr/lib32       \
             --host=i686-pc-linux-gnu  \
             $DS "$@" ||
@@ -195,12 +138,14 @@ mk() {
 
 mi() {
     export -f mi
-    if [[ -z "$m32" ]]; then
-        make DESTDIR="$D" "$@" install || die "Make install failed"
+    if [[ -z "${m32}" ]]; then
+        # shellcheck disable=SC2154
+        make DESTDIR="${D}" "$@" install || die "Make install failed"
     else
-        make DESTDIR="$BLD/32DEST" "$@" install || die "Make install (m32) failed"
-        mkdir -pv "$D/usr/lib32"
-        cp -av "$BLD/32DEST/$DIR/"* "$D/$DIR"
+        # shellcheck disable=SC2154
+        make DESTDIR="${BLD}/32DEST" "$@" install || die "Make install (m32) failed"
+        mkdir -pv "${D}/usr/lib32"
+        cp -av "${BLD}/32DEST/${DIR}/"* "${D}/${DIR}"
     fi
 }
 
@@ -216,24 +161,24 @@ pathremove () {
   local PATHVARIABLE="${2:-PATH}"
 
   for DIR in ${!PATHVARIABLE} ; do
-    if [ "$DIR" != "$1" ] ; then
-      NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+    if [[ "${DIR}" != "$1" ]] ; then
+      NEWPATH=${NEWPATH:+${NEWPATH}:}${DIR}
     fi
   done
 
-  export "$PATHVARIABLE"="$NEWPATH"
+  export "${PATHVARIABLE}"="${NEWPATH}"
 }
 
 pathprepend () {
   export -f pathprepend
   pathremove "$1" "$2"
   local PATHVARIABLE="${2:-PATH}"
-  export "$PATHVARIABLE"="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+  export "${PATHVARIABLE}"="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
 }
 
 pathappend () {
   export -f pathappend
   pathremove "$1" "$2"
   local PATHVARIABLE="${2:-PATH}"
-  export "$PATHVARIABLE"="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+  export "${PATHVARIABLE}"="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
