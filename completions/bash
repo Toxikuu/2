@@ -1,0 +1,50 @@
+# bash completions for 2
+# current as of 0.0.75
+#
+# these are tested as i use bash
+
+_2() {
+    local cur prev short_opts long_opts opts matching_opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    short_opts="-i -b -r -u -l -g -p -c -L -H -s -U -/ -@ -a -S -P -v -q -f -V -h"
+    long_opts="--install --build --remove --update --list --get --prune --clean --logs --history --summary --upstream --list-repos --list-sets --add-repos --sync-repos --provides --verbose --quiet --force --version --help"
+
+    # filter opts, preserving order
+    _filter_opts() {
+        local input="$1" match="$2"
+        matching_opts=""
+        for opt in $input; do
+            if [[ "$opt" == "$match"* ]]; then
+                matching_opts+="$opt "
+            fi
+        done
+        echo "$matching_opts"
+    }
+
+    # short and long flags
+    if [[ ${COMP_CWORD} -eq 1 || ${cur} == -* ]]; then
+        if [[ ${cur} == --* ]]; then
+            COMPREPLY=( $(_filter_opts "$long_opts" "$cur") )
+        else
+            COMPREPLY=( $(_filter_opts "$long_opts" "$cur") )
+        fi
+        return 0
+    fi
+
+    # suggest packages/repos for relevant flags
+    case "${prev}" in
+        --install | -i | --build | -b | --remove | -r | --update | -u | --list | -l | --get | -g | --prune | -p | --clean | -c | --logs | -L | --history | -H | --summary | -s | --upstream | -U)
+            COMPREPLY=( $(compgen -W "$(find /usr/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/usr/ports/||' | grep -Ev '^\.|/\.')" -- "${cur}") )
+            return 0
+            ;;
+        --sync-repos | -S | --list-sets | -@)
+            COMPREPLY=( $(compgen -W "$(find /usr/ports -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -Ev '^\.|/\.')" -- "${cur}") )
+            return 0
+            ;;
+    esac
+}
+
+complete -F _2 2

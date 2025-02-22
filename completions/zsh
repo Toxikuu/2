@@ -1,0 +1,55 @@
+# zsh completions for 2
+# current as of 0.0.75
+#
+# note these are untested as i don't use zsh
+# kindly lmk if they're broken
+
+_2() {
+    local cur prev short_opts long_opts opts matching_opts
+    _comps=()
+
+    cur="${words[$CURRENT]}"
+    prev="${words[$CURRENT-1]}"
+
+    short_opts="-i -b -r -u -l -g -p -c -L -H -s -U -/ -@ -a -S -P -v -q -f -V -h"
+    long_opts="--install --build --remove --update --list --get --prune --clean --logs --history --summary --upstream --list-repos --list-sets --add-repos --sync-repos --provides --verbose --quiet --force --version --help"
+
+    # filter opts, preserving order
+    _filter_opts() {
+        local input="$1" match="$2"
+        matching_opts=()
+        for opt in ${(s: :)input}; do
+            if [[ "$opt" == "$match"* ]]; then
+                matching_opts+="$opt "
+            fi
+        done
+        echo "$matching_opts"
+    }
+
+    # short and long flags
+    if [[ $CURRENT -eq 1 || $cur == -* ]]; then
+        if [[ $cur == --* ]]; then
+            _comps=($(_filter_opts "$long_opts" "$cur"))
+        else
+            _comps=($(_filter_opts "$long_opts" "$cur"))
+        fi
+        _describe -t options 'options' "${_comps[@]}"
+        return 0
+    fi
+
+    # suggest packages/repos for relevant flags
+    case "$prev" in
+        --install | -i | --build | -b | --remove | -r | --update | -u | --list | -l | --get | -g | --prune | -p | --clean | -c | --logs | -L | --history | -H | --summary | -s | --upstream | -U)
+            _comps=($(compgen -W "$(find /usr/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/usr/ports/||' | grep -Ev '^\.|/\.')" -- "$cur"))
+            _describe 'package' _comps
+            return 0
+            ;;
+        --sync-repos | -S | --list-sets | -@)
+            _comps=($(compgen -W "$(find /usr/ports -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -Ev '^\.|/\.')" -- "$cur"))
+            _describe 'repository' _comps
+            return 0
+            ;;
+    esac
+}
+
+compdef _2 2

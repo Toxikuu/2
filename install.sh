@@ -47,6 +47,9 @@ fi
 confirm 'Replace config?' && ln -sfv "$PWD"/config.toml /etc/2/
 confirm 'Replace exclusions?' && ln -sfv "$PWD"/exclusions.txt /etc/2/
 confirm 'Replace repo priority?' && ln -sfv "$PWD"/repo_priority.txt /etc/2/
+confirm 'Install bash completions?' && install -vDm644 "$PWD"/completions/bash /usr/share/bash-completion/completions/2
+confirm 'Install zsh completions?'  && install -vDm644 "$PWD"/completions/zsh  /usr/share/zsh/site-functions/_2
+confirm 'Install fish completions?' && install -vDm644 "$PWD"/completions/fish /usr/share/fish/vendor_completions.d/2.fish
 
 if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
     if ! command -v rustup > /dev/null 2>&1; then
