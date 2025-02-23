@@ -125,6 +125,7 @@ impl Logger {
         let mut config_builder = Config::builder()
             .appender(Appender::builder().build("master", Box::new(master_log_file)))
             // tell ureq to stfu
+            .logger(L4L::builder().build("rustls::webpki::server_verifier", LevelFilter::Info))
             .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
             .logger(L4L::builder().build("rustls::conn",        LevelFilter::Info))
             .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
