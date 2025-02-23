@@ -8,6 +8,6 @@ rustup default nightly
 # cargo build --release wrapper
 cbr() {
     export -f cbr
-    RUSTFLAGS="${RUSTFLAGS:--C target-cpu=native -C strip=debuginfo -C codegen-units=8}"
+    RUSTFLAGS="${RUSTFLAGS:--C target-cpu=native -C strip=debuginfo -C codegen-units=8}" \
     cargo build --release "$@"
 }

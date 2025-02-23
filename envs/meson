@@ -8,21 +8,19 @@ ms() {
     cd build || die "Failed to enter build directory"
 
     if [[ -z "${m32}" ]]; then
-        CFLAGS="${CFLAGS:--02 -march=native -pipe}"
-        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
-
+        CFLAGS="${CFLAGS:--march=native -pipe}"     \
+        CXXFLAGS="${CXXFLAGS:--march=native -pipe}" \
         meson setup ..          \
             --prefix=/usr       \
             --buildtype=release \
             --strip "$@"       ||
         die "Meson setup failed"
     else
-        CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"
-        CXXFLAGS="${CXXFLAGS:-{CFLAGS}}"
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
-        CC="${CC:-gcc -m32}"
-        CXX="${CXX:-g++ -m32}"
-
+        CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"      \
+        CXXFLAGS="${CXXFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"  \
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"  \
+        CC="${CC:-gcc -m32}"    \
+        CXX="${CXX:-g++ -m32}"  \
         meson setup ..          \
             --prefix=/usr       \
             --libdir=/usr/lib32 \

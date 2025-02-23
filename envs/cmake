@@ -21,10 +21,9 @@ cm() {
         cmake "${_shared_opts[@]}" "$@" .. ||
         die "Cmake failed"
     else
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
-        CC="${CC:-gcc -m32}"
-        CXX="${CXX:-g++ -m32}"
-
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"  \
+        CC="${CC:-gcc -m32}"    \
+        CXX="${CXX:-g++ -m32}"  \
         cmake "${_shared_opts[@]}"             \
             -D CMAKE_INSTALL_LIBDIR=lib32      \
             "$@" ..                           ||

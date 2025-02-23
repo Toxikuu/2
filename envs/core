@@ -92,6 +92,7 @@ tpatch() {
 }
 
 cfg() {
+    set +x
     export -f cfg
     CP="${CP:-.}"
 
@@ -105,27 +106,30 @@ cfg() {
 
     unset DONT_DISABLE_STATIC
 
-    # to enable, set DS=anything
     if [[ -z "${m32}" ]]; then
-        CC="${CC:-gcc}"
-        CXX="${CXX:-g++}"
-        CFLAGS="${CFLAGS:--O2 -march=native -pipe}"
-        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
+        echo "Building for m64" >&2
+        sleep 2
 
         # shellcheck disable=SC2248,SC2250
+        CC="${CC:-gcc}"    \
+        CXX="${CXX:-g++}"  \
+        CFLAGS="${CFLAGS:--O2 -march=native -pipe}"      \
+        CXXFLAGS="${CXXFLAGS:--O2 -march=native -pipe}"  \
         "${CP}/configure" --prefix=/usr $DS "$@" ||
         die "Configure failed"
     else
-        CC="${CC:-gcc -m32}"
-        CXX="${CXX:-g++ -m32}"
-        CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"
-        CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"
+        echo "Building for m32" >&2
+        sleep 2
 
         # shellcheck disable=SC2248,SC2250
+        CC="${CC:-gcc -m32}"    \
+        CXX="${CXX:-g++ -m32}"  \
+        CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"      \
+        CXXFLAGS="${CXXFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"  \
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"  \
         "${CP}/configure" --prefix=/usr \
-            --libdir=/usr/lib32       \
-            --host=i686-pc-linux-gnu  \
+            --libdir=/usr/lib32         \
+            --host=i686-pc-linux-gnu    \
             $DS "$@" ||
         die "Configure (m32) failed"
     fi
