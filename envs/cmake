@@ -18,9 +18,11 @@ cm() {
     )
 
     if [[ -z "${m32}" ]]; then
+        echo 'Building for m64...' >&2
         cmake "${_shared_opts[@]}" "$@" .. ||
         die "Cmake failed"
     else
+        echo 'Building for m32...' >&2
         PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"  \
         CC="${CC:-gcc -m32}"    \
         CXX="${CXX:-g++ -m32}"  \

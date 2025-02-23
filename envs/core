@@ -107,8 +107,7 @@ cfg() {
     unset DONT_DISABLE_STATIC
 
     if [[ -z "${m32}" ]]; then
-        echo "Building for m64" >&2
-        sleep 2
+        echo "Building for m64..." >&2
 
         # shellcheck disable=SC2248,SC2250
         CC="${CC:-gcc}"    \
@@ -118,8 +117,7 @@ cfg() {
         "${CP}/configure" --prefix=/usr $DS "$@" ||
         die "Configure failed"
     else
-        echo "Building for m32" >&2
-        sleep 2
+        echo "Building for m32..." >&2
 
         # shellcheck disable=SC2248,SC2250
         CC="${CC:-gcc -m32}"    \

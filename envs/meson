@@ -8,6 +8,7 @@ ms() {
     cd build || die "Failed to enter build directory"
 
     if [[ -z "${m32}" ]]; then
+        echo 'Building for m64...' >&2
         CFLAGS="${CFLAGS:--march=native -pipe}"     \
         CXXFLAGS="${CXXFLAGS:--march=native -pipe}" \
         meson setup ..          \
@@ -16,6 +17,7 @@ ms() {
             --strip "$@"       ||
         die "Meson setup failed"
     else
+        echo 'Building for m32...' >&2
         CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"      \
         CXXFLAGS="${CXXFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"  \
         PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-/usr/lib32/pkgconfig}"  \
