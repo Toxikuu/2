@@ -53,3 +53,4 @@
 # Tips & Tricks
 - [Tips & Tricks](tips/README.md)
     - [Listing & Less](tips/less.md)
+    - [Repos as Tarballs](tips/repotarballs.md)
