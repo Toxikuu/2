@@ -2,17 +2,14 @@
 
 TODO
 
-    Add a flag that can be used to view a package's BUILD
+    Take a glance at the ideas and consider what I wanna implement
 
-    Add a qa check to ensure stuff was installed to $D when building
+    Use the zstd crate, or else vendor my own built zstd libraries
+
+    Add a flag that can be used to view a package's BUILD
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
-
-    Check modtime on info.lock whenever --build is called
-        Also store the modtime somewhere
-        Would be stored in .data/STATS
-        I gotta make .data/STATS
 
     Test install.sh
 
@@ -29,6 +26,22 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Add a qa check to ensure stuff was installed to $D when building
+        Rewrite the qa checks in not bash
+
+    consider adding package categories
+        some of these categories will raise warnings
+            im thinking one for critical packages
+            would warn the user about removing glibc for instance
+
+    Add a qa check to ensure no 64bit libraries found their way into $D/usr/lib32
+
+    Check modtime on info.lock whenever --build is called
+        Also store the modtime somewhere
+        Would be stored in .data/STATS
+        I gotta make .data/STATS
+            This is technically done but its kinda cursed and i should really just use releases
 
     Make -S sync all repos if no arguments were passed
 
@@ -216,12 +229,23 @@ DROPPED
 
     Make build.log only include the build logs
         Instead just used pkg.log
+        (might have to undrop this ngl)
 
     Add -! to reverse the behavior of (some) flags
         ~~For instance, -P shows what packages provide a file, but -!P might show what files a package provides~~
         Would be unintuitive and overly complex
 
+    Look into using --dereference with tar
+        Idt its needed
+
 IDEAS
+    
+    Drop log4rs in favor of another logger (maybe tracing)
+        log4rs flags cargo audit bc it relies on an unmaintained crate
+
+    Don't use log4rs (or any other actual logger) to attach to individual packages
+        Pointless complexity, since the only thing the pkg.log even really contains is build information
+        Should also rename it to build.log
 
     Build functions in LOCK
         This should be doable with declare -f, though I'm not certain it's desirable
@@ -247,14 +271,14 @@ IDEAS
         There's a fair bit of overhead with doing this
         Async might be the play but I lowkey hate async
 
-    Look into using --dereference with tar
-
     Dependencies support with a flag '-d' or similar
         Implies dependency resolution as well
 
     Make /usr/ports remappable
         Might not even be worth doing tbh
         Having it in a hardcoded spot is probably for the best
+        Rather than remapping it, move it to the more fhs-compliant /var/ports
+            (not that i particularly adhere to fhs, but i like /var more here bc the data in the ports dir changes a lot)
 
     Check hashes for dist installs as well
         Would marginally increase security
@@ -276,23 +300,19 @@ IDEAS
     consider allowing //package
         ex: //tree would be parsed into the tree package from *every* repo that contains it
 
-    consider adding package categories
-        some of these categories will raise warnings
-            im thinking one for critical packages
-            would warn the user about removing glibc for instance
-
 ROADMAP
 
     Features for 2-0.1.0:
+        [*] package summaries
+        [*] build time tracking
         [-] install script (just needs testing now)
         [*] fair maint functionality
         [-] solid documentation with mdbook (wip)
+        [-] reasonable amount of testing
 
     Features for 2-0.2.0:
         dependency support
         .part downloads
 
     Features for 2-0.3.0:
-        package summaries
         repo enabling/disabling
-        build time tracking
