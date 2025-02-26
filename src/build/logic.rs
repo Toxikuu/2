@@ -1,13 +1,10 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
-use std::{path::Path, time::{Duration, UNIX_EPOCH}};
-
-use anyhow::{Result, Context};
 use crate::{
-    comms::out::{msg, cpr},
+    comms::out::{cpr, msg},
     globals::{config::CONFIG, flags::Flags},
-    package::Package,
+    package::{stats::{self, PackageStats}, Package},
     remove::logic::remove_dead_files_after_update,
     shell::cmd::exec,
     utils::fail::Fail,
@@ -17,7 +14,7 @@ use super::script;
 pub enum InstallStatus {
     Already,
     Dist,
-    Source,
+    BuildFirst,
     UpdateInstead,
 }
 
@@ -25,7 +22,7 @@ pub enum UpdateStatus {
     Latest,
     NotInstalled,
     Dist,
-    Source,
+    BuildFirst,
 }
 
 pub enum BuildStatus {
@@ -49,37 +46,23 @@ pub fn install(package: &Package) -> InstallStatus {
         dist_install(package);
         InstallStatus::Dist
     } else {
-        build(package, false);
-        dist_install(package);
-        InstallStatus::Source
+        InstallStatus::BuildFirst
     }
-}
-
-/// # Description
-/// Returns the modtime of a path
-// TODO: Use this once I implement package stats
-fn modtime(file: &Path) -> Result<Duration> {
-    Ok(
-        file.metadata()
-            .context(format!("Failed to fetch metadata for {file:?}"))?
-            .modified()
-            .context(format!("Failed to get modtime for {file:?}"))?
-            .duration_since(UNIX_EPOCH)
-            .fail("Time travel detected wtf!")
-    )
 }
 
 /// # Description
 /// Builds a package, calling functions in ``super::script``
 ///
 /// Returns false if the package has already been built
-pub fn build(package: &Package, r#override: bool) -> BuildStatus {
-    let lockfile = package.data.port_dir.join("LOCK");
+pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<PackageStats>) {
+    let stats = stats::load(package).fail("Failed to load package stats");
 
-    let built = package.dist_exists() && !Flags::grab().force && !r#override;
+    let built = package.dist_exists() 
+        && !Flags::grab().force 
+        && !r#override;
 
     if built {
-        BuildStatus::Already
+        (BuildStatus::Already, None)
     } else {
         msg!("󱠇  Building '{}'...", package);
         script::prep(package);
@@ -88,7 +71,7 @@ pub fn build(package: &Package, r#override: bool) -> BuildStatus {
         if CONFIG.general.clean_after_build {
             script::clean(package);
         }
-        BuildStatus::Source
+        (BuildStatus::Source, Some(stats))
     }
 }
 
@@ -153,9 +136,8 @@ pub fn update(package: &Package) -> UpdateStatus {
 
     msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
 
-    let dist_exists = package.dist_exists();
-    if !dist_exists {
-        build(package, true);
+    if !package.dist_exists() {
+        return UpdateStatus::BuildFirst
     }
 
     dist_install(package);
@@ -164,5 +146,5 @@ pub fn update(package: &Package) -> UpdateStatus {
         remove_dead_files_after_update(package);
     }
 
-    if dist_exists { UpdateStatus::Dist } else { UpdateStatus::Source }
+    UpdateStatus::Dist
 }
