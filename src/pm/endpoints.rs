@@ -2,7 +2,19 @@
 //! Defines endpoints for PM
 
 use crate::{
-    build::{logic as bl, script}, cli::args::Args, comms::out::{erm, msg, pr, vpr}, fetch::download::{download, DownloadStatus}, globals::config::CONFIG, package::{history, parse::expand_set, Package}, remove::logic as rl, utils::{
+    build::{logic as bl, script},
+    cli::args::Args,
+    comms::out::{erm, msg, pr, vpr},
+    fetch::download::{download, DownloadStatus},
+    globals::config::CONFIG,
+    package::{
+        history, 
+        parse::expand_set,
+        stats,
+        Package
+    },
+    remove::logic as rl,
+    utils::{
         fail::Fail,
         logger,
         time::Stopwatch,
@@ -61,7 +73,8 @@ impl PM<'_> {
             if a.install  { Self::install (p) }
             if a.update   { Self::update  (p) }
             if a.history  { Self::history (p) }
-            if a.summary  { p.summarize() }
+            if a.about    { p.about() }
+            if a.stats    { Self::stats (p) }
         });
 
         if a.prune    { self.prune () }
@@ -76,6 +89,8 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
+        // Note: build and install both return stats because they check it anyway to see if
+        // anything should be done
         let status = bl::install(p);
         stopwatch.stop();
         match status {
@@ -87,9 +102,9 @@ impl PM<'_> {
                 log::info!("Installed '{p}'");
                 msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
             }
-            bl::InstallStatus::Source => {
-                log::info!("Built and installed '{p}'");
-                msg!("󰗠  Built and installed '{p}' in {}", stopwatch.display());
+            bl::InstallStatus::BuildFirst => {
+                PM::build(p);
+                PM::install(p);
             }
             bl::InstallStatus::UpdateInstead => {
                 log::warn!("Updating instead of installing '{p}'...");
@@ -108,9 +123,9 @@ impl PM<'_> {
         let status = bl::update(p);
         stopwatch.stop();
         match status {
-            bl::UpdateStatus::Source => {
-                log::info!("Built and updated to '{p}'");
-                msg!("󰗠  Built and updated to '{}' in {}", p, stopwatch.display());
+            bl::UpdateStatus::BuildFirst => {
+                PM::build(p);
+                PM::update(p);
             },
             bl::UpdateStatus::Dist => {
                 log::info!("Updated to '{p}'");
@@ -146,12 +161,16 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
-        let status = bl::build(p, false);
+        let (status, package_stats) = bl::build(p, false);
         stopwatch.stop();
         match status {
             bl::BuildStatus::Source => {
                 log::info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
+
+                let mut package_stats = package_stats.fail("Oops!");
+                package_stats.record_build_time(stopwatch.elapsed());
+                stats::save(p, &package_stats).fail("Failed to save stats");
             }
             bl::BuildStatus::Already => {
                 log::info!("Already built '{p}'");
@@ -336,5 +355,10 @@ impl PM<'_> {
 
     fn history(p: &Package) {
         history::view(p);
+    }
+
+    fn stats(p: &Package) {
+        let stats = stats::load(p).fail("Failed to load package stats");
+        stats.display(p);
     }
 }
