@@ -18,11 +18,6 @@ stderr  = "\u001b[31;3;1m"
 stdout  = "\u001b[30;3m"
 verbose = "\u001b[34;1m"
 
-[startup] # not yet implemented
-splash = "/usr/share/2/splash"
-auto_prune = false
-auto_sync = false
-
 [removal]
 remove_sources = false
 remove_dist = true
@@ -42,5 +37,5 @@ alphabetize = true
 
 [upstream]
 max_threads = 64
-stack_size = 512
-retries = 4
+stack_size = 128
+retries = 3
