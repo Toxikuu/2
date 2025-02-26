@@ -86,9 +86,12 @@ pub fn exec(command: &str) -> Result<()> {
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{
         use $crate::shell::cmd::exec;
+        use $crate::globals::flags::Flags;
+
+        let debug = if Flags::grab().verbose { 'x' } else { ' ' };
         let command = format!(
         r#"
-        set -e
+        set -e{}
         source /usr/share/2/envs/core || exit 211
 
         export PORT={:?}
@@ -100,6 +103,7 @@ macro_rules! pkgexec {
 
         {}
         "#,
+        debug,
         $pkg.data.port_dir,
         $cmd,
         );
