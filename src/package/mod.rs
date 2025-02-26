@@ -8,6 +8,7 @@ pub mod parse;
 pub mod provides;
 pub mod repos;
 pub mod sets;
+pub mod stats;
 pub mod traits;
 
 use serde::Deserialize;
@@ -35,6 +36,7 @@ pub struct Package {
     #[serde(default)]
     pub extra: Arc<[PackageSource]>,
 
+    // TODO: Do the below
     // I prolly should use Option<> but I'm fucking lazy
     #[cfg(feature = "upstream")]
     #[serde(default)]
