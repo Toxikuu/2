@@ -69,7 +69,7 @@ impl Stopwatch {
 /// # Description
 /// Adds the ``pretty()`` method for Duration
 /// This is used by ``Stopwatch::display()``
-trait Pretty{
+pub trait Pretty{
     fn pretty(self) -> String;
 }
 
