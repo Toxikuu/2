@@ -15,6 +15,7 @@ use std::{
     fs::{create_dir, remove_dir_all},
     path::Path,
 };
+use super::qa;
 
 /// ### Description
 /// Checks the hashes for package sources, failing if they don't match known ones
@@ -88,13 +89,15 @@ fn setup(package: &Package) {
 /// Build instructions should DESTDIR install to "$BLD/D"
 pub fn build(package: &Package) {
     setup(package);
-    let command = format!(
-    r#"
 
-    cd "$BLD"
-    2b
-    cd "$BLD"
+    let command = r#"cd "$BLD"; 2b"#;
+    pkgexec!(command, package).fail(&format!("Build for '{package}' died"));
 
+    qa::destdir_has_stuff(package).or_fail(&format!("QA: Detected empty destdir for '{package}'"));
+    qa::libs_ok(package).or_fail(&format!("QA: Detected wrong-architecture libraries for '{package}'"));
+
+    let command = format!(r#"
+    cd "$BLD"
     ORIG=$(du -sh D | awk '{{print $1}}')
     TB="$PORT/.dist/{package}.tar.zst"
 
@@ -106,7 +109,7 @@ pub fn build(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).fail(&format!("Build for '{package}' died"));
+    pkgexec!(&command, package).fail(&format!("Packaging for '{package}' died"));
 }
 
 /// ### Description
