@@ -2,7 +2,7 @@
 //! Defines endpoints for the package struct
 
 use crate::{
-    comms::out::{vpr, msg, pr},
+    comms::out::{msg, pr, vpr}, 
     utils::fail::{BoolFail, Fail},
 };
 use std::{
@@ -67,7 +67,7 @@ impl Package {
         }
     }
 
-    pub fn summarize(&self) {
+    pub fn about(&self) {
         let status = &self.data.status;
         let sty = if status.contains("Available") { "\x1b[30m" }
             else if status.contains("Outdated") { "\x1b[1;31m" }
