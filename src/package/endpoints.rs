@@ -2,7 +2,7 @@
 //! Defines endpoints for the package struct
 
 use crate::{
-    comms::out::{msg, pr, vpr}, 
+    comms::out::{msg, pr, vpr},
     utils::fail::{BoolFail, Fail},
 };
 use std::{

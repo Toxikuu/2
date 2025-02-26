@@ -8,7 +8,7 @@ use crate::{
     fetch::download::{download, DownloadStatus},
     globals::config::CONFIG,
     package::{
-        history, 
+        history,
         parse::expand_set,
         stats,
         Package

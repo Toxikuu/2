@@ -239,7 +239,7 @@ DROPPED
         Idt its needed
 
 IDEAS
-    
+
     Drop log4rs in favor of another logger (maybe tracing)
         log4rs flags cargo audit bc it relies on an unmaintained crate
 

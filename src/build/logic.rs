@@ -57,8 +57,8 @@ pub fn install(package: &Package) -> InstallStatus {
 pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<PackageStats>) {
     let stats = stats::load(package).fail("Failed to load package stats");
 
-    let built = package.dist_exists() 
-        && !Flags::grab().force 
+    let built = package.dist_exists()
+        && !Flags::grab().force
         && !r#override;
 
     if built {
