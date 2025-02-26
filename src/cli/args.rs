@@ -86,9 +86,20 @@ pub struct Args {
     #[arg(short = 'H', long)]
     pub history: bool,
 
-    /// Dsiplays the summary for a package
+    /// Dsiplays the about for a package
+    #[arg(short = 'a', long)]
+    pub about: bool,
+
+    // TODO: Implement this
+    // Include stats like average build time, installed libraries, installed binaries(?)
+    /// UNIMPLEMENTED
+    /// Dsiplays a longer about for a package
+    #[arg(short = 'A', long)]
+    pub long_about: bool,
+
+    /// Dsiplays stats for a package
     #[arg(short = 's', long)]
-    pub summary: bool,
+    pub stats: bool,
 
     /// Retrieves upstream versions for packages
     #[cfg(feature = "upstream")]
