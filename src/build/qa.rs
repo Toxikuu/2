@@ -15,7 +15,7 @@ pub fn destdir_has_stuff(p: &Package) -> bool {
     let Ok(dir) = read_dir(destdir) else {
         return false
     };
-    !dir.into_iter().collect::<Vec<_>>().is_empty()
+    dir.into_iter().next().is_some()
 }
 
 enum ELF {
