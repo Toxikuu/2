@@ -27,6 +27,10 @@ WIP
 
 DONEISH
 
+    Use Option for upstream
+
+    Allow more escape code variants in package formatting in config.toml
+
     Add a qa check to ensure stuff was installed to $D when building
         Rewrite the qa checks in not bash
 
