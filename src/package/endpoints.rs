@@ -79,6 +79,6 @@ impl Package {
         else { pr!("\x1b[37m No description provided") }
 
         // TODO: Convert upstream to option
-        pr!("\x1b[37m󰘬 {}", self.upstream);
+        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream provided"));
     }
 }

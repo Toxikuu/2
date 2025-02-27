@@ -6,6 +6,7 @@ use crate::{
     comms::out::{pr, erm, vpr},
     globals::config::CONFIG,
     package::Package,
+    utils::fail::Fail,
 };
 use log::debug;
 use serde::Deserialize;
@@ -18,10 +19,8 @@ use std::process::Command;
 /// If command is specified, it is evaluated; if not, it uses a reasonable default
 #[derive(Deserialize, Debug)]
 pub struct UVConfig<'u> {
-    #[serde(default)]
-    upstream: &'u str,
-    #[serde(default)]
-    command: &'u str,
+    upstream: Option<&'u str>,
+    command: Option<&'u str>,
 }
 
 /// # Description
@@ -48,8 +47,8 @@ pub fn sex(command: &str) -> Result<String> {
 #[allow(clippy::missing_const_for_fn)]
 fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
-        upstream: &package.upstream,
-        command: &package.version_command,
+        upstream: package.upstream.as_deref(),
+        command: package.version_command.as_deref(),
     }
 }
 
@@ -58,11 +57,11 @@ fn gen_cc(package: &Package) -> UVConfig {
 ///
 /// If no command is provided, runs a default command
 fn run_command(cc: &UVConfig) -> Result<String> {
-    if !cc.command.is_empty() {
-        return sex(cc.command);
+    if let Some(cmd) = cc.command {
+        return sex(cmd)
     }
 
-    let command = format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1", cc.upstream);
+    let command = format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1", cc.upstream.fail("Upstream should always be some here"));
     sex(&command)
 }
 
@@ -126,10 +125,10 @@ fn format_second_half(v: &str, version: &str) -> String {
 /// # Description
 /// High level function for checking and displaying upstream package versions
 pub fn upstream(package: &Package) {
-    if package.upstream.is_empty() {
+    if package.upstream.is_none() {
         debug!("No upstream specified for '{package}'");
         return
-    }
+    };
     let mut version = String::new();
     for _ in 0..CONFIG.upstream.retries {
         version = get_version(package);

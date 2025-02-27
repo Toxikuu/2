@@ -39,11 +39,9 @@ pub struct Package {
     // TODO: Do the below
     // I prolly should use Option<> but I'm fucking lazy
     #[cfg(feature = "upstream")]
-    #[serde(default)]
-    pub upstream: String,
+    pub upstream: Option<String>,
     #[cfg(feature = "upstream")]
-    #[serde(default)]
-    pub version_command: String,
+    pub version_command: Option<String>,
 
     #[serde(skip)]
     pub data: PackageData,
