@@ -3,20 +3,14 @@ force = false
 quiet = false
 verbose = false
 
-# TODO: Allow \x1b, \e, \033 parsing as well in 2
-# fn parse_escapes(input: &str) -> String {
-#     input.replace("\\x1b", "\x1b")
-#     ...
-# }
-# should work
 [message]
-danger  = "\u001b[31;1m  "
-default = "\u001b[30;3m"
-message = "\u001b[36;1m"
-prompt  = "\u001b[35;1m"
-stderr  = "\u001b[31;3;1m"
-stdout  = "\u001b[30;3m"
-verbose = "\u001b[34;1m"
+danger  = '\e[31;1m  '
+default = '\e[30;3m'
+message = '\e[36;1m'
+prompt  = '\e[35;1m'
+stderr  = '\e[31;3;1m'
+stdout  = '\e[30;3m'
+verbose = '\e[34;1m'
 
 [removal]
 remove_sources = false

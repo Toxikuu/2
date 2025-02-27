@@ -2,7 +2,7 @@
 //! Defines 2's config
 
 use anyhow::{Result, Context};
-use crate::utils::fail::Fail;
+use crate::utils::{esc::escape_escapes, fail::Fail};
 use serde::Deserialize;
 use std::{
     fs,
@@ -99,7 +99,19 @@ impl Config {
     /// Returns an error if the config is invalid or doesn't exist
     pub fn load() -> Result<Self> {
         let content = fs::read_to_string("/etc/2/config.toml").context("Missing config")?;
-        let config: Self = toml::from_str(&content).context("Invalid config")?;
+        let mut config: Self = toml::from_str(&content).context("Invalid config")?;
+
+        for field in [
+            &mut config.message.message,
+            &mut config.message.danger,
+            &mut config.message.default,
+            &mut config.message.prompt,
+            &mut config.message.verbose,
+            &mut config.message.stderr,
+            &mut config.message.stdout,
+        ] {
+            *field = escape_escapes(field);
+        }
 
         Ok(config)
     }
