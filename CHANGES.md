@@ -1,3 +1,9 @@
+# 2=0.0.81
+**Changes**
+- Allowed more escape codes for text formatting in config.toml
+- Used Option for upstream instead of empty String
+
+
 # 2=0.0.80
 **Notes**
 I got lazy about committing again, so several patch version bumps.
