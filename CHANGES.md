@@ -1,3 +1,17 @@
+# 2=0.0.80
+**Notes**
+I got lazy about committing again, so several patch version bumps.
+
+**Changes**
+- Added bash debugging when the verbose flag is passed
+- Updates to build and package manager logic
+- Added package stats
+- Moved summary -> about
+- Added qa checks
+- Tweaked the build abstractions
+- More stuff I forgot
+
+
 # 2=0.0.76
 **Changes**
 - Tweaked scripts to satisfy shellcheck
