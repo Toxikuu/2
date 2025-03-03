@@ -31,6 +31,13 @@ fail() {
 pushd . > /dev/null
 cd "${SCRIPT_DIR}"
 
+info 'Ensuring changelog is up to date...'
+VERSION="$(rg '^version = ' Cargo.toml | head -n1 | cut -d'"' -f2)"
+if ! rg "2=${VERSION}" CHANGES.md; then
+    fail 'Changelog is out of date'
+fi
+good 'Changelog up to date'
+
 info 'Ensuring git status is good...'
 if [[ "$(git status -s | wc -l)" -ne 0 ]]; then
     fail 'Some changes were not committed'
