@@ -26,9 +26,7 @@ macro_rules! die {
 
 /// # Description
 /// Reports the cause of a failure before panicing
-///
-/// If the failure should be unreachable, prompts the user to report it as a bug featuring a github
-/// issue link
+/// Optionally prompts the user to report if they believe the failure is a bug
 #[cold]
 #[track_caller]
 #[cfg(not(test))]
