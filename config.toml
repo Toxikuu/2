@@ -30,6 +30,6 @@ log_level = "trace" # one of: trace, debug, info, warn, error
 alphabetize = true
 
 [upstream]
-max_threads = 64
-stack_size = 128
+max_threads = 256
+stack_size = 256 # in kilobytes
 retries = 3
