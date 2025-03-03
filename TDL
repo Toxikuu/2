@@ -1,10 +1,10 @@
-# Project: two
+# Project: 2/two
 
 TODO
 
-    Take a glance at the ideas and consider what I wanna implement
+    Improve error messages by using with_context(|| format!(...))
 
-    Use the zstd crate, or else vendor my own built zstd libraries
+    Take a glance at the ideas and consider what I wanna implement
 
     Add a flag that can be used to view a package's BUILD
 
@@ -26,6 +26,9 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Fix the weird upstream bug
+        ofc it was caused by string formatting
 
     Use Option for upstream
 
@@ -241,6 +244,9 @@ DROPPED
 
     Look into using --dereference with tar
         Idt its needed
+
+    Use the zstd crate, or else vendor my own built zstd libraries
+        Imo just keep the runtime dependency, but explain in docs how to bootstrap it
 
 IDEAS
 
