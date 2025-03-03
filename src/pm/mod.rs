@@ -28,7 +28,7 @@ impl<'a> PM<'a> {
     /// Creates a new package manager struct from an array of packages
     #[cfg(not(feature = "parallelism"))]
     pub const fn new(packages: &'a [Package], args: &'a Args) -> Self {
-        Self { packages }
+        Self { packages, args }
     }
 
     /// # Description
