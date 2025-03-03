@@ -2,7 +2,7 @@
 //! Defines endpoints for the package struct
 
 use crate::{
-    comms::out::{msg, pr, vpr},
+    comms::out::{msg, pr},
     utils::fail::{BoolFail, Fail},
 };
 use std::{
@@ -31,7 +31,6 @@ impl Package {
 
         let dist_tb = format!("{name}={}.tar.zst", package.version);
 
-        vpr!("Status path: {:?}", status_path);
         package.data.is_installed = status_path.exists();
 
         package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();

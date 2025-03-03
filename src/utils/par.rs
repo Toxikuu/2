@@ -2,6 +2,7 @@
 //! Adds support functions for parallelism
 
 use crate::{
+    comms::out::vpr,
     globals::config::CONFIG,
     package::Package,
     utils::fail::Fail,
@@ -12,6 +13,7 @@ use rayon::{
 };
 
 pub fn build_pool(packages: &[Package]) -> ThreadPool {
+    vpr!("Building thread pool...");
     let num_threads = CONFIG.upstream.max_threads.min(packages.len());
     ThreadPoolBuilder::new()
         .num_threads(num_threads)
