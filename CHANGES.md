@@ -1,3 +1,11 @@
+# 2=0.0.82
+**Changes**
+- Fixed a OOM issue with upstream version checking (caused by invalid string formatting)
+- Tweaked default config
+- Verbosity tweaks
+- Non-parallelism bugfix
+
+
 # 2=0.0.81
 **Changes**
 - Allowed more escape codes for text formatting in config.toml
