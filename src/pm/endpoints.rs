@@ -21,7 +21,7 @@ use crate::{
     }
 };
 #[cfg(feature = "upstream")]
-use crate::upstream::core::upstream;
+use crate::upstream::core::check_upstream;
 use indicatif::ProgressStyle;
 use once_cell::sync::Lazy;
 #[cfg(feature = "parallelism")]
@@ -337,20 +337,34 @@ impl PM<'_> {
     fn upstream(&self) {
         Self::ready();
 
-        let mut pkgs = self.packages.to_vec();
-        if pkgs.is_empty() { pkgs = expand_set("//@@").to_vec() }
+        let pkgs = if self.packages.is_empty() {
+            expand_set("//@@")
+        } else {
+            self.packages.into()
+        };
+
+        let len = pkgs.len();
+        vpr!("Checking upstream for {len} packages...");
 
         #[cfg(not(feature = "parallelism"))]
-        pkgs.iter().for_each(|p| {
-            upstream(p);
-        });
+        {
+            pkgs.iter().for_each(|p| {
+                vpr!("Checking upstream version for {p}...");
+                check_upstream(p);
+            });
+            msg!("Checked upstream versions for all packages");
+        }
 
         #[cfg(feature = "parallelism")]
-        self.thread_pool.install(|| {
-            pkgs.par_iter().for_each(|p| {
-                upstream(p);
+        {
+            self.thread_pool.install(|| {
+                pkgs.into_par_iter().for_each(|p| {
+                    vpr!("Checking upstream version for {p}...");
+                    check_upstream(p);
+                });
             });
-        });
+            msg!("Checked upstream versions for all packages");
+        }
     }
 
     fn history(p: &Package) {

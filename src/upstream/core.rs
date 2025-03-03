@@ -10,7 +10,11 @@ use crate::{
 };
 use log::debug;
 use serde::Deserialize;
-use std::process::Command;
+use std::{
+    io::Read,
+    process::{Command, Stdio},
+    time::{Duration, Instant},
+};
 
 /// # Description
 /// The upstream version config, taken from Package by ``gen_cc()``
@@ -26,25 +30,37 @@ pub struct UVConfig<'u> {
 /// # Description
 /// The conveniently named ``sex()`` is short for static execution. It takes a command and captures
 /// its output without printing that output or doing any thread shenanigans.
-pub fn sex(command: &str) -> Result<String> {
-    let output = Command::new("bash")
+fn sex(command: &str, timeout: u8) -> Result<String> {
+    // vpr!("Spawning static command '{command}'...");
+    let start = Instant::now();
+    let timeout_duration = Duration::from_secs(u64::from(timeout));
+
+    let mut child = Command::new("bash")
         .arg("-c")
-        .arg(command).output()?;
+        .arg(command)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
 
-    if !output.status.success() {
-        let error = String::from_utf8_lossy(&output.stderr);
-        log::error!("{}", error);
+    loop {
+        if let Ok(Some(_)) = child.try_wait() {
+            // command finished
+            let mut output = String::new();
+            if let Some(mut stdout) = child.stdout.take() {
+                stdout.read_to_string(&mut output)?;
+            }
+            return Ok(output)
+        }
 
-        bail!("Command failed with status: {}", output.status);
+        if start.elapsed() >= timeout_duration {
+            child.kill()?;
+            bail!("Command timed out")
+        }
     }
-
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
 /// # Description
 /// Generates ``UVConfig`` from the package struct
-// Necessary allow as Package is not known at compile time since it's deserialized
-#[allow(clippy::missing_const_for_fn)]
 fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
         upstream: package.upstream.as_deref(),
@@ -56,13 +72,14 @@ fn gen_cc(package: &Package) -> UVConfig {
 /// Runs the command specified in .uv.toml
 ///
 /// If no command is provided, runs a default command
-fn run_command(cc: &UVConfig) -> Result<String> {
-    if let Some(cmd) = cc.command {
-        return sex(cmd)
-    }
+fn run_command(cc: &UVConfig, timeout: u8) -> Result<String> {
+    let command = cc.command.map_or_else(
+        || format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1",
+        cc.upstream.fail("Upstream should always be some here")),
+        std::string::ToString::to_string
+    );
 
-    let command = format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1", cc.upstream.fail("Upstream should always be some here"));
-    sex(&command)
+    sex(&command, timeout)
 }
 
 /// # Description
@@ -70,6 +87,7 @@ fn run_command(cc: &UVConfig) -> Result<String> {
 /// Also strips out the 'v' prefix
 fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
     let name = &package.name;
+    vpr!("Extracting version from '{stdout}' for '{package}'...");
 
     let namelen = name.len();
     let unnamed =
@@ -81,18 +99,21 @@ fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
         stdout
     };
 
-    unnamed
+    let extracted = unnamed
         .trim_start_matches('-')
-        .trim_start_matches('v')
+        .trim_start_matches('v');
+
+    vpr!("Extracted to '{extracted}'");
+    extracted
 }
 
 /// # Description
 /// High level retrieval of a package's upstream version
 fn get_version(package: &Package) -> String {
     let cc = gen_cc(package);
-    let stdout = run_command(&cc).unwrap_or_default();
+    let stdout = run_command(&cc, 16).unwrap_or_default();
     let stdout = stdout.trim();
-    vpr!("stdout: {}", stdout);
+    vpr!("Version command stdout for {package}: {stdout}");
 
     extract_version(stdout, package).to_string()
 }
@@ -100,14 +121,25 @@ fn get_version(package: &Package) -> String {
 /// # Description
 /// Handles displaying local vs upstream package versions for a package
 fn display_version(package: &Package, version: &str) {
+    let max_pkg_len = 32;
+
+    vpr!("Displaying version '{version}' for '{package}'...");
     let pkg = format!("{}/{}", package.repo, package.name);
+    let pkg = if pkg.len() > max_pkg_len {
+        format!("{}...", &pkg[..max_pkg_len])
+    } else {
+        pkg
+    };
+
     let v = &package.version;
 
     if version.is_empty() {
         return erm!("{pkg} | Failed to get version :(");
     }
 
-    let width = 24 - pkg.len();
+    // NOTE: If you're experiencing an OOM with upstream, width is likely the culprit. Increase the
+    // value such that width isn't negative.
+    let width = (max_pkg_len + 4) - pkg.len();
     let second_half = format_second_half(v, version);
     pr!("{pkg} {:<width$} | {second_half}", " ");
 }
@@ -124,17 +156,18 @@ fn format_second_half(v: &str, version: &str) -> String {
 
 /// # Description
 /// High level function for checking and displaying upstream package versions
-pub fn upstream(package: &Package) {
+pub fn check_upstream(package: &Package) {
     if package.upstream.is_none() {
         debug!("No upstream specified for '{package}'");
         return
-    };
-    let mut version = String::new();
-    for _ in 0..CONFIG.upstream.retries {
-        version = get_version(package);
-        if !version.is_empty() {
-            break
-        }
     }
-    display_version(package, &version);
+
+    for _ in 0..CONFIG.upstream.retries {
+        let version = get_version(package);
+        if version.is_empty() {
+            continue
+        }
+        return display_version(package, &version);
+    }
+    erm!("Failed to check upstream version for '{package}'");
 }
