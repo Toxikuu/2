@@ -2,7 +2,7 @@ cargo-features = ["edition2024"]
 
 [package]
 name = "two"
-version = "0.0.81" # escape code formatting leniency, used option for upstream
+version = "0.0.82" # upstream feature fixes, non-parallelism bugfix, verbosity tweaks
 edition = "2024"
 description = "A source-based package manager for LFS"
 repository = "https://github.com/Toxikuu/2"
