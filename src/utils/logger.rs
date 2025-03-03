@@ -16,7 +16,7 @@ use log4rs::{
 use regex::Regex;
 use std::{
     collections::VecDeque,
-    fs::{self, File},
+    fs::{self, File, OpenOptions as OO},
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
     str::FromStr,
@@ -98,6 +98,9 @@ impl Logger {
     /// Initializes the logger
     pub fn init(&self) {
         LOG_INIT.call_once(|| {
+            OO::new().write(true).create(true).truncate(true)
+                .open("/var/log/2/master.log")
+                .fail("Failed to open /var/log/2/master.log");
             let config = self.build_config().fail("Failed to build initial config");
             let handle = log4rs::init_config(config).fail("Failed to initialize logger");
             *self.handle.lock().fail("Failed to lock handle mutex") = Some(handle);
