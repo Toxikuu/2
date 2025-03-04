@@ -1,3 +1,11 @@
+# 2=0.0.83
+**Changes**
+- Made master.log transient
+    - It now lives in /tmp/2 so it gets wiped on reboots
+- Removed pkg.log and replaced it with a simpler build.log
+- Simplified logging logic since the logger no longer has to dynamically connect to multiple files
+- Tweaks across the codebase to support the changes
+
 # 2=0.0.82
 **Changes**
 - Fixed a OOM issue with upstream version checking (caused by invalid string formatting)
