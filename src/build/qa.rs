@@ -18,6 +18,7 @@ pub fn destdir_has_stuff(p: &Package) -> bool {
     dir.into_iter().next().is_some()
 }
 
+#[allow(clippy::upper_case_acronyms)]
 enum ELF {
     M32,
     M64,
