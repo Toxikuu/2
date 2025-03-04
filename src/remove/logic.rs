@@ -3,7 +3,7 @@
 
 use anyhow::{bail, Result};
 use crate::{
-    comms::out::{cpr, erm, vpr},
+    comms::out::{pr, erm, vpr},
     globals::{
         config::CONFIG,
         flags::Flags,
@@ -126,6 +126,7 @@ pub fn remove(package: &Package) -> bool {
         return false
     };
 
+    let quiet = Flags::grab().quiet;
     unique.iter().for_each(|p| {
         let pfx = Path::new(&CONFIG.general.prefix);
         let p = p.trim_start_matches('/');
@@ -147,7 +148,9 @@ pub fn remove(package: &Package) -> bool {
             rmdir(&path).fail("Failed to remove directory");
         }
 
-        cpr!("'{}' -x", p);
+        if !quiet {
+            pr!("'{}' -x", p);
+        }
     });
 
     // NOTE: the manifest is not removed as prune handles that
@@ -197,6 +200,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
         return
     };
 
+    let quiet = Flags::grab().quiet;
     dead_files.iter().for_each(|p| {
         let pfx = Path::new(&CONFIG.general.prefix);
         let p = p.trim_start_matches('/');
@@ -219,7 +223,9 @@ pub fn remove_dead_files_after_update(package: &Package) {
             rmdir(&path).fail("Failed to remove directory");
         }
 
-        cpr!("'{}' -x", p);
+        if !quiet {
+            pr!("'{}' -x", p);
+        }
     });
 }
 

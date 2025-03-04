@@ -2,7 +2,7 @@
 //! Defines the logic for package builds
 
 use crate::{
-    comms::out::{cpr, msg},
+    comms::out::{pr, msg},
     globals::{config::CONFIG, flags::Flags},
     package::{stats::{self, PackageStats}, Package},
     remove::logic::remove_dead_files_after_update,
@@ -106,7 +106,7 @@ fn dist_install(package: &Package) {
     );
 
     msg!("󰐗  Installing '{package}'...");
-    exec(&command).fail("Failed to perform dist install");
+    exec(&command, None).fail("Failed to perform dist install");
     script::post(package);
 }
 
@@ -125,7 +125,9 @@ fn dist_install(package: &Package) {
 ///
 /// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 pub fn update(package: &Package) -> UpdateStatus {
-    let force = Flags::grab().force;
+    let flags = Flags::grab();
+    let force = flags.force;
+    let quiet = flags.quiet;
     if !package.data.is_installed && !force {
         return UpdateStatus::NotInstalled
     }
@@ -142,7 +144,9 @@ pub fn update(package: &Package) -> UpdateStatus {
 
     dist_install(package);
     if package.version != package.data.installed_version {
-        cpr!("Removing dead files for '{}={}'", package.name, package.data.installed_version);
+        if !quiet {
+            pr!("Removing dead files for '{}={}'", package.name, package.data.installed_version);
+        }
         remove_dead_files_after_update(package);
     }
 

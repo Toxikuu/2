@@ -4,7 +4,6 @@
 #[cfg(not(test))]
 use crate::{
     comms::out::erm,
-    utils::logger,
     globals::config::CONFIG,
 };
 use std::{
@@ -38,7 +37,6 @@ pub fn report(msg: &str, location: &'static Location<'static>) -> ! {
     }
 
     let loc_msg = format!("Failure in {} @ {}:{}", location.file(), location.line(), location.column());
-    logger::get().detach();
     log::debug!("{loc_msg}");
     log::debug!("{msg}");
     log::error!("Process died\n\n\t----------------\n");

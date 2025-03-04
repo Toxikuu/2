@@ -3,14 +3,15 @@
 
 use anyhow::{Result, Context, bail};
 use crate::{
-    comms::out::cpr,
-    globals::config::CONFIG,
+    globals::{config::CONFIG, flags::Flags},
     utils::fail::Fail,
 };
 use std::{
-    io::{BufRead, BufReader},
+    fs::OpenOptions as OO,
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::PathBuf,
     process::{Command, Stdio},
-    thread,
+    thread
 };
 
 /// # Description
@@ -26,17 +27,12 @@ use std::{
 /// - failed to source /usr/share/2/bin/e-core
 /// - some sync shenanigans (unlikely)
 /// - failing to read stderr/stdout (unlikely)
-pub fn exec(command: &str) -> Result<()> {
-    // initialize the bash environment
-    let command = format!(
-    r"
-    {command}
-    "
-    );
+pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
+    let quiet = Flags::grab().quiet;
 
     let mut child = Command::new("bash")
         .arg("-c")
-        .arg(&command)
+        .arg(command)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
@@ -45,24 +41,56 @@ pub fn exec(command: &str) -> Result<()> {
     let stdout = child.stdout.take().context("Stdout already taken?")?;
     let stderr = child.stderr.take().context("Stderr already taken?")?;
 
+    let log_clone = log.clone();
     let stdout_thread = thread::spawn(move || {
-        let reader = BufReader::new(stdout);
-        for line in reader.lines() {
-            let line = line.fail("Failed to read stdout");
+        let mut reader = BufReader::new(stdout);
+        let mut writer = log.as_ref().map(|log| {
+            let f = OO::new().create(true).append(true).open(log)
+                .fail("Failed to open log file");
+            BufWriter::new(f)
+        });
 
-            cpr!("{}", line);
-            log::trace!("{}", line);
+        let mut buf = String::new();
+        while reader.read_line(&mut buf).fail("Failed to read stdout") > 0 {
+            let line = buf.trim_end();
+            let msg = format!("{}{line}\x1b[0m", CONFIG.message.stdout);
+
+            // write an unformatted line to the log
+            if let Some(ref mut w) = writer {
+                writeln!(w, "[STDOUT] {line}").fail("Failed to write to log file");
+            }
+
+            if !quiet {
+                println!("{msg}");
+            }
+
+            buf.clear();
         }
     });
 
     let stderr_thread = thread::spawn(move || {
-        let reader = BufReader::new(stderr);
-        for line in reader.lines() {
-            let line = line.fail("Failed to read stderr");
+        let mut reader = BufReader::new(stderr);
+        let mut writer = log_clone.as_ref().map(|log| {
+            let f = OO::new().create(true).append(true).open(log)
+                .fail("Failed to open log file");
+            BufWriter::new(f)
+        });
 
-            let msg = format!("{}{line}", CONFIG.message.stderr);
-            cpr!("{}", msg);
-            log::trace!("{}", msg);
+        let mut buf = String::new();
+        while reader.read_line(&mut buf).fail("Failed to read stderr") > 0 {
+            let line = buf.trim_end();
+            let msg = format!("{}{line}\x1b[0m", CONFIG.message.stderr);
+
+            // write an unformatted line to the log
+            if let Some(ref mut w) = writer {
+                writeln!(w, "[STDERR] {line}").fail("Failed to write to log file");
+            }
+
+            if !quiet {
+                println!("{msg}");
+            }
+
+            buf.clear();
         }
     });
 
@@ -108,7 +136,8 @@ macro_rules! pkgexec {
         $cmd,
         );
 
-        exec(&command)
+        let build_log = $pkg.data.port_dir.join(".logs/build.log");
+        exec(&command, Some(build_log))
     }};
 }
 

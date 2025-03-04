@@ -41,14 +41,6 @@ static STY: Lazy<ProgressStyle> = Lazy::new(|| {
 
 impl PM<'_> {
     /// # Description
-    /// Private function to reset the PM struct to a ready state between actions
-    ///
-    /// Currently, this just detaches the logger from a specific package
-    fn ready() {
-        logger::get().detach();
-    }
-
-    /// # Description
     /// High-level PM function
     ///
     /// It interprets all PM-related cli flags and calls the necessary PM methods therefrom
@@ -66,9 +58,6 @@ impl PM<'_> {
         if a.get      { self.get      () }
 
         self.packages.iter().for_each(|p| {
-            Self::ready();
-            logger::get().attach(&p.relpath);
-
             if a.build    { Self::build   (p) }
             if a.install  { Self::install (p) }
             if a.update   { Self::update  (p) }
@@ -80,7 +69,7 @@ impl PM<'_> {
         if a.prune    { self.prune () }
         if a.clean    { self.clean () }
         if a.list     { self.list  () }
-        if a.logs     { self.logs  () }
+        if a.logs     { Self::logs () }
     }
 
     /// # Description
@@ -184,9 +173,7 @@ impl PM<'_> {
     ///
     /// This is separate from ``fetch_all_sources_if_needed()``
     fn get(&self) {
-        Self::ready();
         self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
             log::info!("Downloading sources for '{p}'...");
             vpr!("Downloading sources for '{p}'...");
 
@@ -210,7 +197,6 @@ impl PM<'_> {
         }
 
         self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
             log::info!("Automatically fetching sources for '{p}'...");
             vpr!("Automatically fetching sources for '{p}'...");
 
@@ -226,21 +212,17 @@ impl PM<'_> {
     /// # Description
     /// Prunes files for all packages in the PM struct
     fn prune(&self) {
-        Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
         let mut total_count = 0;
         self.packages.iter().for_each(|p| {
-            logger::get().attach(&p.relpath);
-
             let count = rl::prune(p);
             log::info!("Pruned {}", p);
 
             total_count += count;
         });
 
-        Self::ready();
         stopwatch.stop();
         msg!("󰗠  Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
     }
@@ -248,7 +230,6 @@ impl PM<'_> {
     /// # Description
     /// Cleans the build directory for all packages in the PM struct
     fn clean(&self) {
-        Self::ready();
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
@@ -259,7 +240,6 @@ impl PM<'_> {
 
         stopwatch.stop();
 
-        Self::ready();
         msg!("󰗠  Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
@@ -268,8 +248,6 @@ impl PM<'_> {
     ///
     /// If there are no packages, lists all of them
     pub fn list(&self) {
-        Self::ready();
-
         let packages = self.packages;
         let imply = self.args.packages.is_empty();
         Self::list_packages(packages, "Packages", imply);
@@ -305,29 +283,11 @@ impl PM<'_> {
         };
     }
 
-    // this intentionally does not log, though I suppose it could
-    // TODO: look into the above
-    //
     /// # Description
-    /// Displays the logs for a package
-    pub fn logs(&self) {
-        Self::ready();
-
-        let pkgs = self.packages;
-        if pkgs.is_empty() {
-            let log_file = PathBuf::from("/var/log/2/master.log");
-            return logger::display(&log_file);
-        }
-
-        for p in pkgs {
-            let log_file = p.data.port_dir.join(".logs").join("pkg.log");
-            if !log_file.exists() {
-                erm!("No logs for {p}");
-                continue
-            }
-
-            logger::display(&log_file);
-        }
+    /// Displays the two's formatted logs
+    pub fn logs() {
+        let log_file = PathBuf::from("/tmp/2/master.log");
+        logger::display(&log_file);
     }
 
     /// # Description
@@ -335,8 +295,6 @@ impl PM<'_> {
     /// information from BUILD
     #[cfg(feature = "upstream")]
     fn upstream(&self) {
-        Self::ready();
-
         let pkgs = if self.packages.is_empty() {
             expand_set("//@@")
         } else {

@@ -96,7 +96,7 @@ pub fn add(repo_url: &str) {
 
     msg!("󰐗  Adding '{repo_name}/'...");
     log::info!("Adding '{repo_name}/'...");
-    exec(&command).fail("Failed to add repo");
+    exec(&command, None).fail("Failed to add repo");
     msg!("󰗠  Added '{repo_name}/'");
     log::info!("Added '{repo_name}/'");
 }
@@ -108,7 +108,7 @@ pub fn sync(repo: &str) {
 
     msg!("󱍸  Syncing '{repo}'...");
     log::info!("Syncing '{repo}'...");
-    exec(&command).fail("Failed to sync repo");
+    exec(&command, None).fail("Failed to sync repo");
     msg!("󰗠  Synced '{repo}'");
     log::info!("Synced '{repo}'");
 }

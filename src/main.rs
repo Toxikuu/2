@@ -61,8 +61,6 @@ fn main() {
 
     let packages = parse::parse(&args.packages);
     PM::new(&packages, &args).run();
-
-    logger::get().detach();
     log::info!("Finished all tasks\n\n\t----------------\n");
 }
 
@@ -70,8 +68,7 @@ fn main() {
 /// Initializes arguments and sets flags
 /// Also initializes the logger
 fn initialize() -> Args {
-    logger::init("/var/log/2/master.log");
-    logger::get();
+    logger::init();
 
     log::info!("Process initiated");
     log::debug!("Command line: {:?}", std::env::args().collect::<Vec<String>>().join(" "));

@@ -11,7 +11,6 @@ use log4rs::{
     append::file::FileAppender,
     config::{Config, Appender, Root, Logger as L4L},
     encode::pattern::PatternEncoder,
-    Handle,
 };
 use regex::Regex;
 use std::{
@@ -20,11 +19,11 @@ use std::{
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
     str::FromStr,
-    sync::{LazyLock, Mutex, Once, OnceLock}
+    sync::{LazyLock, Once}
 };
 use super::fail::Fail;
 
-static LOGGER: OnceLock<Logger> = OnceLock::new();
+const MASTER_LOG: &str = "/tmp/2/master.log";
 static LOG_INIT: Once = Once::new();
 /// # Description
 /// Regex pattern for matching against 2's logs
@@ -44,152 +43,66 @@ fn get_log_level() -> LevelFilter {
     LevelFilter::from_str(log_level).unwrap_or_else(|_| {
         if !log_level.is_empty() {
             let msg = format!("Invalid log level '{log_level}'; defaulting to trace");
-            erm!("{}", msg);
-            log::warn!("{}", msg);
+            erm!("{msg}");
+            log::warn!("{msg}");
         }
         LevelFilter::Trace
     })
 }
 
-/// # Description
-/// The logger struct
-///
-/// Takes the master log file path (/var/log/2/master.log)
-/// Optionally takes a relative path (for attaching to per-package logs)
-/// Optionally takes a handle (for refreshing the config)
-#[derive(Debug)]
-pub struct Logger {
-    relpath: Mutex<Option<String>>,
-    handle: Mutex<Option<Handle>>,
-    master: PathBuf,
-}
-
-impl Logger {
-    pub fn new(master: impl Into<PathBuf>) -> Self {
-        Self {
-            relpath: Mutex::new(None),
-            handle: Mutex::new(None),
-            master: master.into(),
-        }
-    }
-
-    /// # Description
-    /// Attaches the logger to a specific package
-    ///
-    /// This writes logs to that package's log file, located at ``$PORT/.logs/pkg.log`` and to the
-    /// master log
-    pub fn attach(&self, relpath: &str) {
-        *self.relpath.lock().fail("Failed to lock relpath mutex") = Some(relpath.to_string());
-        self.refresh().fail("Failed to refresh logger");
-        log::debug!("Log attached");
-    }
-
-    /// # Description
-    /// Detaches the logger from any package
-    ///
-    /// Logs will only write to the master log when detached
-    pub fn detach(&self) {
-        *self.relpath.lock().fail("Failed to lock relpath mutex") = None;
-        self.refresh().fail("Failed to refresh logger");
-        log::debug!("Log detached");
-    }
-
-    /// # Description
-    /// Initializes the logger
-    pub fn init(&self) {
-        LOG_INIT.call_once(|| {
-            OO::new().write(true).create(true).truncate(true)
-                .open("/var/log/2/master.log")
-                .fail("Failed to open /var/log/2/master.log");
-            let config = self.build_config().fail("Failed to build initial config");
-            let handle = log4rs::init_config(config).fail("Failed to initialize logger");
-            *self.handle.lock().fail("Failed to lock handle mutex") = Some(handle);
-        });
-    }
-
-    /// # Description
-    /// Builds the logger config
-    fn build_config(&self) -> Result<Config> {
-        let log_dir = Path::new("/var/log/2");
+pub fn init() {
+    LOG_INIT.call_once(|| {
+        let log_file = PathBuf::from(MASTER_LOG);
+        let log_dir = log_file.parent().fail("Log file has no parent?");
         if !log_dir.exists() {
-            fs::create_dir_all(log_dir)?;
+            fs::create_dir(log_dir).fail("Failed to create log dir");
         }
 
-        let master_log = self.master.clone();
+        OO::new().create(true).append(true)
+            .open(&log_file)
+            .fail(&format!("Failed to open {log_file:?}"));
 
-        // https://docs.rs/log4rs/1.0.0/log4rs/encode/pattern/index.html#formatters
-        let pattern = "{({d(%Y-%m-%d %H:%M:%S.%3f)} {({l}):5.5} | [{M}@{L}]):64.64} ~ {m}{n}";
-
-        let master_log_file = FileAppender::builder()
-            .encoder(Box::new(PatternEncoder::new(pattern)))
-            .append(true)
-            .build(master_log)?;
-
-        let mut config_builder = Config::builder()
-            .appender(Appender::builder().build("master", Box::new(master_log_file)))
-            // tell ureq to stfu
-            .logger(L4L::builder().build("rustls::webpki::server_verifier", LevelFilter::Info))
-            .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
-            .logger(L4L::builder().build("rustls::conn",        LevelFilter::Info))
-            .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
-            .logger(L4L::builder().build("ureq::tls",           LevelFilter::Info))
-            .logger(L4L::builder().build("ureq::unversioned",   LevelFilter::Warn))
-            .logger(L4L::builder().build("ureq_proto::util",    LevelFilter::Info))
-            .logger(L4L::builder().build("ureq_proto::client",  LevelFilter::Info));
-
-        let mut root_builder = Root::builder()
-            .appender("master");
-
-        if let Some(ref rp) = *self.relpath.lock().fail("Failed to lock relpath mutex") {
-            let build_log_str = format!("/usr/ports/{rp}/.logs/pkg.log");
-            let build_log = Path::new(&build_log_str);
-            let log_dir = build_log.parent().fail("Broken relpath");
-
-            fs::create_dir_all(log_dir)?;
-
-            let build_log_file = FileAppender::builder()
-                .encoder(Box::new(PatternEncoder::new(pattern)))
-                .append(true)
-                .build(build_log)?;
-
-            config_builder = config_builder
-                .appender(Appender::builder().build("relpath", Box::new(build_log_file)));
-            root_builder = root_builder.appender("relpath");
-        }
-
-        Ok(config_builder.build(root_builder.build(get_log_level()))?)
-    }
-
-    /// # Description
-    /// Refreshes the logger config
-    fn refresh(&self) -> Result<()> {
-        let config = self.build_config()?;
-        if let Some(handle) = self.handle.lock().fail("Failed to lock handle mutex").as_ref() {
-            handle.set_config(config);
-        }
-        Ok(())
-    }
+        let config = build_config().fail("Failed to build initial config");
+        log4rs::init_config(config).fail("Failed to initialize logger");
+    });
 }
 
 /// # Description
-/// Retrieve the logger object
-///
-/// ```rust
-/// // Example usage
-/// logger::get().detach()
-/// ```
-pub fn get<'s>() -> &'s Logger {
-    LOGGER.get().fail("Logger not initialized (my bad)")
+/// Builds the logger config
+fn build_config() -> Result<Config> {
+    // https://docs.rs/log4rs/1.0.0/log4rs/encode/pattern/index.html#formatters
+    let pattern = "{({d(%Y-%m-%d %H:%M:%S.%3f)} {({l}):5.5} | [{M}@{L}]):64.64} ~ {m}{n}";
+
+    let master_log_file = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(pattern)))
+        .append(true)
+        .build(MASTER_LOG)?;
+
+    let config_builder = Config::builder()
+        .appender(Appender::builder().build("master", Box::new(master_log_file)))
+        // tell ureq to stfu
+        .logger(L4L::builder().build("rustls::webpki::server_verifier", LevelFilter::Info))
+        .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
+        .logger(L4L::builder().build("rustls::conn",        LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::tls",           LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::unversioned",   LevelFilter::Warn))
+        .logger(L4L::builder().build("ureq_proto::util",    LevelFilter::Info))
+        .logger(L4L::builder().build("ureq_proto::client",  LevelFilter::Info));
+
+    Ok(config_builder.build(Root::builder().appender("master").build(get_log_level()))?)
 }
 
-/// # Description
-/// Initialize the logger object
-pub fn init(master_log: impl Into<PathBuf>) {
-    let logger = Logger::new(master_log);
-    LOGGER.set(logger).fail("Logger was already initialized");
-    LOGGER.get().fail("Failed to access logger instance").init();
-}
-
+// /// # Description
+// /// Retrieve the logger object
+// ///
+// /// ```rust
+// /// // Example usage
+// /// logger::get().detach()
+// /// ```
+// pub fn get<'s>() -> &'s Logger {
+//     LOGGER.get().fail("Logger not initialized (my bad)")
+// }
 
 // DISPLAYING LOGS
 
@@ -223,30 +136,46 @@ impl LogEntry {
 /// Ignores invalid lines
 /// Panics if a log entry is missing a log level
 fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
-    let mut logs = VecDeque::new();
-    let mut curr = String::new();
-
-    for line in reader.lines().map_while(Result::ok) {
-        if RE.captures(&line).is_some()
-        && !curr.is_empty() {
-                logs.push_back(curr.clone());
+    reader
+        .lines()
+        .map_while(Result::ok)
+        .fold((VecDeque::new(), String::new()), |(mut logs, mut curr), line| {
+            if RE.is_match(&line) && !curr.is_empty() {
+                logs.push_back(LogEntry {
+                    level: extract_log_level(&curr).unwrap_or(LevelFilter::Warn),
+                    message: curr.clone(),
+                });
                 curr.clear();
-        }
-
-        curr.push_str(&line);
-        curr.push('\n');
-    }
-
-    if !curr.is_empty() {
-        logs.push_back(curr);
-    }
-
-    logs.into_iter()
-        .filter_map(|entry| {
-            extract_log_level(&entry)
-                .map(|level| LogEntry { level, message: entry })
+            }
+            curr.push_str(&line);
+            curr.push('\n');
+            (logs, curr)
         })
-        .collect()
+        .0
+    // let mut logs = VecDeque::new();
+    // let mut curr = String::new();
+    //
+    // for line in reader.lines().map_while(Result::ok) {
+    //     if RE.captures(&line).is_some()
+    //     && !curr.is_empty() {
+    //             logs.push_back(curr.clone());
+    //             curr.clear();
+    //     }
+    //
+    //     curr.push_str(&line);
+    //     curr.push('\n');
+    // }
+    //
+    // if !curr.is_empty() {
+    //     logs.push_back(curr);
+    // }
+    //
+    // logs.into_iter()
+    //     .filter_map(|entry| {
+    //         extract_log_level(&entry)
+    //             .map(|level| LogEntry { level, message: entry })
+    //     })
+    //     .collect()
 }
 
 /// # Description
@@ -267,15 +196,14 @@ pub fn display(log_file: &Path) {
 /// # Description
 /// Parses the log level for a line from a log file
 fn extract_log_level(entry: &str) -> Option<LevelFilter> {
-    [
-        (" TRACE ", LevelFilter::Trace),
-        (" DEBUG ", LevelFilter::Debug),
-        (" INFO  ", LevelFilter::Info),
-        (" WARN  ", LevelFilter::Warn),
-        (" ERROR ", LevelFilter::Error)
-    ]
-        .iter()
-        .find_map(|(tag, level)| entry.contains(tag).then_some(*level))
+    match entry {
+        e if e.contains(" TRACE ") => Some(LevelFilter::Trace),
+        e if e.contains(" DEBUG ") => Some(LevelFilter::Debug),
+        e if e.contains(" INFO  ") => Some(LevelFilter::Info),
+        e if e.contains(" WARN  ") => Some(LevelFilter::Warn),
+        e if e.contains(" ERROR ") => Some(LevelFilter::Error),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -283,12 +211,12 @@ mod tests {
     use std::path::PathBuf;
     use crate::erm;
 
-    use super::display;
+    use super::{display, MASTER_LOG};
 
     // return result for test skipping
     #[test]
     fn display_master_log() {
-        let master_log = PathBuf::from("/var/log/2/master.log");
+        let master_log = PathBuf::from(MASTER_LOG);
         if !master_log.exists() {
             erm!("Skipping test: master_log doesn't exist");
         }
