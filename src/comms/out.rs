@@ -27,21 +27,6 @@ macro_rules! pr {
 }
 
 /// # Description
-/// Prints to stdout with the default formatting
-///
-/// Affected by the quiet flag
-#[macro_export]
-macro_rules! cpr {
-    ($($arg:tt)*) => {{
-        use $crate::globals::config::CONFIG;
-        use $crate::globals::flags::Flags;
-        if !Flags::grab().quiet {
-            println!("{}{}\x1b[0m", CONFIG.message.stdout, format!($($arg)*))
-        }
-    }};
-}
-
-/// # Description
 /// Prints to stdout with the danger formatting
 ///
 /// Unaffected by the quiet flag
@@ -90,4 +75,4 @@ macro_rules! vpr {
     }};
 }
 
-pub(crate) use {msg, pr, cpr, erm, vpr};
+pub(crate) use {msg, pr, erm, vpr};
