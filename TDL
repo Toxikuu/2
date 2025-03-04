@@ -2,11 +2,14 @@
 
 TODO
 
+    Add full output for --clean and --prune
+
     Improve error messages by using with_context(|| format!(...))
 
     Take a glance at the ideas and consider what I wanna implement
 
     Add a flag that can be used to view a package's BUILD
+        Call it -B
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -14,6 +17,9 @@ TODO
     Test install.sh
 
 WIP
+
+    Move pkg.log to build.log and don't do any attach/detach shenanigans
+        Needs testing
 
     Work on mdbook docs
         Existing documentation probably needs updating too
@@ -26,6 +32,9 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Make master.log transient
+        Now exists at /tmp/2/master.log to be wiped on reboot
 
     Fix the weird upstream bug
         ofc it was caused by string formatting
