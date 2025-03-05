@@ -24,6 +24,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use super::manifest::{find_dead_files, find_unique_paths};
+use walkdir::WalkDir;
 
 // TODO: Consider using glob patterns for the below, allowing to protect against removal of boot/*
 // for instance
@@ -390,6 +391,38 @@ fn prune_dist(package: &Package) -> usize {
         pruned_count += 1;
     }
     pruned_count
+}
+
+/// ### Description
+/// Cleans a build
+///
+/// Deletes all files under $PORT/.build/ recursively
+#[allow(clippy::if_same_then_else)] // count += 1 is required for both
+pub fn clean(package: &Package) -> u64 {
+    let dir = package.data.port_dir.join(".build");
+
+    if !dir.exists() {
+        return 0
+    }
+
+    let mut count = 0;
+
+    let paths = WalkDir::new(&dir)
+        .min_depth(1) // skip .build
+        .into_iter()
+        .filter_map(Result::ok)
+        .map(|e| e.path().to_path_buf())
+        .collect::<Vec<_>>();
+
+    paths.iter().rev().for_each(|p| {
+        if p.is_file() && rmf(p).is_ok() {
+            count += 1;
+        } else if p.is_dir() && rmdir(p).is_ok() {
+            count += 1;
+        }
+    });
+
+    count
 }
 
 #[derive(PartialEq)]

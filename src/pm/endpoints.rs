@@ -2,7 +2,7 @@
 //! Defines endpoints for PM
 
 use crate::{
-    build::{logic as bl, script},
+    build::logic as bl,
     cli::args::Args,
     comms::out::{erm, msg, pr, vpr},
     fetch::download::{download, DownloadStatus},
@@ -233,14 +233,15 @@ impl PM<'_> {
         let mut stopwatch = Stopwatch::new();
         stopwatch.start();
 
+        let mut cleaned = 0;
         self.packages.iter().for_each(|p| {
-            script::clean(p);
+            cleaned += rl::clean(p);
             log::debug!("Cleaned build for {}", p);
         });
 
         stopwatch.stop();
 
-        msg!("󰗠  Cleaned {} packages in {}", self.packages.len(), stopwatch.display());
+        msg!("󰗠  Cleaned {} files for {} packages in {}", cleaned, self.packages.len(), stopwatch.display());
     }
 
     /// # Description

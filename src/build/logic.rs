@@ -5,7 +5,7 @@ use crate::{
     comms::out::{pr, msg},
     globals::{config::CONFIG, flags::Flags},
     package::{stats::{self, PackageStats}, Package},
-    remove::logic::remove_dead_files_after_update,
+    remove::logic::{clean, remove_dead_files_after_update},
     shell::cmd::exec,
     utils::fail::Fail,
 };
@@ -69,7 +69,7 @@ pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<Packag
         script::build(package);
 
         if CONFIG.general.clean_after_build {
-            script::clean(package);
+            clean(package);
         }
         (BuildStatus::Source, Some(stats))
     }

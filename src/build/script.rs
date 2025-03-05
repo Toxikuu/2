@@ -5,16 +5,14 @@ use crate::{
     fetch::download::normalize_tarball,
     globals::config::CONFIG,
     package::Package,
+    remove::logic::clean,
     shell::cmd::pkgexec,
     utils::{
         fail::{BoolFail, Fail},
         hash::twohash,
     },
 };
-use std::{
-    fs::{create_dir, remove_dir_all},
-    path::Path,
-};
+use std::path::Path;
 use super::qa;
 
 /// ### Description
@@ -147,15 +145,4 @@ pub fn post(package: &Package) {
     ".to_string();
 
     pkgexec!(&command, package).fail(&format!("Build for '{package}' died in post-install"));
-}
-
-/// ### Description
-/// Cleans a build
-///
-/// Deletes and recreates the .build directory
-pub fn clean(package: &Package) {
-    let dir = format!("/usr/ports/{}/.build", package.relpath);
-
-    remove_dir_all(&dir).fail(&format!("Failed to clean '{package}'"));
-    create_dir(&dir).fail("Failed to recreate .build");
 }
