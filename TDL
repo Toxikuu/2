@@ -2,7 +2,11 @@
 
 TODO
 
-    Add full output for --clean and --prune
+    Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
+        Also simplify the logic from packages accordingly:
+            libvdpau-va-gl
+            zstd
+            (possibly others)
 
     Improve error messages by using with_context(|| format!(...))
 
@@ -10,6 +14,7 @@ TODO
 
     Add a flag that can be used to view a package's BUILD
         Call it -B
+        (Might be better suited to 2lkit)
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -17,6 +22,10 @@ TODO
     Test install.sh
 
 WIP
+
+    Add full output for --clean and --prune
+        Currently, this shows the total removed files
+        It needs to also show which files are being removed, suppressable with -q
 
     Move pkg.log to build.log and don't do any attach/detach shenanigans
         Needs testing
@@ -330,6 +339,7 @@ ROADMAP
         [-] reasonable amount of testing
 
     Features for 2-0.2.0:
+        vulnerability checks (GLSA-based)
         dependency support
         .part downloads
 
