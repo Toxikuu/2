@@ -254,7 +254,7 @@ pub fn prune(package: &Package) -> usize {
     let tarball_approx = src_dir.join(package.to_string());
     let mut pruned_count = 0;
 
-    for entry in read_dir(&src_dir).fail(&format!("Failed to read sources directory '{src_dir:?}'")) {
+    for entry in read_dir(&src_dir).fail(&format!("Failed to read sources directory {src_dir:?}")) {
         let entry = entry.fail("Invalid source entry");
         let path = entry.path();
 
@@ -273,7 +273,7 @@ pub fn prune(package: &Package) -> usize {
 
         vpr!("Pruning: {:?}", path);
         // path should:tm: never point to a dir since it's reading .sources
-        rmf(&path).fail(&format!("Failed to prune file '{path:?}'"));
+        rmf(&path).fail(&format!("Failed to prune file {path:?}"));
         pruned_count += 1;
     }
 
@@ -293,7 +293,7 @@ fn prune_logs(package: &Package) -> usize {
     }
 
     let mut pruned_count = 0;
-    for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory '{log_dir:?}'")) {
+    for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory {log_dir:?}")) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
@@ -306,7 +306,7 @@ fn prune_logs(package: &Package) -> usize {
             continue
         }
 
-        let msg = format!("Proning log '{path:?}'");
+        let msg = format!("Proning log {path:?}");
         vpr!("{msg}");
         log::debug!("{msg}");
         rmf(&path).fail("Failed to prune log");
@@ -331,7 +331,7 @@ fn prune_manifests(package: &Package) -> usize {
     ];
 
     let mut pruned_count = 0;
-    for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory '{data_dir:?}'")) {
+    for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory {data_dir:?}")) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
@@ -349,7 +349,7 @@ fn prune_manifests(package: &Package) -> usize {
             continue
         }
 
-        log::debug!("Pruning manifest '{path:?}'");
+        log::debug!("Pruning manifest {path:?}");
         rmf(&path).fail("Failed to prune manifest");
         pruned_count += 1;
     }
@@ -368,7 +368,7 @@ fn prune_dist(package: &Package) -> usize {
     ];
 
     let mut pruned_count = 0;
-    for entry in read_dir(&dist_dir).fail(&format!("Failed to read data directory '{dist_dir:?}'")).flatten() {
+    for entry in read_dir(&dist_dir).fail(&format!("Failed to read data directory {dist_dir:?}")).flatten() {
         let path = entry.path();
 
         if !path.is_file() {
@@ -385,7 +385,7 @@ fn prune_dist(package: &Package) -> usize {
             continue
         }
 
-        log::debug!("Pruning dist '{path:?}'");
+        log::debug!("Pruning dist {path:?}");
         rmf(&path).fail("Failed to prune dist");
         pruned_count += 1;
     }

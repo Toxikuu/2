@@ -72,7 +72,7 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
     let mut data = HashMap::new();
 
     for manifest in manifests {
-        let contents = fs::read_to_string(manifest).fail(&format!("Failed to open manifest '{manifest:?}'"));
+        let contents = fs::read_to_string(manifest).fail(&format!("Failed to open manifest {manifest:?}"));
         let lines: Rc<[String]> = contents.lines().map(ToString::to_string).collect();
         data.insert(manifest.clone(), lines);
     }
