@@ -73,7 +73,7 @@ fn rmdir(path: &PathBuf) -> Result<()> {
 }
 
 /// # Description
-/// Removes a file. Ignores attempts to remove missing files.
+/// Removes a file or symlink. Ignores attempts to remove missing files.
 ///
 /// Propagates any other io error
 fn rmf(path: &PathBuf) -> Result<()> {
@@ -87,6 +87,16 @@ fn rmf(path: &PathBuf) -> Result<()> {
 }
 
 /// # Description
+/// Removes a symlink, file, or directory, deciding which internally.
+fn rm(path: &PathBuf) -> Result<()> {
+    if path.is_symlink() || path.is_file() {
+        rmf(path)
+    } else {
+        rmdir(path)
+    }
+}
+
+/// # Description
 /// Removes a package
 ///
 /// Removal entails reading a package's manifest and removing unique files. Some paths are
@@ -97,7 +107,7 @@ fn rmf(path: &PathBuf) -> Result<()> {
 ///
 /// **Fail Conditions:**
 /// - the manifest doesn't exist
-/// - failed to remove a specific path (see ``rmf()`` and ``rmdir``)
+/// - failed to remove a specific path (see ``rm()``)
 pub fn remove(package: &Package) -> bool {
     let category = check_categories(package);
     if !package.data.is_installed && !Flags::grab().force {
@@ -137,17 +147,7 @@ pub fn remove(package: &Package) -> bool {
             erm!("Retaining protected path: {:?}", path); return
         }
 
-        if path.is_symlink() {
-            rmf(&path).fail("Failed to remove symlink");
-        }
-
-        if path.is_file() {
-            rmf(&path).fail("Failed to remove file");
-        }
-
-        if path.is_dir() {
-            rmdir(&path).fail("Failed to remove directory");
-        }
+        rm(&path).fail("Failed to remove path");
 
         if !quiet {
             pr!("'{}' -x", p);
@@ -156,7 +156,7 @@ pub fn remove(package: &Package) -> bool {
 
     // NOTE: the manifest is not removed as prune handles that
     let status_file = package.data.port_dir.join(".data").join("INSTALLED");
-    rmf(&status_file).fail("Failed to remove the status file");
+    rm(&status_file).fail("Failed to remove the status file");
 
     if CONFIG.removal.remove_sources { remove_sources(package) }
     if CONFIG.removal.remove_dist { remove_dist(package) }
@@ -184,7 +184,7 @@ fn remove_dist(package: &Package) {
 
     for d in dists.flatten() {
         let d = d.path();
-        if let Err(e) = rmf(&d) {
+        if let Err(e) = rm(&d) {
             warn!("Failed to remove dist '{}': {e}", d.display());
             erm!("Failed to remove dist '{}': {e}", d.display());
         }
@@ -212,17 +212,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
             return
         }
 
-        if path.is_symlink() {
-            rmf(&path).fail("Failed to remove symlink");
-        }
-
-        if path.is_file() {
-            rmf(&path).fail("Failed to remove file");
-        }
-
-        if path.is_dir() {
-            rmdir(&path).fail("Failed to remove directory");
-        }
+        rm(&path).fail("Failed to remove path");
 
         if !quiet {
             pr!("'{}' -x", p);
@@ -273,8 +263,7 @@ pub fn prune(package: &Package) -> usize {
         }
 
         vpr!("Pruning: {:?}", path);
-        // path should:tm: never point to a dir since it's reading .sources
-        rmf(&path).fail(&format!("Failed to prune file {path:?}"));
+        rm(&path).fail(&format!("Failed to prune file {path:?}"));
         pruned_count += 1;
     }
 
@@ -310,7 +299,7 @@ fn prune_logs(package: &Package) -> usize {
         let msg = format!("Proning log {path:?}");
         vpr!("{msg}");
         log::debug!("{msg}");
-        rmf(&path).fail("Failed to prune log");
+        rm(&path).fail("Failed to prune log");
         pruned_count += 1;
     }
     pruned_count
@@ -351,7 +340,7 @@ fn prune_manifests(package: &Package) -> usize {
         }
 
         log::debug!("Pruning manifest {path:?}");
-        rmf(&path).fail("Failed to prune manifest");
+        rm(&path).fail("Failed to prune manifest");
         pruned_count += 1;
     }
     pruned_count
@@ -387,7 +376,7 @@ fn prune_dist(package: &Package) -> usize {
         }
 
         log::debug!("Pruning dist {path:?}");
-        rmf(&path).fail("Failed to prune dist");
+        rm(&path).fail("Failed to prune dist");
         pruned_count += 1;
     }
     pruned_count
@@ -415,9 +404,7 @@ pub fn clean(package: &Package) -> u64 {
         .collect::<Vec<_>>();
 
     paths.iter().rev().for_each(|p| {
-        if p.is_file() && rmf(p).is_ok() {
-            count += 1;
-        } else if p.is_dir() && rmdir(p).is_ok() {
+        if rm(p).is_ok() {
             count += 1;
         }
     });
