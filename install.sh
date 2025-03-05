@@ -54,30 +54,42 @@ confirm 'Install bash completions?' && install -vDm644 "$PWD"/completions/bash /
 confirm 'Install zsh completions?'  && install -vDm644 "$PWD"/completions/zsh  /usr/share/zsh/site-functions/_2
 confirm 'Install fish completions?' && install -vDm644 "$PWD"/completions/fish /usr/share/fish/vendor_completions.d/2.fish
 
-if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
-    if ! command -v rustup > /dev/null 2>&1; then
-        echo "You don't have rustup; using precompiled binary instead" >&2
-        mkdir -pv target/release
-        cd target/release
-        wget 'https://github.com/Toxikuu/2/releases/latest/download/two'
-    fi
+binstall() {
+    mkdir -pv target/release
+    cd target/release
+    # TODO: Prefer curl over wget
+    wget 'https://github.com/Toxikuu/2/releases/latest/download/two'
+    chmod +x two
+}
 
-    rustup toolchain install nightly || true
-    cargo +nightly build --release
+if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
+    if command -v rustup > /dev/null 2>&1; then
+        rustup toolchain install nightly || true
+        cargo +nightly build --release
+    else
+        echo "You don't have rustup; using precompiled binary instead" >&2
+        binstall
+    fi
+else
+    binstall
 fi
 
-cat << EOF > /usr/bin/2
+cat << 'EOF' > /usr/bin/2
 #!/usr/bin/env bash
 
 if command -v sudo >/dev/null 2>&1; then
-    S=sudo
+    S="sudo"
 elif command -v doas >/dev/null 2>&1; then
-    S=doas
+    S="doas"
 else
-    S=
+    S=""
 fi
 
-"\$S" LOG_LEVEL="\$LOG_LEVEL" /usr/share/2/target/release/two "\$@"
+if [[ -n "$S" ]]; then
+    exec "$S" env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
+else
+    exec env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
+fi
 EOF
 
 chmod +x /usr/bin/2
