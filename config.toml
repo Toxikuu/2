@@ -20,6 +20,7 @@ prune_manifests = true
 prune_dist = true
 
 [general]
+# Note: The prefix only works for installs. You still need dependencies installed to /
 prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)
 clean_after_build = false
 show_bug_report_message = true
