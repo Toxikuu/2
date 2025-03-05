@@ -1,3 +1,10 @@
+# 2=0.0.84
+**Changes**
+- Fixed overquoting in logs
+    - Caused by 'Path' debug display paired with single quotes
+- Rewrote package cleaning logic
+    - Now displays the number of files cleaned when called with -c
+
 # 2=0.0.83
 **Changes**
 - Made master.log transient
