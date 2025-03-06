@@ -4,7 +4,7 @@
 use anyhow::Result;
 use crate::{
     comms::out::erm,
-    globals::config::CONFIG,
+    globals::config::CONFIG, shell::fs::mkdir,
 };
 use log::LevelFilter;
 use log4rs::{
@@ -15,7 +15,7 @@ use log4rs::{
 use regex::Regex;
 use std::{
     collections::VecDeque,
-    fs::{self, File, OpenOptions as OO},
+    fs::{File, OpenOptions as OO},
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
     str::FromStr,
@@ -54,9 +54,7 @@ pub fn init() {
     LOG_INIT.call_once(|| {
         let log_file = PathBuf::from(MASTER_LOG);
         let log_dir = log_file.parent().fail("Log file has no parent?");
-        if !log_dir.exists() {
-            fs::create_dir(log_dir).fail("Failed to create log dir");
-        }
+        mkdir(log_dir).fail("Failed to create log dir");
 
         OO::new().create(true).append(true)
             .open(&log_file)

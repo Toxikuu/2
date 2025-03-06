@@ -195,7 +195,6 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool
     let file_name = normalize_tarball(package, file_name);
 
     let srcpath = package.data.port_dir.join(".sources");
-    fs::create_dir_all(&srcpath).fail("Failed to create source path");
     let out = srcpath.join(file_name);
 
     vpr!("Downloading tarball...");

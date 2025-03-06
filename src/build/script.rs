@@ -116,14 +116,12 @@ pub fn build(package: &Package) {
 /// These instructions are defined in BUILD under the function ``2a()``.
 pub fn prep(package: &Package) {
     let command =
-    r#"
-
-    mkdir -pv "$PORT"/.{data,dist,build}
+    r"
 
     type -t 2a > /dev/null 2>&1 || exit 0
     2a
 
-    "#.to_string();
+    ".to_string();
 
     pkgexec!(&command, package).fail("Build died while performing preparation steps!");
 }

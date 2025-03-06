@@ -34,10 +34,6 @@ pub fn load(package: &Package) -> Result<PackageStats> {
 
 pub fn save(package: &Package, stats: &PackageStats) -> Result<()> {
     let datadir = package.data.port_dir.join(".data");
-    if !datadir.exists() {
-        fs::create_dir(&datadir).fail("Failed to create data dir");
-    }
-
     let statsfile = datadir.join("STATS");
     let toml_string = toml::to_string_pretty(&stats).fail("Failed to serialize stats");
     let mut file = File::create(statsfile)?;
