@@ -2,6 +2,10 @@
 
 TODO
 
+    Add ignored.txt
+        Used to ignore certain packages
+        These packages won't be recognized by 2
+
     Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
         Also simplify the logic from packages accordingly:
             libvdpau-va-gl
@@ -13,8 +17,8 @@ TODO
     Take a glance at the ideas and consider what I wanna implement
 
     Add a flag that can be used to view a package's BUILD
-        Call it -B
-        (Might be better suited to 2lkit)
+        Call it -b
+        Definitely better suited to 2lkit
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -41,6 +45,9 @@ WIP
         Add categories for more packages
 
 DONEISH
+
+    Allow shortened repo addition
+        This could be expanded to allow hosts other than github in the future, but we'll cross that bridge when we get there
 
     Make master.log transient
         Now exists at /tmp/2/master.log to be wiped on reboot
@@ -271,10 +278,6 @@ IDEAS
     Drop log4rs in favor of another logger (maybe tracing)
         log4rs flags cargo audit bc it relies on an unmaintained crate
 
-    Don't use log4rs (or any other actual logger) to attach to individual packages
-        Pointless complexity, since the only thing the pkg.log even really contains is build information
-        Should also rename it to build.log
-
     Build functions in LOCK
         This should be doable with declare -f, though I'm not certain it's desirable
 
@@ -294,6 +297,7 @@ IDEAS
     Consider using cfg_if
 
     Consider writing to a .part to avoid the possibility of incomplete tarballs because of an interrupted download
+        Planned for 0.2.0
 
     Rayon everywhere
         There's a fair bit of overhead with doing this
@@ -309,7 +313,7 @@ IDEAS
             (not that i particularly adhere to fhs, but i like /var more here bc the data in the ports dir changes a lot)
 
     Check hashes for dist installs as well
-        Would marginally increase security
+        Would marginally increase security and more than marginally increase complexity
 
     Add git as a supported source format
         syntax: source variable starts with git+
@@ -320,6 +324,8 @@ IDEAS
 
     Do the zstd compression in-house
         would maybe allow for a progress bar :pray:
+        I think this is better kept as a runtime dependency for now
+        Maybe a future feature
 
     use indicatif's pb.println() for building logs
         would be a collosal pain in the ass
