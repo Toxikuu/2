@@ -1,5 +1,5 @@
 # 2=0.0.85
-**Changes**
+## Changes
 - Improvements to install.sh
 - Added shell::fs to store commonly used fs functions and simplified code accordingly
 - Fixed an argument name conflict for repo addition
@@ -15,14 +15,14 @@
     - Currently, ripgrep is an alias of rg
 
 # 2=0.0.84
-**Changes**
+## Changes
 - Fixed overquoting in logs
     - Caused by 'Path' debug display paired with single quotes
 - Rewrote package cleaning logic
     - Now displays the number of files cleaned when called with -c
 
 # 2=0.0.83
-**Changes**
+## Changes
 - Made master.log transient
     - It now lives in /tmp/2 so it gets wiped on reboots
 - Removed pkg.log and replaced it with a simpler build.log
@@ -30,7 +30,7 @@
 - Tweaks across the codebase to support the changes
 
 # 2=0.0.82
-**Changes**
+## Changes
 - Fixed a OOM issue with upstream version checking (caused by invalid string formatting)
 - Tweaked default config
 - Verbosity tweaks
@@ -38,16 +38,16 @@
 
 
 # 2=0.0.81
-**Changes**
+## Changes
 - Allowed more escape codes for text formatting in config.toml
 - Used Option for upstream instead of empty String
 
 
 # 2=0.0.80
-**Notes**
+## Notes
 I got lazy about committing again, so several patch version bumps.
 
-**Changes**
+## Changes
 - Added bash debugging when the verbose flag is passed
 - Updates to build and package manager logic
 - Added package stats
@@ -58,22 +58,22 @@ I got lazy about committing again, so several patch version bumps.
 
 
 # 2=0.0.76
-**Changes**
+## Changes
 - Tweaked scripts to satisfy shellcheck
 - Implied all for sync_repos
 
 
 # 2=0.0.75
-**Changes**
+## Changes
 - Enforced stricter code quality in shell scripts through pedantic shellcheck flags
 - Added shell completions
 
 
 # 2=0.0.74
-**Notes**
+## Notes
 I made a few fairly large changes. Not as bad as with 0.0.70, but I was still quite bad about versioning (oops!). I'm gonna call it 3 patches.
 
-**Changes**
+## Changes
 - Moved nextest.toml -> .config/nextest.toml
 - Quieted some logs for rustls
 - Fixed a history formatting bugfix
@@ -88,7 +88,7 @@ I made a few fairly large changes. Not as bad as with 0.0.70, but I was still qu
 
 
 # 2=0.0.71
-**Changes**
+## Changes
 - Added the field port_dir to package
     - Refactored stuff to use it
 - Introduced the currently-unused modtime function
@@ -96,7 +96,7 @@ I made a few fairly large changes. Not as bad as with 0.0.70, but I was still qu
 
 
 # 2=0.0.70
-**Notes**
+## Notes
 This is the first version for which this changelog will now exist. I may or may
 not continue with the little patch notes in Cargo.toml.
 
@@ -106,7 +106,7 @@ certainly enough to warrant it), so 10 patch versions it is!
 
 There are also significant breaking changes with this version.
 
-**Changes**
+## Changes
 - Simplified fail utilities
     - Ufail no longer exists
     - Refactored relevant code
