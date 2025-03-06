@@ -47,8 +47,8 @@ impl PM<'_> {
     /// It interprets all PM-related cli flags and calls the necessary PM methods therefrom
     pub fn run(&self) {
         let a = self.args;
-        self.fetch_all_sources_if_needed(a);
         self.create_all_dotdirs_if_needed();
+        self.fetch_all_sources_if_needed(a);
 
         if a.remove {
             self.packages.iter().for_each(Self::remove);
