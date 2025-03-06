@@ -2,7 +2,7 @@
 //! Functions for dealing with package repos
 
 use crate::{
-    comms::out::{erm, pr, msg},
+    comms::out::{erm, msg, pr},
     shell::cmd::exec,
     utils::fail::Fail,
 };
@@ -72,27 +72,26 @@ fn get_ordered_repos() -> Vec<String> {
         .collect()
 }
 
+fn is_short(repo_url: &str) -> bool {
+    repo_url.chars().filter(|c| *c == '/').count() == 1
+}
+
 /// # Description
 /// Takes the url of a git repo and adds it to /usr/ports
 /// Requires git to work
 pub fn add(repo_url: &str) {
-    let (_, repo_name) = repo_url
-        .trim_end_matches('/')
-        .trim_end_matches(".git")
-        .rsplit_once('/')
-        .fail("Invalid repo url");
+    let short = if is_short(repo_url) {
+        repo_url
+    } else {
+        repo_url.trim_start_matches("https://github.com/").trim_end_matches(".git")
+    };
 
+    let (author, repo_name) = short.split_once('/').fail("Invalid repo url");
     let (_, repo_name) = repo_name
         .split_once("2-")
         .fail("Invalid repo name");
 
-    // TODO: Consider normalizing git urls
-    // Normalization would involve assuming a prefix of https:// if none are provided, as well as
-    // assuming the domain of github.com if not provided, allowing users to simply do something
-    // like `2 -a toxikuu/2-main`, which would normalize to "https://github.com/toxikuu/2-main.git"
-    //
-    // This should be done in a separate function
-    let command = format!("git clone {repo_url} /usr/ports/{repo_name}");
+    let command = format!("git clone https://github.com/{author}/2-{repo_name}.git /usr/ports/{repo_name}");
 
     msg!("󰐗  Adding '{repo_name}/'...");
     log::info!("Adding '{repo_name}/'...");
