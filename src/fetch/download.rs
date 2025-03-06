@@ -7,7 +7,7 @@ use crate::{
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
-    fs::{self, File},
+    fs::File,
     io::{Read, Write},
     path::Path,
 };
