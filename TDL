@@ -2,6 +2,8 @@
 
 TODO
 
+    Implement long about
+
     Add ignored.txt
         Used to ignore certain packages
         These packages won't be recognized by 2
@@ -13,12 +15,9 @@ TODO
             (possibly others)
 
     Improve error messages by using with_context(|| format!(...))
+        Ideally I'd have something like this but for Fail
 
     Take a glance at the ideas and consider what I wanna implement
-
-    Add a flag that can be used to view a package's BUILD
-        Call it -b
-        Definitely better suited to 2lkit
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -31,20 +30,25 @@ WIP
         Currently, this shows the total removed files
         It needs to also show which files are being removed, suppressable with -q
 
-    Move pkg.log to build.log and don't do any attach/detach shenanigans
-        Needs testing
-
     Work on mdbook docs
         Existing documentation probably needs updating too
 
     Complete maint functionality
-        add m-downgrade
+        add downgrade
+        add alias
+        add view-build
+        (figure out why -r changes BUILD no matter what)
         improve error handling
 
     Expand the main & xorg repos
-        Add categories for more packages
+        Categorize more packages
 
 DONEISH
+
+    Move pkg.log to build.log and don't do any attach/detach shenanigans
+        Needs testing
+
+    Consolidate all dotdir creation to be handled in a function called in package::parse
 
     Allow shortened repo addition
         This could be expanded to allow hosts other than github in the future, but we'll cross that bridge when we get there
@@ -274,6 +278,11 @@ DROPPED
         Imo just keep the runtime dependency, but explain in docs how to bootstrap it
 
 IDEAS
+
+    More API calls for BUILD files
+        STRIP=<level> (symbols, debug, all)
+        CONFLICTS=("package1", "package2")
+        LICENSE=("license", "license2")
 
     Drop log4rs in favor of another logger (maybe tracing)
         log4rs flags cargo audit bc it relies on an unmaintained crate
