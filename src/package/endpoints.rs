@@ -18,19 +18,17 @@ impl Package {
         // avoid problems with .sets, .git, etc
         name.starts_with('.').and_fail("Invalid package name");
 
-        let relpath = format!("{repo}/{name}");
-        let port_dir = PathBuf::from("/usr/ports").join(&relpath);
-
+        let port_dir = PathBuf::from("/usr/ports").join(repo).join(name);
         let toml_path = port_dir.join("LOCK");
         let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read LOCK");
 
         let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in LOCK");
+
+        package.relpath = format!("{}/{}", &package.repo, &package.name);
+        let port_dir = PathBuf::from("/usr/ports").join(&package.repo).join(&package.name);
+        let dist_tb = format!("{}={}.tar.zst", package.name, package.version);
+
         let status_path = port_dir.join(".data").join("INSTALLED");
-
-        package.relpath = relpath;
-
-        let dist_tb = format!("{name}={}.tar.zst", package.version);
-
         package.data.is_installed = status_path.exists();
 
         package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();
@@ -38,6 +36,7 @@ impl Package {
         package.data.port_dir = port_dir;
         package.status();
 
+        log::debug!("Generated new package: {package:#?}");
         package
     }
 

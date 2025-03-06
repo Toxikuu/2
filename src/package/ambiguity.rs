@@ -7,6 +7,7 @@ use crate::{
     },
     globals::config::CONFIG,
     package::repos::{self, prioritize},
+    shell::fs::is_dir,
     utils::fail::{BoolFail, Fail},
 };
 use std::fs;
@@ -26,7 +27,7 @@ fn locate(name: &str) -> Vec<String> {
                 .any(|c| c.as_os_str().to_string_lossy().starts_with('.'))
         })
         .filter_map(|e| {
-            if e.file_type().is_dir() && e.file_name() == name {
+            if is_dir(e.path()).unwrap_or(false) && e.file_name() == name {
                 e.path()
                     .strip_prefix("/usr/ports")
                     .ok()
