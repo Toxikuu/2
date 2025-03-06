@@ -1,7 +1,7 @@
 // src/remove/logic.rs
 //! Logic for package removal
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use crate::{
     comms::out::{pr, erm, vpr},
     globals::{
@@ -9,18 +9,15 @@ use crate::{
         flags::Flags,
     },
     package::Package,
+    shell::fs::{rm, mkdir},
     utils::fail::{BoolFail, Fail},
 };
 use log::warn;
 use std::{
     fs::{
-        create_dir,
         read_dir,
-        remove_dir,
         remove_dir_all,
-        remove_file,
     },
-    io::ErrorKind as IOE,
     path::{Path, PathBuf},
 };
 use super::manifest::{find_dead_files, find_unique_paths};
@@ -56,45 +53,6 @@ const KEPT: [&str; 23] = [
     "/usr/share/pkgconfig",
     "/var",
 ];
-
-/// # Description
-/// Removes a directory. Ignores attempts to remove missing or populated directories.
-///
-/// Propagates any other io error
-fn rmdir(path: &PathBuf) -> Result<()> {
-    if let Err(e) = remove_dir(path) {
-        match e.kind() {
-            IOE::NotFound => erm!("Ignoring '{}': missing", path.display()),
-            IOE::DirectoryNotEmpty => erm!("Ignoring '{}': populated", path.display()),
-            _ => bail!("Failed to remove '{}': {}", path.display(), e)
-        }
-    }
-    Ok(())
-}
-
-/// # Description
-/// Removes a file or symlink. Ignores attempts to remove missing files.
-///
-/// Propagates any other io error
-fn rmf(path: &PathBuf) -> Result<()> {
-    if let Err(e) = remove_file(path) {
-        match e.kind() {
-            IOE::NotFound => erm!("Ignoring '{}': missing", path.display()),
-            _ => bail!("Failed to remove '{}': {}", path.display(), e)
-        }
-    }
-    Ok(())
-}
-
-/// # Description
-/// Removes a symlink, file, or directory, deciding which internally.
-fn rm(path: &PathBuf) -> Result<()> {
-    if path.is_symlink() || path.is_file() {
-        rmf(path)
-    } else {
-        rmdir(path)
-    }
-}
 
 /// # Description
 /// Removes a package
@@ -169,7 +127,7 @@ pub fn remove(package: &Package) -> bool {
 fn remove_sources(package: &Package) {
     let srcdir = package.data.port_dir.join(".sources");
     remove_dir_all(&srcdir).fail("Failed to remove .sources");
-    create_dir(&srcdir).fail("Failed to recreate .sources");
+    mkdir(&srcdir).fail("Failed to recreate .sources");
 }
 
 fn remove_dist(package: &Package) {
