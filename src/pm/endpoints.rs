@@ -14,6 +14,7 @@ use crate::{
         Package
     },
     remove::logic as rl,
+    shell::fs::mkdir,
     utils::{
         fail::Fail,
         logger,
@@ -45,9 +46,9 @@ impl PM<'_> {
     ///
     /// It interprets all PM-related cli flags and calls the necessary PM methods therefrom
     pub fn run(&self) {
-        self.fetch_all_sources_if_needed(self.args);
-        // args order matters
         let a = self.args;
+        self.fetch_all_sources_if_needed(a);
+        self.create_all_dotdirs_if_needed();
 
         if a.remove {
             self.packages.iter().for_each(Self::remove);
@@ -186,26 +187,6 @@ impl PM<'_> {
         });
     }
 
-    /// # Description
-    /// Fetches the sources for all packages if certain cli flags are passed
-    /// This logs "fetching" instead of "downloading" to differentiate between this and ``get()``
-    fn fetch_all_sources_if_needed(&self, args: &Args) {
-        // 'if needed' means one of these are passed
-        if ! (args.install || args.update || args.build) {
-            log::debug!("Sources were not automatically fetched as they were not needed");
-            return
-        }
-
-        self.packages.iter().for_each(|p| {
-            log::info!("Automatically fetching sources for '{p}'...");
-            vpr!("Automatically fetching sources for '{p}'...");
-
-            // TODO: add tracking for whether anything was actually downloaded
-            download(p, false, &STY);
-            log::info!("Automatically fetched sources for '{p}'");
-        });
-    }
-
     // TODO: Parallelize this
     // TODO: Add force support (which would prune current sources as well)
     //
@@ -333,5 +314,48 @@ impl PM<'_> {
     fn stats(p: &Package) {
         let stats = stats::load(p).fail("Failed to load package stats");
         stats.display(p);
+    }
+
+    /// # Description
+    /// Fetches the sources for all packages if certain cli flags are passed
+    /// This logs "fetching" instead of "downloading" to differentiate between this and ``get()``
+    fn fetch_all_sources_if_needed(&self, args: &Args) {
+        // 'if needed' means one of these are passed
+        if ! (args.install || args.update || args.build) {
+            log::debug!("Sources were not automatically fetched as they were not needed");
+            return
+        }
+
+        self.packages.iter().for_each(|p| {
+            // don't bother downloading sources if the dist exists and the sources aren't needed
+            if p.dist_exists() && !args.build { return }
+
+            log::info!("Automatically fetching sources for '{p}'...");
+            vpr!("Automatically fetching sources for '{p}'...");
+
+            // TODO: add tracking for whether anything was actually downloaded
+            download(p, false, &STY);
+            log::info!("Automatically fetched sources for '{p}'");
+        });
+    }
+
+    /// # Description
+    /// Creates necessary dotdirs for all packages contained in PM
+    fn create_all_dotdirs_if_needed(&self) {
+        // 'if needed' means they don't exist
+        const DOTDIRS: [&str; 5] = [
+            ".build",
+            ".data",
+            ".dist",
+            ".logs",
+            ".sources",
+        ];
+
+        self.packages.iter().for_each(|p| {
+            for d in &DOTDIRS {
+                let dir = p.data.port_dir.join(d);
+                mkdir(&dir).fail(&format!("Failed to create dotdir {dir:?} for '{p}'"));
+            }
+        });
     }
 }
