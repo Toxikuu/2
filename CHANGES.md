@@ -1,3 +1,19 @@
+# 2=0.0.85
+**Changes**
+- Improvements to install.sh
+- Added shell::fs to store commonly used fs functions and simplified code accordingly
+- Fixed an argument name conflict for repo addition
+    - -a -> -+
+    - Yes, that's cursed, and yes, it's subject to change
+- Added support for short-form repo addition
+    - For example, 2 -+ Toxikuu/2-xorg
+- Explicitly create dotdirs
+    - Should remedy most random crashes due to nonexistent directories
+    - Also simplifies other parts of the codebase
+- Introduce support for package aliases
+    - Package aliases are simply symlinks in the repo dir
+    - Currently, ripgrep is an alias of rg
+
 # 2=0.0.84
 **Changes**
 - Fixed overquoting in logs
