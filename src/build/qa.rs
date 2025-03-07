@@ -14,7 +14,7 @@ pub fn envs_properly_initialized(p: &Package) -> bool {
     let build_file = PathBuf::from(&p.data.port_dir).join("BUILD");
     let contents = read_to_string(build_file).fail("Failed to read BUILD");
     let lines = contents.lines().collect::<Vec<_>>();
-    
+
     check_env(&lines, "xorg", "$XORG_CONFIG")
 }
 
