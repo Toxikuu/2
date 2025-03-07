@@ -146,7 +146,7 @@ copy_over_m32_libs() {
         mkdir -pv "${D}/lib32"
         cp -av "${BLD}/32DEST/lib32/"*     "${D}/lib32"
     elif [[ -e "${BLD}/32DEST/usr/lib"   ]]; then
-        mkdir -pv "${D}/usr/lib32" 
+        mkdir -pv "${D}/usr/lib32"
         cp -av "${BLD}/32DEST/usr/lib/"*   "${D}/usr/lib32"
     elif [[ -e "${BLD}/32DEST/lib"       ]]; then
         mkdir -pv "${D}/lib32"
