@@ -120,8 +120,10 @@ pub fn prep(package: &Package) {
     let command =
     r"
 
-    type -t 2a > /dev/null 2>&1 || exit 0
-    2a
+    if command -V 2a 2>&1 | grep 'is a function' >/dev/null 2>&1; then
+        echo 'Executing pre-install steps'
+        2a
+    fi
 
     ".to_string();
 
@@ -139,8 +141,10 @@ pub fn post(package: &Package) {
     let command =
     r"
 
-    type -t 2z > /dev/null 2>&1 || exit 0 # finish if post is undefined
-    2z
+    if command -V 2z 2>&1 | grep 'is a function' >/dev/null 2>&1; then
+        echo 'Executing post-install steps'
+        2z
+    fi
 
     ".to_string();
 
