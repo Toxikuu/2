@@ -107,29 +107,29 @@ impl Set {
     /// # Description
     /// Given a set, returns all member packages
     /// Sets are defined in ``/usr/ports/<repo>/.sets/<@set>``
-    pub fn unravel(&self) -> Result<Rc<[String]>> {
+    // TODO: Implement and test set recursion
+    pub fn unravel(&self) -> Rc<[String]> {
         let set = &self.set;
         let repo = &self.repo;
         vpr!("Unraveling set:\n{self:#?}");
         log::debug!("Unraveling '{self}'");
 
         if self.is_special() {
-            return Ok(self.unravel_special())
+            return self.unravel_special()
         }
 
         let file_path = format!("/usr/ports/{repo}/.sets/{set}");
         let file = File::open(file_path).fail("Nonexistent set");
         let buf = BufReader::new(file);
 
-        let lines = buf.lines().collect::<Result<Vec<String>, _>>()?;
-        Ok(
-            lines.into_iter()
-                .map(|l| {
-                    if l.contains('/') { l }
-                    else { format!("{repo}/{l}") }
-                })
-                .collect()
-        )
+        buf.lines()
+            .map_while(Result::ok)
+            .filter(|l| !(l.starts_with('#') || l.is_empty()))
+            .map(|l| {
+                if l.contains('/') { l }
+                else { format!("{repo}/{l}") }
+            })
+            .collect()
     }
 
     /// # Description
@@ -241,7 +241,6 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 
     #[test]
@@ -250,7 +249,6 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 
     #[test]
@@ -259,7 +257,6 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 
     #[test]
@@ -268,7 +265,6 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 
     #[test]
@@ -277,7 +273,6 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 
     #[test]
@@ -286,6 +281,5 @@ mod tests {
         let members = set.unravel();
         dbg!(&set);
         dbg!(&members);
-        assert!(members.is_ok());
     }
 }

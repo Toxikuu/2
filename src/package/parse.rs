@@ -56,7 +56,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 /// # Description
 /// Expands a set into its constituent packages
 pub fn expand_set(set: &str) -> Box<[Package]> {
-    let packages = Set::new(set).unravel().fail(&format!("Failed to unravel '{set}'"));
+    let packages = Set::new(set).unravel();
 
     packages.iter().map(|p| {
         let mut p = p.as_str();
