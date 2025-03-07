@@ -2,13 +2,38 @@
 //! Quality assurance checks for builds
 
 use anyhow::{Result, bail};
-use crate::package::Package;
+use crate::{package::Package, utils::fail::Fail};
 use std::{
-    fs::{read_dir, File},
+    fs::{read_dir, read_to_string, File},
     io::Read,
     path::{Path, PathBuf}
 };
 use walkdir::WalkDir;
+
+pub fn envs_properly_initialized(p: &Package) -> bool {
+    let build_file = PathBuf::from(&p.data.port_dir).join("BUILD");
+    let contents = read_to_string(build_file).fail("Failed to read BUILD");
+    let lines = contents.lines().collect::<Vec<_>>();
+    
+    check_env(&lines, "xorg", "$XORG_CONFIG")
+}
+
+fn check_env(lines: &[&str], env: &str, r#use: &str) -> bool {
+    let mut found_with = false;
+    let mut found_use = false;
+
+    for &line in lines {
+        if line.contains("with ") && line.contains(env) {
+            found_with = true;
+        }
+
+        if line.contains(r#use) {
+            found_use = true;
+        }
+    }
+
+    found_with == found_use
+}
 
 pub fn destdir_has_stuff(p: &Package) -> bool {
     let destdir = PathBuf::from(&p.data.port_dir).join(".build").join("D");

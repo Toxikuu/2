@@ -88,6 +88,8 @@ fn setup(package: &Package) {
 pub fn build(package: &Package) {
     setup(package);
 
+    qa::envs_properly_initialized(package).or_fail(&format!("QA: Detected uninitialized or unused environment for '{package}'"));
+
     let command = r#"cd "$BLD"; 2b"#;
     pkgexec!(command, package).fail(&format!("Build for '{package}' died"));
 
