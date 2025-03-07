@@ -106,10 +106,9 @@ cfg() {
 
     unset DONT_DISABLE_STATIC
 
+    # shellcheck disable=SC2248,SC2250
     if [[ -z "${m32}" ]]; then
         echo "Building for m64..." >&2
-
-        # shellcheck disable=SC2248,SC2250
         CC="${CC:-gcc}"    \
         CXX="${CXX:-g++}"  \
         CFLAGS="${CFLAGS:--O2 -march=native -pipe}"      \
@@ -118,8 +117,6 @@ cfg() {
         die "Configure failed"
     else
         echo "Building for m32..." >&2
-
-        # shellcheck disable=SC2248,SC2250
         CC="${CC:-gcc -m32}"    \
         CXX="${CXX:-g++ -m32}"  \
         CFLAGS="${CFLAGS:--O2 -L/usr/lib32 -march=i686 -pipe}"      \
@@ -138,6 +135,7 @@ mk() {
     make "$@" || die "Make failed"
 }
 
+# shellcheck disable=SC2154
 copy_over_m32_libs() {
     if   [[ -e "${BLD}/32DEST/usr/lib32" ]]; then
         mkdir -pv "${D}/usr/lib32"
@@ -156,13 +154,12 @@ copy_over_m32_libs() {
     fi
 }
 
+# shellcheck disable=SC2154
 mi() {
     export -f mi
     if [[ -z "${m32}" ]]; then
-        # shellcheck disable=SC2154
         make DESTDIR="${D}" "$@" install || die "Make install failed"
     else
-        # shellcheck disable=SC2154
         make DESTDIR="${BLD}/32DEST" "$@" install || die "Make install (m32) failed"
         copy_over_m32_libs
     fi
