@@ -1,3 +1,12 @@
+# 2=0.0.86
+## Changes
+- Added a QA check framework for environments
+    - Implemented a check for xorg
+- Comment support in sets
+- Create dotdirs before fetching sources (bugfix)
+- Tweaked CHANGES.md formatting to better conform to GitHub release formatting
+- Minor refactoring
+
 # 2=0.0.85
 ## Changes
 - Improvements to install.sh
