@@ -11,17 +11,13 @@ TODO
             port_dir
             available dist tarballs(?)
             category
-            license
+            license (in the future)
             dependencies (in the future)
-
-    Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
-        Also simplify the logic from packages accordingly:
-            libvdpau-va-gl
-            zstd
-            (possibly others)
 
     Improve error messages by using with_context(|| format!(...))
         Ideally I'd have something like this but for Fail
+
+    Consolidate logging and vpr/msg/erm
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -45,6 +41,12 @@ WIP
         Categorize more packages
 
 DONEISH
+
+    Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
+        Also simplify the logic from packages accordingly:
+            libvdpau-va-gl
+            zstd
+            (possibly others) # i haven't found the others if they exist
 
     Move pkg.log to build.log and don't do any attach/detach shenanigans
         Needs testing
@@ -366,6 +368,7 @@ ROADMAP
 
     Features for 2-0.3.0:
         repo enabling/disabling
+        progress bars for pruning and cleaning
         PackageStatus enum (Available, Built, Installed)
             Would also need to add @b ('built' special set)
         PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
