@@ -2,11 +2,17 @@
 
 TODO
 
-    Implement long about
+    Work on mdbook docs
+        Existing documentation probably needs updating too
+        Do this once I attempt to stabilize for 0.1.0
 
-    Add ignored.txt
-        Used to ignore certain packages
-        These packages won't be recognized by 2
+    Implement long about
+        Long about should include everything about does, as well as other fields:
+            port_dir
+            available dist tarballs(?)
+            category
+            license
+            dependencies (in the future)
 
     Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
         Also simplify the logic from packages accordingly:
@@ -17,28 +23,23 @@ TODO
     Improve error messages by using with_context(|| format!(...))
         Ideally I'd have something like this but for Fail
 
-    Take a glance at the ideas and consider what I wanna implement
-
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
 
-    Test install.sh
-
 WIP
+
+    Test install.sh
+        Seemed to work fine in chroot
 
     Add full output for --clean and --prune
         Currently, this shows the total removed files
         It needs to also show which files are being removed, suppressable with -q
 
-    Work on mdbook docs
-        Existing documentation probably needs updating too
-
     Complete maint functionality
-        add downgrade
-        add alias
-        add view-build
-        (figure out why -r changes BUILD no matter what)
-        improve error handling
+        Add downgrade
+        Add view-build
+        The error handling isn't user friendly but it's fine
+        Add Package::from(MaintArg)
 
     Expand the main & xorg repos
         Categorize more packages
@@ -348,15 +349,23 @@ ROADMAP
     Features for 2-0.1.0:
         [*] package summaries
         [*] build time tracking
-        [-] install script (just needs testing now)
+        [*] install script
         [*] fair maint functionality
-        [-] solid documentation with mdbook (wip)
+        [-] finalize feature additions
         [-] reasonable amount of testing
+        [-] solid documentation with mdbook
 
     Features for 2-0.2.0:
         vulnerability checks (GLSA-based)
         dependency support
         .part downloads
+        Add ignored.txt
+            Used to ignore certain packages
+            These packages won't be recognized by 2
+        Take a glance at the ideas and consider what I wanna implement
 
     Features for 2-0.3.0:
         repo enabling/disabling
+        PackageStatus enum (Available, Built, Installed)
+            Would also need to add @b ('built' special set)
+        PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
