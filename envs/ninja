@@ -13,6 +13,6 @@ ni() {
     else
         DESTDIR="${BLD}/32DEST" ninja install "$@" || die "Ninja install (m32) failed"
         mkdir -pv "${D}/usr/lib32"
-        cp -av "${BLD}/32DEST/usr/lib32/"* "${D}/usr/lib32"
+        copy_over_m32_libs
     fi
 }

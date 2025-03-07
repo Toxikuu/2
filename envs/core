@@ -138,6 +138,24 @@ mk() {
     make "$@" || die "Make failed"
 }
 
+copy_over_m32_libs() {
+    if   [[ -e "${BLD}/32DEST/usr/lib32" ]]; then
+        mkdir -pv "${D}/usr/lib32"
+        cp -av "${BLD}/32DEST/usr/lib32/"* "${D}/usr/lib32"
+    elif [[ -e "${BLD}/32DEST/lib32"     ]]; then
+        mkdir -pv "${D}/lib32"
+        cp -av "${BLD}/32DEST/lib32/"*     "${D}/lib32"
+    elif [[ -e "${BLD}/32DEST/usr/lib"   ]]; then
+        mkdir -pv "${D}/usr/lib32" 
+        cp -av "${BLD}/32DEST/usr/lib/"*   "${D}/usr/lib32"
+    elif [[ -e "${BLD}/32DEST/lib"       ]]; then
+        mkdir -pv "${D}/lib32"
+        cp -av "${BLD}/32DEST/lib/"*       "${D}/lib32"
+    else
+        echo "Didn't copy over any m32 libs!" >&2
+    fi
+}
+
 mi() {
     export -f mi
     if [[ -z "${m32}" ]]; then
@@ -146,8 +164,7 @@ mi() {
     else
         # shellcheck disable=SC2154
         make DESTDIR="${BLD}/32DEST" "$@" install || die "Make install (m32) failed"
-        mkdir -pv "${D}/usr/lib32"
-        cp -av "${BLD}/32DEST/${DIR}/"* "${D}/${DIR}"
+        copy_over_m32_libs
     fi
 }
 
