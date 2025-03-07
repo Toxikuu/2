@@ -2,7 +2,7 @@
 //! Defines endpoints for the package struct
 
 use crate::{
-    comms::out::{msg, pr},
+    comms::out::{msg, pr, vpr},
     utils::fail::{BoolFail, Fail},
 };
 use std::{
@@ -19,10 +19,11 @@ impl Package {
         name.starts_with('.').and_fail("Invalid package name");
 
         let port_dir = PathBuf::from("/usr/ports").join(repo).join(name);
-        let toml_path = port_dir.join("LOCK");
-        let toml_contents = fs::read_to_string(&toml_path).fail("Failed to read LOCK");
+        let lock_path = port_dir.join("LOCK");
+        log::debug!("Determined LOCK path for '{repo}/{name}': {lock_path:?}");
+        let contents = fs::read_to_string(&lock_path).fail("Failed to read LOCK");
 
-        let mut package: Self = toml::de::from_str(&toml_contents).fail("Invalid syntax in LOCK");
+        let mut package: Self = toml::de::from_str(&contents).fail("Invalid syntax in LOCK");
 
         package.relpath = format!("{}/{}", &package.repo, &package.name);
         let port_dir = PathBuf::from("/usr/ports").join(&package.repo).join(&package.name);
