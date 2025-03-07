@@ -15,10 +15,10 @@ pub fn envs_properly_initialized(p: &Package) -> bool {
     let contents = read_to_string(build_file).fail("Failed to read BUILD");
     let lines = contents.lines().collect::<Vec<_>>();
 
-    check_env(&lines, "xorg", "$XORG_CONFIG")
+    check_env(&lines, "xorg", &["${XORG_CONFIG", "[@]}"])
 }
 
-fn check_env(lines: &[&str], env: &str, r#use: &str) -> bool {
+fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
     let mut found_with = false;
     let mut found_use = false;
 
@@ -27,7 +27,7 @@ fn check_env(lines: &[&str], env: &str, r#use: &str) -> bool {
             found_with = true;
         }
 
-        if line.contains(r#use) {
+        if r#use.iter().all(|u| line.contains(u)) {
             found_use = true;
         }
     }
