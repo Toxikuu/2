@@ -1,3 +1,15 @@
+# 2=0.0.87
+## Changes
+- Updated the xorg environment QA check
+    - Now enforces the xorg configure options array
+- Added a function for copying m32 libraries
+    - Handles fallbacks
+    - Implemented for `mi` and `ni`
+- Fixed a critical issue with m32 `mi`
+    - It no longer copies everything from 32DEST, instead just copying the libraries (oops!)
+- More robustly check for pre- and post-install functions
+    - Also added an output line denoting the function execution
+
 # 2=0.0.86
 ## Changes
 - Added a QA check framework for environments
