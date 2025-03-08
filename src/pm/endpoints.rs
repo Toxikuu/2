@@ -59,12 +59,13 @@ impl PM<'_> {
         if a.get      { self.get      () }
 
         self.packages.iter().for_each(|p| {
-            if a.build    { Self::build   (p) }
-            if a.install  { Self::install (p) }
-            if a.update   { Self::update  (p) }
-            if a.history  { Self::history (p) }
-            if a.about    { p.about() }
-            if a.stats    { Self::stats (p) }
+            if a.build      { Self::build   (p) }
+            if a.install    { Self::install (p) }
+            if a.update     { Self::update  (p) }
+            if a.history    { Self::history (p) }
+            if a.about      { p.about()         }
+            if a.long_about { p.long_about()    }
+            if a.stats      { Self::stats   (p) }
         });
 
         if a.prune    { self.prune () }

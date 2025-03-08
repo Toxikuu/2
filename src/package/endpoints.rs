@@ -73,11 +73,30 @@ impl Package {
             else { "\x1b[1;36m" };
 
         msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
+        pr!("\x1b[37m {}", self.description.as_deref().unwrap_or("No description"));
+        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream"));
+    }
 
-        if let Some(desc) = &self.description { pr!("\x1b[37m {desc}") }
-        else { pr!("\x1b[37m No description provided") }
+    pub fn long_about(&self) {
+        let status = &self.data.status;
+        let sty = if status.contains("Available") { "\x1b[30m" }
+            else if status.contains("Outdated") { "\x1b[1;31m" }
+            else { "\x1b[1;36m" };
 
-        // TODO: Convert upstream to option
-        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream provided"));
+        msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
+        pr!("\x1b[37m {}", self.description.as_deref().unwrap_or("No description"));
+        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream"));
+
+        pr!("\n\x1b[37m {}", self.data.port_dir.display());
+        if self.data.dist.exists() {
+            pr!("\x1b[37m {}", self.data.dist.display());
+        }
+
+        let categories = self.categories
+            .as_ref()
+            .map_or("No categories".to_owned(), |c| c.join(", "));
+
+        pr!("\x1b[37m󰓻 {categories}");
+        // pr!("\x1b[37m {}") // license
     }
 }
