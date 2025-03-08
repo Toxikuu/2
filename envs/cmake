@@ -8,6 +8,7 @@ cm() {
     mkdir -pv build
     cd build || die "Failed to enter build directory"
 
+    # Note: Any of these may be overridden as cmake uses the last value a configure option was assigned
     _shared_opts=(
         -D CMAKE_INSTALL_PREFIX=/usr
         -D CMAKE_BUILD_TYPE=Release
