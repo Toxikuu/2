@@ -90,12 +90,10 @@ pub struct Args {
     #[arg(short = 'a', long)]
     pub about: bool,
 
-    // TODO: Implement this
-    // Include stats like average build time, installed libraries, installed binaries(?)
-    /// UNIMPLEMENTED
     /// Dsiplays a longer about for a package
     #[arg(short = 'A', long)]
     pub long_about: bool,
+    // TODO: Consider merging with stats and consider including installed libraries/binaries too
 
     /// Dsiplays stats for a package
     #[arg(short = 's', long)]
