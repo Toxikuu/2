@@ -1,3 +1,10 @@
+# 2=0.0.88
+## Changes
+- Added efail
+    - Used it
+    - Improved existing error messages
+- Added long about
+
 # 2=0.0.87
 ## Changes
 - Updated the xorg environment QA check
