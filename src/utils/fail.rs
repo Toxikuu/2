@@ -199,7 +199,7 @@ impl BoolFail for bool {
 
     #[track_caller]
     fn and_efail<F>(self, f: F)
-    where F: FnOnce() -> String 
+    where F: FnOnce() -> String
     {
         if self {
             let location = Location::caller();
@@ -209,7 +209,7 @@ impl BoolFail for bool {
 
     #[track_caller]
     fn or_efail<F>(self, f: F)
-    where F: FnOnce() -> String 
+    where F: FnOnce() -> String
     {
         if !self {
             let location = Location::caller();
