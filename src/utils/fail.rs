@@ -1,5 +1,10 @@
 // src/utils/fail.rs
 //! Defines utilities for (bad) error handling (crashes)
+//!
+//! The fail methods should only be used when the error message is a static string (which shouldn't
+//! be often)
+//!
+//! Efail should be preferred for all other error messages
 
 #[cfg(not(test))]
 use crate::{
@@ -53,11 +58,11 @@ pub fn report(msg: &str, _location: &'static Location<'static>) -> ! {
 }
 
 /// # Description
-/// The Fail trait allows you to call ``.fail()`` and ``.fail()`` on result and option types
+/// The Fail trait allows you to call ``.fail()`` and ``.efail()`` on result and option types.
+/// Unless your fail message is just a static string, efail should be preferred as it's evaluated
+/// lazily.
 ///
 /// These then call report, which "gracefully" panics
-///
-/// ``fail_with_location()`` and ``fail_with_location()`` should not be used
 ///
 /// **Examples:**
 /// ```rust
@@ -69,17 +74,25 @@ pub fn report(msg: &str, _location: &'static Location<'static>) -> ! {
 /// // ``.fail()`` will also output the error message
 /// fallible_function().fail("Fallible function failed");
 ///
+/// // ``.efail()`` is useful for formatting in error messages
+/// fallible_function()
+///     .efail("Fallible function failed to perform '{}': This is probably because of '{arg}'", task.display())
+///
 /// let num: Option<u8> = None;
 /// num.fail("Num was none");
 ///
 /// let num: Option<u8> = Some(42);
 /// num.fail("Shouldn't have failed");
 ///
-/// println!("Number: {}", num); // should output ``Number: 42``
+/// println!("Number: {num}"); // should output ``Number: 42``
 ///
 /// ```
 pub trait Fail<T, E> {
     fn fail(self, msg: &str) -> T;
+
+    fn efail<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> String;
 }
 
 impl<T, E> Fail<T, E> for Result<T, E>
@@ -98,22 +111,73 @@ where
             }
         }
     }
+
+    #[track_caller]
+    fn efail<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> String,
+    {
+        match self {
+            Ok(t) => t,
+            Err(e) => {
+                let err = format!("{e:#?}").lines().map(|l| format!("\t{l}")).collect::<Vec<_>>().join("\n");
+                let msg = &format!("{}:\n{err}", f());
+                let location = Location::caller();
+                report(msg, location);
+            }
+        }
+    }
 }
 
 impl<T> Fail<T, ()> for Option<T> {
     #[track_caller]
-    #[allow(clippy::option_if_let_else)] // enclosures complicate track caller
     fn fail(self, msg: &str) -> T {
-        if let Some(t) = self { t } else {
+        self.map_or_else(|| {
             let location = Location::caller();
             report(msg, location);
-        }
+        }, |t| t)
+
+        // match self {
+        //     Some(t) => t,
+        //     None => {
+        //         let location = Location::caller();
+        //         report(msg, location);
+        //     }
+        // }
+    }
+
+    #[track_caller]
+    fn efail<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> String
+    {
+
+        self.map_or_else(|| {
+            let location = Location::caller();
+            report(&f(), location);
+        }, |t| t)
+
+        // match self {
+        //     Some(t) => t,
+        //     None => {
+        //         let location = Location::caller();
+        //         report(&f(), location);
+        //     }
+        // }
     }
 }
 
 pub trait BoolFail {
     fn and_fail(self, msg: &str);
     fn or_fail(self, msg: &str);
+
+    fn and_efail<F>(self, f: F)
+    where
+        F: FnOnce() -> String;
+
+    fn or_efail<F>(self, f: F)
+    where
+        F: FnOnce() -> String;
 }
 
 impl BoolFail for bool {
@@ -130,6 +194,26 @@ impl BoolFail for bool {
         if !self {
             let location = Location::caller();
             report(msg, location);
+        }
+    }
+
+    #[track_caller]
+    fn and_efail<F>(self, f: F)
+    where F: FnOnce() -> String 
+    {
+        if self {
+            let location = Location::caller();
+            report(&f(), location);
+        }
+    }
+
+    #[track_caller]
+    fn or_efail<F>(self, f: F)
+    where F: FnOnce() -> String 
+    {
+        if !self {
+            let location = Location::caller();
+            report(&f(), location);
         }
     }
 }
