@@ -6,18 +6,8 @@ TODO
         Existing documentation probably needs updating too
         Do this once I attempt to stabilize for 0.1.0
 
-    Implement long about
-        Long about should include everything about does, as well as other fields:
-            port_dir
-            available dist tarballs(?)
-            category
-            license (in the future)
-            dependencies (in the future)
-
-    Improve error messages by using with_context(|| format!(...))
-        Ideally I'd have something like this but for Fail
-
     Consolidate logging and vpr/msg/erm
+        Would also probably be a good idea to transition to tracing
 
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
@@ -33,7 +23,8 @@ WIP
 
     Complete maint functionality
         Add downgrade
-        Add view-build
+            restore's been added, but I might also add a simple downgrade
+        Add view
         The error handling isn't user friendly but it's fine
         Add Package::from(MaintArg)
 
@@ -41,6 +32,18 @@ WIP
         Categorize more packages
 
 DONEISH
+
+    Improve error messages by using with_context(|| format!(...))
+        Ideally I'd have something like this but for Fail
+        Used efail
+
+    Implement long about
+        Long about should include everything about does, as well as other fields:
+            [*] port_dir
+            [*] dist tarball
+            [*] category
+            [-] license (in the future)
+            [-] dependencies (in the future)
 
     Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
         Also simplify the logic from packages accordingly:
@@ -358,6 +361,8 @@ ROADMAP
         [-] solid documentation with mdbook
 
     Features for 2-0.2.0:
+        licenses & dependencies in long about
+        Source-sharing for packages
         vulnerability checks (GLSA-based)
         dependency support
         .part downloads
