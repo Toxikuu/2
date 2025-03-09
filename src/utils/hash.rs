@@ -11,7 +11,8 @@ use std::{
 use crate::utils::fail::Fail;
 
 pub fn twohash(file_path: &Path) -> String {
-    let mut file = File::open(file_path).fail(&format!("Missing file: {file_path:?}"));
+    let mut file = File::open(file_path)
+        .efail(|| format!("Can't hash missing file: '{}'", file_path.display()));
     let mut hasher = Sha256::new();
     let mut buf = [0u8; 8192];
 

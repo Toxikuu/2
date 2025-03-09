@@ -39,7 +39,7 @@ impl Display for Set {
 
 impl Set {
     pub fn new(str: &str) -> Self {
-        Self::is(str).or_fail(&format!("Not a set: '{str}'"));
+        Self::is(str).or_efail(|| format!("Not a set: '{str}'"));
 
         // handle all repos
         if let Some(set) = str.strip_prefix("//") {
@@ -56,7 +56,7 @@ impl Set {
             }
         } else {
             let stupid_intermediate = resolve_set_ambiguity(str);
-            let (repo, _) = stupid_intermediate.split_once('/').fail("Somehow resolved ambiguity without returning repo/set");
+            let (repo, _) = stupid_intermediate.split_once('/').fail("[UNREACHABLE] Somehow resolved ambiguity without returning repo/set");
             Self {
                 repo: repo.to_string(),
                 set: str.to_string(),
@@ -119,7 +119,8 @@ impl Set {
         }
 
         let file_path = format!("/usr/ports/{repo}/.sets/{set}");
-        let file = File::open(file_path).fail("Nonexistent set");
+        let file = File::open(file_path)
+            .efail(|| format!("Set '{self}' does not exist"));
         let buf = BufReader::new(file);
 
         buf.lines()
@@ -145,19 +146,19 @@ impl Set {
 
         entries
             .filter_map(|e| {
-                let entry = e.fail("Failed to read entry");
-                if entry.file_type().fail("Failed to get entry filetype").is_dir() {
+                let entry = e.fail("Failed to read entry: Filesystem error?");
+                if entry.file_type().efail(|| format!("Failed to get filetype for '{entry:?}'")).is_dir() {
                     let repo = entry.path()
                         .parent()
-                        .fail("Very strange repo layout?")
+                        .efail(|| format!("[UNREACHABLE] Repo for entry '{}' does not exist?", entry.path().display()))
                         .file_name()
-                        .fail("Missing filename?")
+                        .efail(|| format!("[UNREACHABLE] Repo for entry '{}' does not have a filename?", entry.path().display()))
                         .to_str()
-                        .fail("Unicode")
+                        .fail("[UNREACHABLE] Invalid Unicode?")
                         .to_string();
                     let pkg = entry.file_name()
                         .to_str()
-                        .fail("Unicode")
+                        .fail("[UNREACHABLE] Invalid Unicode?")
                         .to_string();
 
                     if pkg.starts_with('.') {
@@ -206,7 +207,7 @@ impl Set {
         self.all()
             .iter()
             .filter(|p| {
-                let (repo, name) = p.split_once('/').fail(&format!("Misformatted package {p}"));
+                let (repo, name) = p.split_once('/').efail(|| format!("[UNREACHABLE] Misformatted package '{p}'"));
                 super::Package::new(repo, name).is_outdated()
             })
             .cloned()
@@ -223,7 +224,13 @@ pub fn list(repo: &str) {
         return erm!("No sets available for '{}/'", repo);
     };
 
-    let available: Rc<[String]> = entries.map(|f| f.fail("Failed to read dir entry").file_name().into_string().fail("Invalid unicode")).collect();
+    let available: Rc<[String]> = entries.map(|f| {
+        f.fail("Failed to read dir entry: Filesystem error?")
+            .file_name()
+            .into_string()
+            .fail("[UNREACHABLE] Invalid Unicode")
+    }).collect();
+
     if available.is_empty() {
         return erm!("No sets available for '{}/'", repo);
     }

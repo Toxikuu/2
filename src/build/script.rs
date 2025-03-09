@@ -28,16 +28,17 @@ fn check_hashes(package: &Package, no_source: bool) {
     };
 
     if !no_source {
-        let tarball = package.source.url.split('/').next_back().fail("Invalid url");
+        let url = &package.source.url;
+        let tarball = url.split('/').next_back().efail(|| format!("Invalid url '{url}' for '{package}'"));
         let filename = &normalize_tarball(package, tarball);
         let knownhash = &package.source.hash;
-        passes(filename, knownhash).or_fail(&format!("Hash checks failed for '{filename}' for '{package}'"));
+        passes(filename, knownhash).or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
     }
 
     package.extra.iter().for_each(|source| {
-        let filename = &Path::new(source.url.as_str()).file_name().fail("Invalid file name").to_string_lossy();
+        let filename = &Path::new(source.url.as_str()).file_name().efail(|| format!("Invalid file name for source '{source:?}' for '{package}'")).to_string_lossy();
         let knownhash = &source.hash;
-        passes(filename, knownhash).or_fail(&format!("Hash checks failed for '{filename}' for '{package}'"));
+        passes(filename, knownhash).or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
     });
 }
 
@@ -76,7 +77,7 @@ fn setup(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).fail(&format!("Build for '{package}' died in setup"));
+    pkgexec!(&command, package).efail(|| format!("Build for '{package}' died in setup"));
 }
 
 /// ### Description
@@ -88,13 +89,13 @@ fn setup(package: &Package) {
 pub fn build(package: &Package) {
     setup(package);
 
-    qa::envs_properly_initialized(package).or_fail(&format!("QA: Detected uninitialized or unused environment for '{package}'"));
+    qa::envs_properly_initialized(package).or_efail(|| format!("QA: Detected uninitialized or unused environment for '{package}'"));
 
     let command = r#"cd "$BLD"; 2b"#;
-    pkgexec!(command, package).fail(&format!("Build for '{package}' died"));
+    pkgexec!(command, package).efail(|| format!("Build for '{package}' died"));
 
-    qa::destdir_has_stuff(package).or_fail(&format!("QA: Detected empty destdir for '{package}'"));
-    qa::libs_ok(package).or_fail(&format!("QA: Detected wrong-architecture libraries for '{package}'"));
+    qa::destdir_has_stuff(package).or_efail(|| format!("QA: Detected empty destdir for '{package}'"));
+    qa::libs_ok(package).or_efail(|| format!("QA: Detected wrong-architecture libraries for '{package}'"));
 
     let command = format!(r#"
     cd "$BLD"
@@ -109,7 +110,7 @@ pub fn build(package: &Package) {
     "#
     );
 
-    pkgexec!(&command, package).fail(&format!("Packaging for '{package}' died"));
+    pkgexec!(&command, package).efail(|| format!("Packaging for '{package}' died"));
 }
 
 /// ### Description
@@ -127,7 +128,7 @@ pub fn prep(package: &Package) {
 
     ".to_string();
 
-    pkgexec!(&command, package).fail("Build died while performing preparation steps!");
+    pkgexec!(&command, package).efail(|| format!("Build for '{package}' died in pre-install"));
 }
 
 /// ### Description
@@ -148,5 +149,5 @@ pub fn post(package: &Package) {
 
     ".to_string();
 
-    pkgexec!(&command, package).fail(&format!("Build for '{package}' died in post-install"));
+    pkgexec!(&command, package).efail(|| format!("Build for '{package}' died in post-install"));
 }

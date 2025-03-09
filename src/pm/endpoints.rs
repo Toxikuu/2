@@ -36,7 +36,7 @@ const BAR: &str = "{prefix:.red} {msg:32.red} [{elapsed_precise}] [{bar:64.red/b
 
 static STY: Lazy<ProgressStyle> = Lazy::new(|| {
     ProgressStyle::with_template(BAR)
-        .fail("Invalid bar template")
+        .fail("[UNREACHABLE] Invalid bar template")
         .progress_chars("=>-")
 });
 
@@ -159,9 +159,9 @@ impl PM<'_> {
                 log::info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
 
-                let mut package_stats = package_stats.fail("Oops!");
+                let mut package_stats = package_stats.efail(|| format!("[UNREACHABLE] Stats for '{p}' should be some but isn't?"));
                 package_stats.record_build_time(stopwatch.elapsed());
-                stats::save(p, &package_stats).fail("Failed to save stats");
+                stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
             }
             bl::BuildStatus::Already => {
                 log::info!("Already built '{p}'");
@@ -206,7 +206,7 @@ impl PM<'_> {
         });
 
         stopwatch.stop();
-        msg!("󰗠  Pruned {} files for {} packages in {}", total_count, self.packages.len(), stopwatch.display());
+        msg!("󰗠  Pruned {total_count} files for {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
     /// # Description
@@ -223,7 +223,7 @@ impl PM<'_> {
 
         stopwatch.stop();
 
-        msg!("󰗠  Cleaned {} files for {} packages in {}", cleaned, self.packages.len(), stopwatch.display());
+        msg!("󰗠  Cleaned {cleaned} files for {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
     /// # Description
@@ -313,8 +313,9 @@ impl PM<'_> {
     }
 
     fn stats(p: &Package) {
-        let stats = stats::load(p).fail("Failed to load package stats");
-        stats.display(p);
+        stats::load(p)
+            .efail(|| format!("Failed to load package stats for '{p}'"))
+            .display(p);
     }
 
     /// # Description
@@ -355,7 +356,7 @@ impl PM<'_> {
         self.packages.iter().for_each(|p| {
             for d in &DOTDIRS {
                 let dir = p.data.port_dir.join(d);
-                mkdir(&dir).fail(&format!("Failed to create dotdir {dir:?} for '{p}'"));
+                mkdir(&dir).efail(|| format!("Failed to create dotdir '{}' for '{p}'", dir.display()));
             }
         });
     }

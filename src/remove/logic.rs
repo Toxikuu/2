@@ -203,13 +203,15 @@ pub fn prune(package: &Package) -> usize {
     let tarball_approx = src_dir.join(package.to_string());
     let mut pruned_count = 0;
 
-    for entry in read_dir(&src_dir).fail(&format!("Failed to read sources directory {src_dir:?}")) {
-        let entry = entry.fail("Invalid source entry");
-        let path = entry.path();
+    for entry in read_dir(&src_dir)
+        .efail(|| format!("Failed to read sources directory '{}' for '{package}'", src_dir.display()))
+        {
+            let entry = entry.fail("Invalid source entry");
+            let path = entry.path();
 
-        if !path.is_file() {
-            warn!("Detected non-file {path:?} in {src_dir:?}");
-            continue
+            if !path.is_file() {
+                warn!("Detected non-file {path:?} in {src_dir:?}");
+                continue
         }
 
         let should_keep = path.to_string_lossy().starts_with(&*tarball_approx.to_string_lossy())
@@ -221,7 +223,7 @@ pub fn prune(package: &Package) -> usize {
         }
 
         vpr!("Pruning: {:?}", path);
-        rm(&path).fail(&format!("Failed to prune file {path:?}"));
+        rm(&path).efail(|| format!("Failed to prune file '{}' for '{package}'", path.display()));
         pruned_count += 1;
     }
 
@@ -241,7 +243,7 @@ fn prune_logs(package: &Package) -> usize {
     }
 
     let mut pruned_count = 0;
-    for entry in read_dir(&log_dir).fail(&format!("Failed to read log directory {log_dir:?}")) {
+    for entry in read_dir(&log_dir).efail(|| format!("Failed to read log directory '{}' for '{package}'", log_dir.display())) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
@@ -279,7 +281,7 @@ fn prune_manifests(package: &Package) -> usize {
     ];
 
     let mut pruned_count = 0;
-    for entry in read_dir(&data_dir).fail(&format!("Failed to read data directory {data_dir:?}")) {
+    for entry in read_dir(&data_dir).efail(|| format!("Failed to read data directory '{}' for '{package}'", data_dir.display())) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
@@ -316,7 +318,10 @@ fn prune_dist(package: &Package) -> usize {
     ];
 
     let mut pruned_count = 0;
-    for entry in read_dir(&dist_dir).fail(&format!("Failed to read data directory {dist_dir:?}")).flatten() {
+    for entry in read_dir(&dist_dir)
+        .efail(|| format!("Failed to read data directory '{}' for '{package}'", dist_dir.display()))
+        .flatten()
+    {
         let path = entry.path();
 
         if !path.is_file() {

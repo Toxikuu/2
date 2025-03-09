@@ -46,17 +46,17 @@ pub fn resolve_ambiguity(name: &str) -> String {
     let mut matches = locate(name);
     prioritize(&mut matches);
 
-    matches.is_empty().and_fail(&format!("Failed to find '{name}' in any repo"));
+    matches.is_empty().and_efail(|| format!("Could not find '{name}' in any repo"));
     if let [only] = matches.as_slice() { return only.to_string() }
 
-    erm!("Ambiguous: '{}'", name);
+    erm!("Ambiguous: '{name}'");
     for (i, m) in matches.iter().enumerate() {
-        pr!("{}. {}", i, m);
+        pr!("{i}. {m}");
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().fail("Schrodinger's empty vector");
-        pr!("Auto-selected '{}'", m);
+        let m = matches.first().fail("[UNREACHABLE] Schrodinger's empty vector");
+        pr!("Auto-selected '{m}'");
         return m.to_string()
     }
 
@@ -85,13 +85,13 @@ fn locate_set(set: &str) -> Vec<String> {
     let pattern = format!(".sets/{set}");
 
     fs::read_dir("/usr/ports")
-        .fail("No repos found")
+        .fail("No package repos found")
         .filter_map(|r| {
-            let repo = r.ok().fail("Unknown failure in locate_set()").path();
+            let repo = r.ok().fail("Failed to read an entry in '/usr/ports': Filesystem error?").path();
 
             if repo.join(&pattern).exists() {
                 repo.file_name()
-                    .map(|name| format!("{}/{}", name.to_string_lossy(), set))
+                    .map(|name| format!("{}/{set}", name.to_string_lossy()))
             } else { None }
         })
         .collect()
@@ -111,19 +111,19 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
             locate_set(set)
         };
 
-    matches.is_empty().and_fail(&format!("Failed to find '{set}' in any repo"));
+    matches.is_empty().and_efail(|| format!("Failed to find '{set}' in any repo"));
     if let [only] = matches.as_slice() { return only.to_string() }
 
     prioritize(&mut matches);
 
-    erm!("Ambiguous: '{}'", set);
+    erm!("Ambiguous: '{set}'");
     for (i, m) in matches.iter().enumerate() {
-        pr!("{}. {}", i, m);
+        pr!("{i}. {m}");
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().fail("Schrodinger's empty vector");
-        pr!("Auto-selected '{}'", m);
+        let m = matches.first().fail("[UNREACHABLE] Schrodinger's empty vector");
+        pr!("Auto-selected '{m}'");
         return m.clone()
     }
 

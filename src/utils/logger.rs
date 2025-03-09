@@ -27,7 +27,7 @@ const MASTER_LOG: &str = "/tmp/2/master.log";
 static LOG_INIT: Once = Once::new();
 /// # Description
 /// Regex pattern for matching against 2's logs
-static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").fail("Invalid regex"));
+static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").fail("Invalid regex for 2 log entry"));
 
 /// # Description
 /// Retrieve the log level
@@ -53,12 +53,13 @@ fn get_log_level() -> LevelFilter {
 pub fn init() {
     LOG_INIT.call_once(|| {
         let log_file = PathBuf::from(MASTER_LOG);
-        let log_dir = log_file.parent().fail("Log file has no parent?");
-        mkdir(log_dir).fail("Failed to create log dir");
+        let log_dir = log_file.parent()
+            .efail(|| format!("[UNREACHABLE] Log file '{}' has no parent", log_file.display()));
+        mkdir(log_dir).efail(|| format!("Failed to create log dir '{}'", log_dir.display()));
 
         OO::new().create(true).append(true)
             .open(&log_file)
-            .fail(&format!("Failed to open {log_file:?}"));
+            .efail(|| format!("Failed to open log file '{}'", log_file.display()));
 
         let config = build_config().fail("Failed to build initial config");
         log4rs::init_config(config).fail("Failed to initialize logger");
@@ -180,7 +181,8 @@ fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
 /// Displays formatted logs for a log file
 pub fn display(log_file: &Path) {
     let log_level = get_log_level();
-    let f = File::open(log_file).fail("Failed to open file");
+    let f = File::open(log_file)
+        .efail(|| format!("Failed to open log file '{}'", log_file.display()));
     let reader = BufReader::new(f);
     let mut log_entries = collect_logs(reader);
     log_entries.iter_mut()
