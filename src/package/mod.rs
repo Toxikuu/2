@@ -36,8 +36,6 @@ pub struct Package {
     #[serde(default)]
     pub extra: Arc<[PackageSource]>,
 
-    // TODO: Do the below
-    // I prolly should use Option<> but I'm fucking lazy
     #[cfg(feature = "upstream")]
     pub upstream: Option<String>,
     #[cfg(feature = "upstream")]

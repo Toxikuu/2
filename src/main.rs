@@ -54,7 +54,6 @@ use utils::{fail::BoolFail, logger};
 /// Takes arguments from the environment and calls PM or other functions accordingly
 fn main() {
     let mut args = initialize();
-    // TODO: test against args to determine which need root privileges before erroring out
     unsafe { libc::geteuid() == 0 }.or_fail("2 requires root privileges");
 
     handle_special_args(&mut args);

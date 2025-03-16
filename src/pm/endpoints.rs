@@ -188,9 +188,6 @@ impl PM<'_> {
         });
     }
 
-    // TODO: Parallelize this
-    // TODO: Add force support (which would prune current sources as well)
-    //
     /// # Description
     /// Prunes files for all packages in the PM struct
     fn prune(&self) {
@@ -209,6 +206,7 @@ impl PM<'_> {
         msg!("󰗠  Pruned {total_count} files for {} packages in {}", self.packages.len(), stopwatch.display());
     }
 
+    // TODO: clean might be a good candidate for parallelism
     /// # Description
     /// Cleans the build directory for all packages in the PM struct
     fn clean(&self) {

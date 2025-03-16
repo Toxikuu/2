@@ -11,9 +11,6 @@ use super::{
     sets::Set,
 };
 
-// TODO: Rather than sets of repos, I should make it so the user can limit the sets to specific
-// repos (ex. main/@outdated)
-//
 /// # Description
 /// Parses the raw package positional arguments into packages
 ///
