@@ -1,3 +1,12 @@
+# 2=0.0.89
+## Changes
+- Clean up todos
+- Prefer curl over wget in install.sh
+- Improved error handling and messages
+- Verbosity tweaks
+- Minor refactoring
+    - Mostly related to removal/clean/pruning logic
+
 # 2=0.0.88
 ## Changes
 - Added efail
