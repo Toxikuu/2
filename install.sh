@@ -57,8 +57,7 @@ confirm 'Install fish completions?' && install -vDm644 "$PWD"/completions/fish /
 binstall() {
     mkdir -pv target/release
     cd target/release
-    # TODO: Prefer curl over wget
-    wget 'https://github.com/Toxikuu/2/releases/latest/download/two'
+    curl -Lf -o two 'https://github.com/Toxikuu/2/releases/latest/download/two'
     chmod +x two
 }
 
