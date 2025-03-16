@@ -16,14 +16,14 @@ impl Package {
     /// Creates a package given its repo and name
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
-        name.starts_with('.').and_fail("Invalid package name");
+        name.starts_with('.').and_efail(|| format!("Invalid package name '{name}'"));
 
         let port_dir = PathBuf::from("/usr/ports").join(repo).join(name);
         let lock_path = port_dir.join("LOCK");
-        log::debug!("Determined LOCK path for '{repo}/{name}': {lock_path:?}");
-        let contents = fs::read_to_string(&lock_path).fail("Failed to read LOCK");
+        log::debug!("Determined LOCK path for '{repo}/{name}': '{}'", lock_path.display());
+        let contents = fs::read_to_string(&lock_path).efail(|| format!("Failed to read LOCK for '{repo}/{name}'"));
 
-        let mut package: Self = toml::de::from_str(&contents).fail("Invalid syntax in LOCK");
+        let mut package: Self = toml::de::from_str(&contents).efail(|| format!("Invalid syntax in LOCK for '{repo}/{name}'"));
 
         package.relpath = format!("{}/{}", &package.repo, &package.name);
         let port_dir = PathBuf::from("/usr/ports").join(&package.repo).join(&package.name);
