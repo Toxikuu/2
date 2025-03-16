@@ -30,9 +30,15 @@ pub fn mkdir(dir: &Path) -> Result<()> {
 pub fn rmdir(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_dir(path) {
         match e.kind() {
-            IOE::NotFound => erm!("Ignoring '{}': missing", path.display()),
-            IOE::DirectoryNotEmpty => erm!("Ignoring '{}': populated", path.display()),
-            _ => bail!("Failed to remove '{}': {}", path.display(), e)
+            IOE::NotFound => {
+                erm!("Ignoring '{}': missing", path.display());
+                bail!("Missing directory")
+            }
+            IOE::DirectoryNotEmpty => {
+                erm!("Ignoring '{}': populated", path.display());
+                bail!("Populated directory")
+            },
+            _ => bail!("Failed to remove '{}': {e}", path.display())
         }
     }
     Ok(())
@@ -45,8 +51,11 @@ pub fn rmdir(path: &PathBuf) -> Result<()> {
 pub fn rmf(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_file(path) {
         match e.kind() {
-            IOE::NotFound => erm!("Ignoring '{}': missing", path.display()),
-            _ => bail!("Failed to remove '{}': {}", path.display(), e)
+            IOE::NotFound => {
+                erm!("Ignoring '{}': missing", path.display());
+                bail!("Missing file")
+            }
+            _ => bail!("Failed to remove '{}': {e}", path.display())
         }
     }
     Ok(())
