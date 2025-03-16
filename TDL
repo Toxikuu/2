@@ -17,8 +17,8 @@ WIP
     Test install.sh
         Seemed to work fine in chroot
 
-    Add full output for --clean and --prune
-        Currently, this shows the total removed files
+    Add full output for --prune
+        Currently, this only shows the total removed files
         It needs to also show which files are being removed, suppressable with -q
 
     Complete maint functionality
@@ -44,6 +44,7 @@ DONEISH
             [*] category
             [-] license (in the future)
             [-] dependencies (in the future)
+            TODO ^
 
     Make the env scripts recognize 32DEST/usr/lib as a fallback if 32DEST/usr/lib32 doesn't exist
         Also simplify the logic from packages accordingly:
@@ -278,17 +279,23 @@ DROPPED
         Would be unintuitive and overly complex
 
     Look into using --dereference with tar
-        Idt its needed
+        It is harmful, as it does not package symlinks
 
     Use the zstd crate, or else vendor my own built zstd libraries
         Imo just keep the runtime dependency, but explain in docs how to bootstrap it
 
 IDEAS
 
+    Add a testing and unstable repo
+        testing should basically never be used by an end user, and will function as a testing ground for new packages
+        unstable should contain packages moved out of testing
+        packages from unstable should be moved to main or xorg
+
     More API calls for BUILD files
         STRIP=<level> (symbols, debug, all)
         CONFLICTS=("package1", "package2")
         LICENSE=("license", "license2")
+        KCFG=("NAMESPACES=Y", "USER_NS=Y") # example kernel config options required for steam
 
     Drop log4rs in favor of another logger (maybe tracing)
         log4rs flags cargo audit bc it relies on an unmaintained crate
@@ -372,6 +379,8 @@ ROADMAP
         Take a glance at the ideas and consider what I wanna implement
 
     Features for 2-0.3.0:
+        Add a file that contains paths not to be removed
+            Should support wild cards
         repo enabling/disabling
         progress bars for pruning and cleaning
         PackageStatus enum (Available, Built, Installed)
