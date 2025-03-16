@@ -34,7 +34,7 @@ confirm() {
 }
 
 pushd .
-mkdir -pv /usr/ports /usr/share/2 /etc/2
+mkdir -pv /var/ports /usr/share/2 /etc/2
 
 cd /usr/share/2
 if [[ -e /usr/share/2/.git ]]; then
@@ -43,8 +43,8 @@ else
     git clone https://github.com/Toxikuu/2.git .
 fi
 
-if [[ ! -e /usr/ports/main ]]; then
-    git clone https://github.com/Toxikuu/2-main.git /usr/ports/main
+if [[ ! -e /var/ports/main ]]; then
+    git clone https://github.com/Toxikuu/2-main.git /var/ports/main
 fi
 
 confirm 'Replace config?' && ln -sfv "$PWD"/config.toml /etc/2/

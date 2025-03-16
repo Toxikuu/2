@@ -35,6 +35,6 @@ rm -rf /usr/share/2 \
     /etc/2
     echo "Uninstalled 2"
 
-confirm "Would you like to also remove '/usr/ports'?" || { echo 'Done' ; exit 0 ;}
-    rm -rf /usr/ports
-    echo "Removed /usr/ports"
+confirm "Would you like to also remove '/var/ports'?" || { echo 'Done' ; exit 0 ;}
+    rm -rf /var/ports
+    echo "Removed /var/ports"

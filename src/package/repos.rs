@@ -14,9 +14,9 @@ use std::{
 };
 
 /// # Description
-/// Returns a vector of all repositories under /usr/ports
+/// Returns a vector of all repositories under /var/ports
 pub fn find_all() -> Rc<[String]> {
-    let dir = "/usr/ports";
+    let dir = "/var/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
 
     let repos: Rc<[String]> = entries.map(|f| f.fail("Invalid entry?").file_name().into_string().fail("Invalid unicode?")).collect();
@@ -77,7 +77,7 @@ fn is_short(repo_url: &str) -> bool {
 }
 
 /// # Description
-/// Takes the url of a git repo and adds it to /usr/ports
+/// Takes the url of a git repo and adds it to /var/ports
 /// Requires git to work
 pub fn add(repo_url: &str) {
     let short = if is_short(repo_url) {
@@ -91,7 +91,7 @@ pub fn add(repo_url: &str) {
         .split_once("2-")
         .fail("Invalid repo name");
 
-    let command = format!("git clone https://github.com/{author}/2-{repo_name}.git /usr/ports/{repo_name}");
+    let command = format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
 
     msg!("󰐗  Adding '{repo_name}/'...");
     log::info!("Adding '{repo_name}/'...");
@@ -103,7 +103,7 @@ pub fn add(repo_url: &str) {
 /// # Description
 /// Syncs an installed git repo. Requires git to work.
 pub fn sync(repo: &str) {
-    let command = format!("cd /usr/ports/{repo} && git pull");
+    let command = format!("cd /var/ports/{repo} && git pull");
 
     msg!("󱍸  Syncing '{repo}'...");
     log::info!("Syncing '{repo}'...");

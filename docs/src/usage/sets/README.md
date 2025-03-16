@@ -5,7 +5,7 @@ This page introduces sets.
 
 ### Explanation
 A set is a collection of packages. These collections are defined at
-``/usr/ports/<repo>/.sets/<set>``. The set definition is a newline-delimited
+``/var/ports/<repo>/.sets/<set>``. The set definition is a newline-delimited
 list of packages, optionally from other repos.
 
 2 unravels sets into their component packages and performs actions on those.
@@ -29,7 +29,7 @@ This is the LFS set, composed of the packages that make up Linux From Scratch.
 
 This is what it looks like:
 ```
- $ cat /usr/ports/main/.sets/@lfs
+ $ cat /var/ports/main/.sets/@lfs
 man-pages
 iana-etc
 glibc

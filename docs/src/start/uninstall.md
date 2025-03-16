@@ -19,6 +19,6 @@ rm -rvf /usr/share/2 \
 
 If you'd also like to uninstall 2's ports, remove the specific repositories, or the entire directory:
 ```bash
-rm -rvf /usr/ports
+rm -rvf /var/ports
 ```
-***Warning:** If you have other files stored in ``/usr/ports``, you'll probably want to only delete 2's package repos.*
+***Warning:** If you have other files stored in ``/var/ports``, you'll probably want to only delete 2's package repos.*

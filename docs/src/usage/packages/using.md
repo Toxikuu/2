@@ -12,15 +12,15 @@ built.
 ```
  $ 2 -fb whois
 ...
-make[1]: Leaving directory '/usr/ports/main/whois/.build/po'
+make[1]: Leaving directory '/var/ports/main/whois/.build/po'
 Packaging...
 [ 540K ↘ ↘  72K ]
 󰗠  Built 'whois=5.5.23' in 671.682 ms
 ```
 It's been built and packaged into a distribution tarball:
 ```
- $ ls '/usr/ports/main/whois/.dist/whois=5.5.23.tar.zst'
- /usr/ports/main/whois/.dist/whois=5.5.23.tar.zst
+ $ ls '/var/ports/main/whois/.dist/whois=5.5.23.tar.zst'
+ /var/ports/main/whois/.dist/whois=5.5.23.tar.zst
 ```
 Let's run the command again, but without the force flag to see what happens.
 ```
@@ -87,32 +87,32 @@ packages.*
 But now those packages have associated logs. I hate logs (they were a pain to
 implement for 2). Let's delete them >:)
 ```
- $ ls -l /usr/ports/main/{lzip,tree,time}/.logs/pkg.log
+ $ ls -l /var/ports/main/{lzip,tree,time}/.logs/pkg.log
 Octal Permissions Size User Date Modified Name
-0644  .rw-r--r--  1.1k root 16 Feb 02:39   /usr/ports/main/lzip/.logs/pkg.log
-0644  .rw-r--r--   650 root 16 Feb 02:39   /usr/ports/main/tree/.logs/pkg.log
-0644  .rw-r--r--  1.0k root 16 Feb 02:39   /usr/ports/main/time/.logs/pkg.log
+0644  .rw-r--r--  1.1k root 16 Feb 02:39   /var/ports/main/lzip/.logs/pkg.log
+0644  .rw-r--r--   650 root 16 Feb 02:39   /var/ports/main/tree/.logs/pkg.log
+0644  .rw-r--r--  1.0k root 16 Feb 02:39   /var/ports/main/time/.logs/pkg.log
 
  $ 2 -p tree time lzip
 󰗠  Pruned 3 files for 3 packages in 230289 ns
 
- $ ls -l /usr/ports/main/{lzip,tree,time}/.logs/pkg.log
-"/usr/ports/main/lzip/.logs/pkg.log": No such file or directory (os error 2)
-"/usr/ports/main/tree/.logs/pkg.log": No such file or directory (os error 2)
-"/usr/ports/main/time/.logs/pkg.log": No such file or directory (os error 2)
+ $ ls -l /var/ports/main/{lzip,tree,time}/.logs/pkg.log
+"/var/ports/main/lzip/.logs/pkg.log": No such file or directory (os error 2)
+"/var/ports/main/tree/.logs/pkg.log": No such file or directory (os error 2)
+"/var/ports/main/time/.logs/pkg.log": No such file or directory (os error 2)
 ```
 Pruning is kinda like softcore but for the ``--remove`` flag. Only files that
 can be safely deleted will be. That means 2 will retain the latest version of
 the sources and distribution tarballs.
 ```
- $ ls -l /usr/ports/main/{lzip,tree,time}/.{dist,sources}/*
+ $ ls -l /var/ports/main/{lzip,tree,time}/.{dist,sources}/*
 Octal Permissions Size User Date Modified Name
-0644  .rw-r--r--  116k root 16 Feb 02:38   /usr/ports/main/lzip/.sources/lzip=1.25.tar.gz
-0644  .rw-r--r--   80k root 16 Feb 02:38   /usr/ports/main/lzip/.dist/lzip=1.25.tar.zst
-0644  .rw-r--r--  597k root 16 Feb 02:38   /usr/ports/main/time/.sources/time=1.9.tar.gz
-0644  .rw-r--r--   22k root 16 Feb 02:39   /usr/ports/main/time/.dist/time=1.9.tar.zst
-0644  .rw-r--r--   66k root 16 Feb 02:38   /usr/ports/main/tree/.sources/tree=2.2.1.tar.gz
-0644  .rw-r--r--   43k root 16 Feb 02:39   /usr/ports/main/tree/.dist/tree=2.2.1.tar.zst
+0644  .rw-r--r--  116k root 16 Feb 02:38   /var/ports/main/lzip/.sources/lzip=1.25.tar.gz
+0644  .rw-r--r--   80k root 16 Feb 02:38   /var/ports/main/lzip/.dist/lzip=1.25.tar.zst
+0644  .rw-r--r--  597k root 16 Feb 02:38   /var/ports/main/time/.sources/time=1.9.tar.gz
+0644  .rw-r--r--   22k root 16 Feb 02:39   /var/ports/main/time/.dist/time=1.9.tar.zst
+0644  .rw-r--r--   66k root 16 Feb 02:38   /var/ports/main/tree/.sources/tree=2.2.1.tar.gz
+0644  .rw-r--r--   43k root 16 Feb 02:39   /var/ports/main/tree/.dist/tree=2.2.1.tar.zst
 ```
 But let's say we want to clean out this cache -- that is, we want to use new
 sources and a new distribution tarball for some reason. You can do that too!
@@ -129,13 +129,13 @@ This flag is usually useless, but if you have auto-cleaning disabled in the
 config (usually if you're inspecting builds), you can use it to explicitly
 clean the builds.
 ```
- $ find /usr/ports/main/lzip/.build -maxdepth 1 | wc -l
+ $ find /var/ports/main/lzip/.build -maxdepth 1 | wc -l
 38
 
  $ 2 -c lzip
 󰗠  Cleaned 1 packages in 899958 ns
 
- $ find /usr/ports/main/lzip/.build/ -maxdepth 1 | wc -l
+ $ find /var/ports/main/lzip/.build/ -maxdepth 1 | wc -l
 1
 ```
 Ok let's do a quick progression skip:
@@ -182,7 +182,7 @@ info: default toolchain set to 'nightly-x86_64-unknown-linux-gnu'
 
   nightly-x86_64-unknown-linux-gnu unchanged - rustc 1.86.0-nightly (049355708 2025-01-18)
 ...
-'target/release/eza' -> '/usr/ports/main/eza/.build/D/usr/bin/eza'
+'target/release/eza' -> '/var/ports/main/eza/.build/D/usr/bin/eza'
 Packaging...
 [ 2.1M ↘ ↘  816K ]
 󰐗  Installing 'eza=0.20.21'...
@@ -220,10 +220,10 @@ and ``-fu`` pretty much interchangeably, since 2 holds your hand there.
 󱍷  Updating 'iana-etc': '20250123' -> '20250213'
 󱠇  Building 'iana-etc=20250213'...
 mkdir: created directory '/tmp/2/extraction'
-install: creating directory '/usr/ports/main/iana-etc/.build/D'
-install: creating directory '/usr/ports/main/iana-etc/.build/D/etc'
-'services' -> '/usr/ports/main/iana-etc/.build/D/etc/services'
-'protocols' -> '/usr/ports/main/iana-etc/.build/D/etc/protocols'
+install: creating directory '/var/ports/main/iana-etc/.build/D'
+install: creating directory '/var/ports/main/iana-etc/.build/D/etc'
+'services' -> '/var/ports/main/iana-etc/.build/D/etc/services'
+'protocols' -> '/var/ports/main/iana-etc/.build/D/etc/protocols'
 Packaging...
 [ 568K ↘ ↘  116K ]
 󰐗  Installing 'iana-etc=20250213'...
@@ -271,9 +271,9 @@ hating logs because I want to check how long it took to build tree.
 ...
 2025-02-16 03:34:04.479 TRACE | [two::shell::cmd@55]             ~ mkdir: created directory '/tmp/2/extraction'
 ...
-2025-02-16 03:34:04.960 TRACE | [two::shell::cmd@55]             ~ install -d /usr/ports/main/tree/.build/D/usr/share/man/man1
-2025-02-16 03:34:04.961 TRACE | [two::shell::cmd@55]             ~ install tree /usr/ports/main/tree/.build/D/usr/bin/tree; \
-2025-02-16 03:34:04.961 TRACE | [two::shell::cmd@55]             ~ install -m 644 doc/tree.1 /usr/ports/main/tree/.build/D/usr/share/man/man1/tree.1
+2025-02-16 03:34:04.960 TRACE | [two::shell::cmd@55]             ~ install -d /var/ports/main/tree/.build/D/usr/share/man/man1
+2025-02-16 03:34:04.961 TRACE | [two::shell::cmd@55]             ~ install tree /var/ports/main/tree/.build/D/usr/bin/tree; \
+2025-02-16 03:34:04.961 TRACE | [two::shell::cmd@55]             ~ install -m 644 doc/tree.1 /var/ports/main/tree/.build/D/usr/share/man/man1/tree.1
 2025-02-16 03:34:04.966 TRACE | [two::shell::cmd@55]             ~ Packaging...
 2025-02-16 03:34:05.029 TRACE | [two::shell::cmd@66]             ~ [ 144K ↘ ↘  44K ]
 2025-02-16 03:34:05.029 INFO  | [two::pm::endpoints@152]         ~ Built 'tree=2.2.1'

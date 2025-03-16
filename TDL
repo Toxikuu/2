@@ -9,10 +9,10 @@ TODO
     Consolidate logging and vpr/msg/erm
         Would also probably be a good idea to transition to tracing
 
+WIP
+
     Move /usr/ports to /var/ports
         Nightmare! (maybe, its probably fine actually)
-
-WIP
 
     Test install.sh
         Seemed to work fine in chroot

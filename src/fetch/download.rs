@@ -54,7 +54,7 @@ pub fn download(package: &Package, force: bool, sty: &ProgressStyle) -> Download
 /// - url was invalid
 /// - ``download_url()`` returns an error other than Exists
 ///
-/// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
+/// Saves the downloaded sources to ``/var/ports/<repo>/<package>/.sources/<name>``
 pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
     let mut dlct = 0;
     package.extra.iter().for_each(|source| {
@@ -187,7 +187,7 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 /// - url was invalid
 /// - ``download_url()`` returns an error other than Exists
 ///
-/// Saves the downloaded sources to ``/usr/ports/<repo>/<package>/.sources/<name>``
+/// Saves the downloaded sources to ``/var/ports/<repo>/<package>/.sources/<name>``
 fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
     let url = package.source.url.clone();
     if url.is_empty() { return false }

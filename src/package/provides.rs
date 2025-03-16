@@ -17,7 +17,7 @@ use super::Package;
 /// # Description
 /// Finds all manifests containing a given path
 fn find_manifests_with_path(path: &str) -> Vec<PathBuf> {
-    manifest::locate("/usr/ports")
+    manifest::locate("/var/ports")
         .iter()
         .filter_map(|m| {
         let contents = fs::read_to_string(m).fail("Failed to read manifest");
@@ -37,12 +37,12 @@ fn get_package_from_manifest(manifest: &Path) -> Package {
     let components = manifest.components().collect::<Vec<_>>();
 
     let repo = components.get(3)
-        .context("Are you using /usr/ports?")
+        .context("Are you using /var/ports?")
         .fail("Failed to parse package repo from manifest path")
         .as_os_str()
         .to_string_lossy();
     let name = components.get(4)
-        .context("Are you using /usr/ports?")
+        .context("Are you using /var/ports?")
         .fail("Failed to parse package name from manifest path")
         .as_os_str()
         .to_string_lossy();

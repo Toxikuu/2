@@ -67,9 +67,9 @@ impl Set {
     pub fn dirs(&self) -> Rc<[String]> {
         let repo = &self.repo;
         if repo == "//" {
-            repos::find_all().iter().map(|r| format!("/usr/ports/{r}")).collect()
+            repos::find_all().iter().map(|r| format!("/var/ports/{r}")).collect()
         } else {
-            [format!("/usr/ports/{repo}")].into()
+            [format!("/var/ports/{repo}")].into()
         }
     }
 
@@ -106,7 +106,7 @@ impl Set {
 
     /// # Description
     /// Given a set, returns all member packages
-    /// Sets are defined in ``/usr/ports/<repo>/.sets/<@set>``
+    /// Sets are defined in ``/var/ports/<repo>/.sets/<@set>``
     // TODO: Implement and test set recursion
     pub fn unravel(&self) -> Rc<[String]> {
         let set = &self.set;
@@ -118,7 +118,7 @@ impl Set {
             return self.unravel_special()
         }
 
-        let file_path = format!("/usr/ports/{repo}/.sets/{set}");
+        let file_path = format!("/var/ports/{repo}/.sets/{set}");
         let file = File::open(file_path)
             .efail(|| format!("Set '{self}' does not exist"));
         let buf = BufReader::new(file);
@@ -180,7 +180,7 @@ impl Set {
     fn installed(&self) -> Rc<[String]> {
         self.all()
             .iter()
-            .filter(|p| Path::new(&format!("/usr/ports/{p}/.data/INSTALLED")).exists())
+            .filter(|p| Path::new(&format!("/var/ports/{p}/.data/INSTALLED")).exists())
             .cloned()
             .collect::<Vec<_>>()
             .into()
@@ -193,7 +193,7 @@ impl Set {
     fn available(&self) -> Rc<[String]> {
         self.all()
             .iter()
-            .filter(|p| !Path::new(&format!("/usr/ports/{p}/.data/INSTALLED")).exists())
+            .filter(|p| !Path::new(&format!("/var/ports/{p}/.data/INSTALLED")).exists())
             .cloned()
             .collect::<Vec<_>>()
             .into()
@@ -219,7 +219,7 @@ impl Set {
 /// # Description
 /// Lists available sets for a repo
 pub fn list(repo: &str) {
-    let dir = format!("/usr/ports/{repo}/.sets");
+    let dir = format!("/var/ports/{repo}/.sets");
     let Ok(entries) = read_dir(dir) else {
         return erm!("No sets available for '{}/'", repo);
     };

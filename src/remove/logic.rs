@@ -48,7 +48,7 @@ const KEPT: [&str; 23] = [
     "/usr/lib",
     "/usr/lib32",
     "/usr/libexec",
-    "/usr/ports",
+    "/var/ports",
     "/usr/share",
     "/usr/share/pkgconfig",
     "/var",

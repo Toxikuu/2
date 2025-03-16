@@ -6,7 +6,7 @@ explains what they do.
 
 ### List-repos
 The list-repos flag (``-/`` or ``--list-repos``) lists the available repos in
-``/usr/ports``. It takes no arguments.
+``/var/ports``. It takes no arguments.
 
 ### List-sets
 The list-sets flag (``-@`` or ``--list-sets``) lists the available sets for one
@@ -14,7 +14,7 @@ or more repos. The repo argument may end with '/', but it doesn't have to.
 
 ### Add-repos
 The add-repos flag (``-a`` or ``--add-repos``) adds one or more repos. Under
-the hood, this uses git to clone a remote repo into ``/usr/ports/``. The
+the hood, this uses git to clone a remote repo into ``/var/ports/``. The
 argument should be the link to the repo.
 
 ### Sync-repos

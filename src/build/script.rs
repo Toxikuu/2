@@ -69,7 +69,7 @@ fn setup(package: &Package) {
 
     mkdir -pv "$XTR"
 
-    # example: /usr/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
+    # example: /var/ports/testing/tree/.sources/tree=2.2.1.tar.bz2
     tar xf "$SRC/{package}.tar."*z* -C $XTR
     shopt -s dotglob
     mv -f $XTR/*/* "$BLD"/

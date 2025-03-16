@@ -19,7 +19,7 @@ impl Package {
         // TODO: I'm pretty confident this is unreachable, and should be handled instead in parse()
         name.starts_with('.').and_efail(|| format!("Invalid package name '{name}'"));
 
-        let port_dir = PathBuf::from("/usr/ports").join(repo).join(name);
+        let port_dir = PathBuf::from("/var/ports").join(repo).join(name);
         let lock_path = port_dir.join("LOCK");
         log::debug!("Determined LOCK path for '{repo}/{name}': '{}'", lock_path.display());
         let contents = fs::read_to_string(&lock_path).efail(|| format!("Failed to read LOCK for '{repo}/{name}'"));
@@ -27,7 +27,7 @@ impl Package {
         let mut package: Self = toml::de::from_str(&contents).efail(|| format!("Invalid syntax in LOCK for '{repo}/{name}'"));
 
         package.relpath = format!("{}/{}", &package.repo, &package.name);
-        let port_dir = PathBuf::from("/usr/ports").join(&package.repo).join(&package.name);
+        let port_dir = PathBuf::from("/var/ports").join(&package.repo).join(&package.name);
         let dist_tb = format!("{}={}.tar.zst", package.name, package.version);
 
         let status_path = port_dir.join(".data").join("INSTALLED");

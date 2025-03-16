@@ -12,7 +12,7 @@ catfetch -- you can write a set to store them all.
 ### Writing That Set
 First, let's see what we're working with.
 ```
- $ cd /usr/ports/main/.sets
+ $ cd /var/ports/main/.sets
  $ ls
  @lfs
 ```

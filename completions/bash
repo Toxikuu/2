@@ -37,11 +37,11 @@ _2() {
     # suggest packages/repos for relevant flags
     case "${prev}" in
         --install | -i | --build | -b | --remove | -r | --update | -u | --list | -l | --get | -g | --prune | -p | --clean | -c | --logs | -L | --history | -H | --summary | -s | --upstream | -U)
-            COMPREPLY=( $(compgen -W "$(find /usr/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/usr/ports/||' | grep -Ev '^\.|/\.')" -- "${cur}") )
+            COMPREPLY=( $(compgen -W "$(find /var/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/var/ports/||' | grep -Ev '^\.|/\.')" -- "${cur}") )
             return 0
             ;;
         --sync-repos | -S | --list-sets | -@)
-            COMPREPLY=( $(compgen -W "$(find /usr/ports -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -Ev '^\.|/\.')" -- "${cur}") )
+            COMPREPLY=( $(compgen -W "$(find /var/ports -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -Ev '^\.|/\.')" -- "${cur}") )
             return 0
             ;;
     esac

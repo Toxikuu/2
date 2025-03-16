@@ -25,7 +25,7 @@ hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
 hint: 'development'. The just-created branch can be renamed via this command:
 hint:
 hint: 	git branch -m <name>
-Initialized empty Git repository in /usr/ports/tox/.git/
+Initialized empty Git repository in /var/ports/tox/.git/
 ```
 
 Then, add the upstream repo as a remote and fetch:

@@ -3,7 +3,7 @@
 ## Info
 2 is a source-based package manager for LFS. It packages packages into
 distribution tarballs, allowing for rapid reinstalls, while not compromising on
-the perks of low-level build-process control. It uses /usr/ports to store
+the perks of low-level build-process control. It uses /var/ports to store
 package repositories, which contain build-information for individual packages.
 
 ## Installation

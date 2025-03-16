@@ -32,10 +32,10 @@ If you'd like to know more about how a package works, read [Chapter
 3.4](../../advanced/ports).
 
 # TODO: Move the below to 3.4
-Packages are defined and stored in the ``/usr/ports/<repo>/<name>`` directory.
+Packages are defined and stored in the ``/var/ports/<repo>/<name>`` directory.
 Below is the file hierarchy for main/tree:
 ```
- /usr/ports/main/tree/
+ /var/ports/main/tree/
 ├──  .build/
 ├──  .data/
 │   └──  MANIFEST=2.2.1

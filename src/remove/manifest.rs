@@ -41,7 +41,7 @@ fn is_manifest(entry: &DirEntry) -> bool {
 ///
 /// Ignores entries that aren't manifests and that aren't in .data
 ///
-/// dir is commonly ``/usr/ports``, though can also be ``$PORT/.data`` for dead files
+/// dir is commonly ``/var/ports``, though can also be ``$PORT/.data`` for dead files
 pub fn locate(dir: &str) -> Rc<[PathBuf]> {
     WalkDir::new(dir)
         .max_depth(4)
@@ -99,7 +99,7 @@ fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBu
 /// # Description
 /// Finds paths unique to a manifest
 pub fn find_unique_paths(manifest: &PathBuf) -> Result<Rc<[String]>> {
-    let manifests = locate("/usr/ports");
+    let manifests = locate("/var/ports");
     let data = read_all(&manifests);
     find_unique(&data, manifest)
 }
@@ -107,10 +107,10 @@ pub fn find_unique_paths(manifest: &PathBuf) -> Result<Rc<[String]>> {
 /// # Description
 /// Finds unique files in an old manifest (dead files)
 pub fn find_dead_files(package: &Package) -> Result<Rc<[String]>> {
-    let manifests = locate(&format!("/usr/ports/{}/{}/.data", package.repo, package.name));
+    let manifests = locate(&format!("/var/ports/{}/{}/.data", package.repo, package.name));
 
     let data = read_all(&manifests);
-    let old_manifest = Path::new(&format!("/usr/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.data.installed_version)).to_path_buf();
+    let old_manifest = Path::new(&format!("/var/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.data.installed_version)).to_path_buf();
 
     find_unique(&data, &old_manifest)
 }

@@ -16,7 +16,7 @@ sudo bash <(curl -fsSL 'https://github.com/Toxikuu/2/raw/refs/heads/master/insta
 ```
 
 The script will create the following directories if they don't exist:
-- /usr/ports
+- /var/ports
 - /usr/share/2
 - /etc/2
 
@@ -24,7 +24,7 @@ It will either clone or pull [2](https://github.com/Toxikuu/2.git) to
 ``/usr/share/2``.
 
 It will clone [2-main](https://github.com/Toxikuu/2-main.git) to
-``/usr/ports/main`` if needed.
+``/var/ports/main`` if needed.
 
 It will also install a bash script to ``/usr/bin/2`` which calls
 ``/usr/share/2/target/release/two``.
@@ -37,7 +37,7 @@ be installed manually. The following steps assume you're the root user.
 
 Create the necessary directories by running the following command:
 ```bash
-mkdir -pv /usr/ports /usr/share/2 /etc/2
+mkdir -pv /var/ports /usr/share/2 /etc/2
 ```
 
 #### Acquiring the Sources

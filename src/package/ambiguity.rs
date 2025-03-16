@@ -17,7 +17,7 @@ use walkdir::WalkDir;
 /// Searches across all repos for a given package
 /// Returns all packages matching the name in the form 'repo/name'
 fn locate(name: &str) -> Vec<String> {
-    WalkDir::new("/usr/ports")
+    WalkDir::new("/var/ports")
         .max_depth(2)
         .into_iter()
         .flatten()
@@ -29,7 +29,7 @@ fn locate(name: &str) -> Vec<String> {
         .filter_map(|e| {
             if is_dir(e.path()).unwrap_or(false) && e.file_name() == name {
                 e.path()
-                    .strip_prefix("/usr/ports")
+                    .strip_prefix("/var/ports")
                     .ok()
                     .map(|p| p.to_string_lossy().to_string())
             } else {
@@ -84,10 +84,10 @@ pub fn resolve_ambiguity(name: &str) -> String {
 fn locate_set(set: &str) -> Vec<String> {
     let pattern = format!(".sets/{set}");
 
-    fs::read_dir("/usr/ports")
+    fs::read_dir("/var/ports")
         .fail("No package repos found")
         .filter_map(|r| {
-            let repo = r.ok().fail("Failed to read an entry in '/usr/ports': Filesystem error?").path();
+            let repo = r.ok().fail("Failed to read an entry in '/var/ports': Filesystem error?").path();
 
             if repo.join(&pattern).exists() {
                 repo.file_name()
