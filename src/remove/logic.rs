@@ -61,7 +61,7 @@ const KEPT: [&str; 23] = [
 /// protected against removal, even if they're unique.
 ///
 /// Returns false if the package isn't installed
-/// Affected by quiet (I think; TODO: Confirm this)
+/// Affected by quiet
 ///
 /// **Fail Conditions:**
 /// - the manifest doesn't exist
@@ -349,7 +349,6 @@ fn prune_dist(package: &Package) -> usize {
 /// Cleans a build
 ///
 /// Deletes all files under $PORT/.build/ recursively
-#[allow(clippy::if_same_then_else)] // count += 1 is required for both
 pub fn clean(package: &Package) -> u64 {
     let dir = package.data.port_dir.join(".build");
 
@@ -358,6 +357,7 @@ pub fn clean(package: &Package) -> u64 {
     }
 
     let mut count = 0;
+    let quiet = Flags::grab().quiet;
 
     let paths = WalkDir::new(&dir)
         .min_depth(1) // skip .build
@@ -368,6 +368,9 @@ pub fn clean(package: &Package) -> u64 {
 
     paths.iter().rev().for_each(|p| {
         if rm(p).is_ok() {
+            if !quiet {
+                pr!("Removed '{}'", p.display());
+            }
             count += 1;
         }
     });
