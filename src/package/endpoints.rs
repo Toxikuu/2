@@ -16,6 +16,7 @@ impl Package {
     /// Creates a package given its repo and name
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
+        // TODO: I'm pretty confident this is unreachable, and should be handled instead in parse()
         name.starts_with('.').and_efail(|| format!("Invalid package name '{name}'"));
 
         let port_dir = PathBuf::from("/usr/ports").join(repo).join(name);
