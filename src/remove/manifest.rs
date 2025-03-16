@@ -36,8 +36,6 @@ fn is_manifest(entry: &DirEntry) -> bool {
         .contains("MANIFEST=")
 }
 
-// TODO: Rewrite this without mut vec
-//
 /// # Description
 /// Finds all manifests
 ///
@@ -45,25 +43,20 @@ fn is_manifest(entry: &DirEntry) -> bool {
 ///
 /// dir is commonly ``/usr/ports``, though can also be ``$PORT/.data`` for dead files
 pub fn locate(dir: &str) -> Rc<[PathBuf]> {
-    let mut manifests = Vec::new();
-
-    for entry in WalkDir::new(dir)
+    WalkDir::new(dir)
         .max_depth(4)
         .into_iter()
         .filter_entry(|e| !is_in_wrong_hidden(e))
         .filter_map(Result::ok)
-    {
-        vpr!("ENTRY: {:?}", entry);
-        if entry.file_type().is_file()
-            && is_manifest(&entry)
-            && entry.path().with_file_name("INSTALLED").exists()
-        {
-            manifests.push(entry.into_path());
-        }
-    }
-
-    vpr!("Located manifests: {:#?}", manifests);
-    manifests.into()
+        .filter(|entry| {
+            vpr!("ENTRY: {:?}", entry);
+            entry.file_type().is_file()
+                && is_manifest(entry)
+                && entry.path().with_file_name("INSTALLED").exists()
+        })
+        .map(walkdir::DirEntry::into_path)
+        .inspect(|path| vpr!("Located manifest: {path:?}"))
+        .collect::<Rc<[PathBuf]>>()
 }
 
 /// # Description
@@ -81,8 +74,6 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
     data
 }
 
-// TODO: rewrite this without a mutable vec
-//
 /// # Description
 /// Finds lines (which represent package install paths) unique to this manifest
 ///
@@ -90,28 +81,19 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
 ///
 /// Returns the unique lines in reverse order (meaning /path/to/file is above /path/to)
 fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Result<Rc<[String]>> {
-    let mut unique = Vec::new();
-
-    // TODO: Consider not failing, rather just warning the user when a manifest isn't found
     let this_data = all_data.get(this_manifest).context("Missing manifest")?;
-    let mut all_other_lines = HashSet::new();
+    let all_other_lines: HashSet<_> = all_data.iter()
+        .filter(|(path, _)| *path != this_manifest)
+        .flat_map(|(_, lines)| lines.iter())
+        .collect();
 
-    for (path, lines) in all_data {
-        if path != this_manifest {
-            lines.iter().for_each(|l| {
-                all_other_lines.insert(l);
-            });
-        }
-    }
+    let unique = this_data.iter()
+        .filter(|l| !all_other_lines.contains(l))
+        .cloned()
+        .rev()
+        .collect::<Rc<[String]>>();
 
-    this_data.iter().for_each(|l| {
-        if !all_other_lines.contains(l) {
-            unique.push(l.clone());
-        }
-    });
-
-    unique.reverse();
-    Ok(unique.into())
+    Ok(unique)
 }
 
 /// # Description
