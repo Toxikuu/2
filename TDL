@@ -11,9 +11,6 @@ TODO
 
 WIP
 
-    Move /usr/ports to /var/ports
-        Nightmare! (maybe, its probably fine actually)
-
     Test install.sh
         Seemed to work fine in chroot
 
@@ -21,17 +18,21 @@ WIP
         Currently, this only shows the total removed files
         It needs to also show which files are being removed, suppressable with -q
 
-    Complete maint functionality
+    Complete 2lkit functionality
         Add downgrade
             restore's been added, but I might also add a simple downgrade
         Add view
         The error handling isn't user friendly but it's fine
         Add Package::from(MaintArg)
+        Add QA checks and basic linting
 
     Expand the main & xorg repos
         Categorize more packages
 
 DONEISH
+
+    Move /usr/ports to /var/ports
+        Nightmare! (maybe, its probably fine actually)
 
     Improve error messages by using with_context(|| format!(...))
         Ideally I'd have something like this but for Fail
@@ -295,7 +296,7 @@ IDEAS
         STRIP=<level> (symbols, debug, all)
         CONFLICTS=("package1", "package2")
         LICENSE=("license", "license2")
-        KCFG=("NAMESPACES=Y", "USER_NS=Y") # example kernel config options required for steam
+        KCFG=("NAMESPACES=*", "USER_NS=*/M") # example kernel config options required for steam
 
     Drop log4rs in favor of another logger (maybe tracing)
         log4rs flags cargo audit bc it relies on an unmaintained crate
@@ -362,7 +363,7 @@ ROADMAP
         [*] package summaries
         [*] build time tracking
         [*] install script
-        [*] fair maint functionality
+        [*] fair 2lkit functionality
         [-] finalize feature additions
         [-] reasonable amount of testing
         [-] solid documentation with mdbook
