@@ -23,7 +23,7 @@ fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
     let mut found_use = false;
 
     for &line in lines {
-        if line.contains("with ") && line.contains(env) {
+        if line.contains("with ") && line.contains(env) && !line.contains('#') {
             found_with = true;
         }
 
