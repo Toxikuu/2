@@ -1,3 +1,9 @@
+# 2=0.0.90
+## Changes
+- Made environment use QA check ignore comments
+- Migrated /usr/ports to /var/ports
+- Symlinked TDL -> TODO
+
 # 2=0.0.89
 ## Changes
 - Clean up todos
