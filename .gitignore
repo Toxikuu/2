@@ -2,5 +2,4 @@
 /docs/book
 /release
 
-# I'm doing some testing with RustRover
-.idea
+config.mk
