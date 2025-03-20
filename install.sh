@@ -7,6 +7,8 @@ set -e
 
 [[ "$EUID" -ne 0 ]] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 confirm() {
     local default="${2:-n}"
     local prompt="${1:-Are you sure?}"
@@ -33,26 +35,27 @@ confirm() {
     done
 }
 
-pushd .
+pushd "${SCRIPT_DIR}" > /dev/null
 mkdir -pv /var/ports /usr/share/2 /etc/2
 
 cd /usr/share/2
 if [[ -e /usr/share/2/.git ]]; then
     git pull
 else
-    git clone https://github.com/Toxikuu/2.git .
+    git clone --depth 1 https://github.com/Toxikuu/2.git .
 fi
 
 if [[ ! -e /var/ports/main ]]; then
-    git clone https://github.com/Toxikuu/2-main.git /var/ports/main
+    git clone --depth 1 https://github.com/Toxikuu/2-main.git /var/ports/main
 fi
 
-confirm 'Replace config?' && ln -sfv "$PWD"/config.toml /etc/2/
-confirm 'Replace exclusions?' && ln -sfv "$PWD"/exclusions.txt /etc/2/
-confirm 'Replace repo priority?' && ln -sfv "$PWD"/repo_priority.txt /etc/2/
-confirm 'Install bash completions?' && install -vDm644 "$PWD"/completions/bash /usr/share/bash-completion/completions/2
-confirm 'Install zsh completions?'  && install -vDm644 "$PWD"/completions/zsh  /usr/share/zsh/site-functions/_2
-confirm 'Install fish completions?' && install -vDm644 "$PWD"/completions/fish /usr/share/fish/vendor_completions.d/2.fish
+confirm 'Install config?'           && install -vDm644 config.toml        /etc/2/
+confirm 'Install exclusions?'       && install -vDm644 exclusions.txt     /etc/2/
+confirm 'Install repo priority?'    && install -vDm644 repo_priority.txt  /etc/2/
+
+confirm 'Install bash completions?' && install -vDm644 completions/bash   /usr/share/bash-completion/completions/2
+confirm 'Install zsh completions?'  && install -vDm644 completions/zsh    /usr/share/zsh/site-functions/_2
+confirm 'Install fish completions?' && install -vDm644 completions/fish   /usr/share/fish/vendor_completions.d/2.fish
 
 binstall() {
     mkdir -pv target/release
@@ -73,24 +76,6 @@ else
     binstall
 fi
 
-cat << 'EOF' > /usr/bin/2
-#!/usr/bin/env bash
+install -vDm755 launch.sh /usr/bin/2
 
-if command -v sudo >/dev/null 2>&1; then
-    S="sudo"
-elif command -v doas >/dev/null 2>&1; then
-    S="doas"
-else
-    S=""
-fi
-
-if [[ -n "$S" ]]; then
-    exec "$S" env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
-else
-    exec env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
-fi
-EOF
-
-chmod +x /usr/bin/2
-
-popd
+popd > /dev/null
