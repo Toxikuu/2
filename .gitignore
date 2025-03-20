@@ -1,5 +1,10 @@
+# targets
 /target
-/docs/book
 /release
+/D
 
+# doc
+/docs/book
+
+# build
 config.mk
