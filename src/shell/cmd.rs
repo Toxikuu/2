@@ -17,14 +17,14 @@ use std::{
 /// # Description
 /// Executes a command
 ///
-/// Sources /usr/share/2/bin/e-core
+/// Sources /usr/share/2/envs/core
 ///
 /// Prints each line unless quiet is passed
 ///
 /// **Fail conditions:**
 /// - command failed
 /// - bash wasn't found
-/// - failed to source /usr/share/2/bin/e-core
+/// - failed to source /usr/share/2/envs/core
 /// - some sync shenanigans (unlikely)
 /// - failing to read stderr/stdout (unlikely)
 pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
