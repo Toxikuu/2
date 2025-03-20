@@ -4,6 +4,7 @@
 - Added Makefile and configure
 - Improved install.sh
 - Tweaked CHANGELOG formatting
+- Updated .gitignore and README.md
 
 
 # 2=0.0.90
