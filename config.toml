@@ -4,6 +4,7 @@ quiet = false
 verbose = false
 
 [message]
+# Note: You can also add non-escape codes
 danger  = '\e[31;1m  '
 default = '\e[30;3m'
 message = '\e[36;1m'
