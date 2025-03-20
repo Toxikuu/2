@@ -25,6 +25,7 @@ WIP
         The error handling isn't user friendly but it's fine
         Add Package::from(MaintArg)
         Add QA checks and basic linting
+        Won't make it into 0.1.0 most likely
 
     Expand the main & xorg repos
         Categorize more packages
