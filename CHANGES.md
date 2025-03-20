@@ -3,12 +3,15 @@
 - Tweaks to TDL and config.toml
 - Added Makefile and configure
 - Improved install.sh
+- Tweaked CHANGELOG formatting
+
 
 # 2=0.0.90
 ## Changes
 - Made environment use QA check ignore comments
 - Migrated /usr/ports to /var/ports
 - Symlinked TDL -> TODO
+
 
 # 2=0.0.89
 ## Changes
@@ -19,12 +22,14 @@
 - Minor refactoring
     - Mostly related to removal/clean/pruning logic
 
+
 # 2=0.0.88
 ## Changes
 - Added efail
     - Used it
     - Improved existing error messages
 - Added long about
+
 
 # 2=0.0.87
 ## Changes
@@ -38,6 +43,7 @@
 - More robustly check for pre- and post-install functions
     - Also added an output line denoting the function execution
 
+
 # 2=0.0.86
 ## Changes
 - Added a QA check framework for environments
@@ -46,6 +52,7 @@
 - Create dotdirs before fetching sources (bugfix)
 - Tweaked CHANGES.md formatting to better conform to GitHub release formatting
 - Minor refactoring
+
 
 # 2=0.0.85
 ## Changes
@@ -63,12 +70,14 @@
     - Package aliases are simply symlinks in the repo dir
     - Currently, ripgrep is an alias of rg
 
+
 # 2=0.0.84
 ## Changes
 - Fixed overquoting in logs
     - Caused by 'Path' debug display paired with single quotes
 - Rewrote package cleaning logic
     - Now displays the number of files cleaned when called with -c
+
 
 # 2=0.0.83
 ## Changes
@@ -77,6 +86,7 @@
 - Removed pkg.log and replaced it with a simpler build.log
 - Simplified logging logic since the logger no longer has to dynamically connect to multiple files
 - Tweaks across the codebase to support the changes
+
 
 # 2=0.0.82
 ## Changes
