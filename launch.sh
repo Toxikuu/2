@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# 2's launch script
+#
+# shellcheck disable=SC2154
 
 if command -v sudo >/dev/null 2>&1; then
     S="sudo"
