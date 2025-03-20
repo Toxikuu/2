@@ -8,8 +8,8 @@ else
     S=""
 fi
 
-if [[ -n "$S" ]]; then
-    exec "$S" env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
+if [[ -n "${S}" ]]; then
+    exec "${S}" env LOG_LEVEL="${LOG_LEVEL}" /usr/libexec/two "$@"
 else
-    exec env LOG_LEVEL="$LOG_LEVEL" /usr/share/2/target/release/two "$@"
+    exec env LOG_LEVEL="${LOG_LEVEL}" /usr/libexec/two "$@"
 fi
