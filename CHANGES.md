@@ -1,3 +1,9 @@
+# 2=0.0.91
+## Changes
+- Tweaks to TDL and config.toml
+- Added Makefile and configure
+- Improved install.sh
+
 # 2=0.0.90
 ## Changes
 - Made environment use QA check ignore comments
