@@ -3,7 +3,7 @@
 - Tweaks to TDL and config.toml
 - Added Makefile and configure
 - Improved install.sh
-- Tweaked CHANGELOG formatting
+- Tweaked CHANGES.md formatting
 - Updated .gitignore and README.md
 
 
