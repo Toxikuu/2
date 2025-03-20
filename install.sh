@@ -36,22 +36,22 @@ confirm() {
 }
 
 pushd "${SCRIPT_DIR}" > /dev/null
-mkdir -pv /var/ports /usr/share/2 /etc/2
 
-cd /usr/share/2
-if [[ -e /usr/share/2/.git ]]; then
-    git pull
-else
-    git clone --depth 1 https://github.com/Toxikuu/2.git .
-fi
+rm -rf /tmp/2-installsh
+git clone --depth 1 https://github.com/Toxikuu/2.git /tmp/2-installsh
+cd /tmp/2-installsh
+
+for f in envs/*; do
+    install -vDm644 $f /usr/share/2/$f
+done
 
 if [[ ! -e /var/ports/main ]]; then
     git clone --depth 1 https://github.com/Toxikuu/2-main.git /var/ports/main
 fi
 
-confirm 'Install config?'           && install -vDm644 config.toml        /etc/2/
-confirm 'Install exclusions?'       && install -vDm644 exclusions.txt     /etc/2/
-confirm 'Install repo priority?'    && install -vDm644 repo_priority.txt  /etc/2/
+confirm 'Install config?'           && install -vDm644 config.toml        /etc/2/config.toml
+confirm 'Install exclusions?'       && install -vDm644 exclusions.txt     /etc/2/exclusions.txt
+confirm 'Install repo priority?'    && install -vDm644 repo_priority.txt  /etc/2/repo_priority.txt
 
 confirm 'Install bash completions?' && install -vDm644 completions/bash   /usr/share/bash-completion/completions/2
 confirm 'Install zsh completions?'  && install -vDm644 completions/zsh    /usr/share/zsh/site-functions/_2
@@ -59,9 +59,7 @@ confirm 'Install fish completions?' && install -vDm644 completions/fish   /usr/s
 
 binstall() {
     mkdir -pv target/release
-    cd target/release
-    curl -Lf -o two 'https://github.com/Toxikuu/2/releases/latest/download/two'
-    chmod +x two
+    curl -Lf -o target/release/two 'https://github.com/Toxikuu/2/releases/latest/download/two'
 }
 
 if confirm 'Compile from source (y) or use precompiled binary (n)?'; then
@@ -76,6 +74,7 @@ else
     binstall
 fi
 
+install -vDm755 target/release/two /usr/libexec/two
 install -vDm755 launch.sh /usr/bin/2
 
 popd > /dev/null
