@@ -30,8 +30,10 @@ confirm() {
 }
 
 confirm "Uninstall 2?" || { echo 'Cancelled uninstall' ; exit 0 ;}
-rm -rf /usr/share/2 \
-    /usr/bin/2   \
+rm -rf \
+    /usr/libexec/two \
+    /usr/share/2     \
+    /usr/bin/2       \
     /etc/2
     echo "Uninstalled 2"
 
