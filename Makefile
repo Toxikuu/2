@@ -23,13 +23,13 @@ install:
 	install -Dm755 launch.sh 		  	$(DESTDIR)$(BINDIR)/2
 
 	@echo "Installing environment files..."
-	install -Dm644 envs/cmake			$(DESTDIR)/usr/share/2/cmake
-	install -Dm644 envs/core			$(DESTDIR)/usr/share/2/core
-	install -Dm644 envs/meson			$(DESTDIR)/usr/share/2/meson
-	install -Dm644 envs/ninja			$(DESTDIR)/usr/share/2/ninja
-	install -Dm644 envs/pip				$(DESTDIR)/usr/share/2/pip
-	install -Dm644 envs/rust			$(DESTDIR)/usr/share/2/rust
-	install -Dm644 envs/xorg			$(DESTDIR)/usr/share/2/xorg
+	install -Dm644 envs/cmake			$(DESTDIR)/usr/share/2/envs/cmake
+	install -Dm644 envs/core			$(DESTDIR)/usr/share/2/envs/core
+	install -Dm644 envs/meson			$(DESTDIR)/usr/share/2/envs/meson
+	install -Dm644 envs/ninja			$(DESTDIR)/usr/share/2/envs/ninja
+	install -Dm644 envs/pip				$(DESTDIR)/usr/share/2/envs/pip
+	install -Dm644 envs/rust			$(DESTDIR)/usr/share/2/envs/rust
+	install -Dm644 envs/xorg			$(DESTDIR)/usr/share/2/envs/xorg
 
 ifeq ($(ENABLE_CONF),1)
 	@echo "Installing configuration files..."
