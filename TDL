@@ -297,6 +297,7 @@ IDEAS
         STRIP=<level> (symbols, debug, all)
         CONFLICTS=("package1", "package2")
         LICENSE=("license", "license2")
+        SHARE_SOURCE=("package1", "package2")
         KCFG=("NAMESPACES=*", "USER_NS=*/M") # example kernel config options required for steam
 
     Drop log4rs in favor of another logger (maybe tracing)
@@ -304,6 +305,7 @@ IDEAS
 
     Build functions in LOCK
         This should be doable with declare -f, though I'm not certain it's desirable
+        Imo this is not desirable
 
     Build time tracking
         https://pad.riseup.net/p/buildtimetracking-keep
@@ -313,6 +315,7 @@ IDEAS
 
     Add a file for enabled repos
         This would mean not having to delete source tarballs, logs, and data when "removing" a repo
+        Make it configurable
 
     Introduce /etc/2/sysconfig.toml
         Centralized location for configuring certain system-specific options
@@ -329,12 +332,7 @@ IDEAS
 
     Dependencies support with a flag '-d' or similar
         Implies dependency resolution as well
-
-    Make /usr/ports remappable
-        Might not even be worth doing tbh
-        Having it in a hardcoded spot is probably for the best
-        Rather than remapping it, move it to the more fhs-compliant /var/ports
-            (not that i particularly adhere to fhs, but i like /var more here bc the data in the ports dir changes a lot)
+        Planned for 0.2.0
 
     Check hashes for dist installs as well
         Would marginally increase security and more than marginally increase complexity
