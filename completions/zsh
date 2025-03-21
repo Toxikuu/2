@@ -1,8 +1,8 @@
-# zsh completions for 2
-# current as of 0.0.75
+# Zsh completions for 2
+# Current as of 0.0.92
 #
-# note these are untested as i don't use zsh
-# kindly lmk if they're broken
+# Note these are untested as I don't use zsh
+# Kindly lmk if they're broken
 
 _2() {
     local cur prev short_opts long_opts opts matching_opts
@@ -11,8 +11,8 @@ _2() {
     cur="${words[$CURRENT]}"
     prev="${words[$CURRENT-1]}"
 
-    short_opts="-i -b -r -u -l -g -p -c -L -H -s -U -/ -@ -a -S -P -v -q -f -V -h"
-    long_opts="--install --build --remove --update --list --get --prune --clean --logs --history --summary --upstream --list-repos --list-sets --add-repos --sync-repos --provides --verbose --quiet --force --version --help"
+    short_opts="-i -b -r -u -l -g -p -c -L -H -a -A -s -U -/ -@ -+ -S -P -v -q -f -V -h"
+    long_opts="--install --build --remove --update --list --get --prune --clean --logs --history --about --long-about --stats --upstream --list-repos --list-sets --add-repos --sync-repos --provides --verbose --quiet --force --version --help"
 
     # filter opts, preserving order
     _filter_opts() {
@@ -39,7 +39,7 @@ _2() {
 
     # suggest packages/repos for relevant flags
     case "$prev" in
-        --install | -i | --build | -b | --remove | -r | --update | -u | --list | -l | --get | -g | --prune | -p | --clean | -c | --logs | -L | --history | -H | --summary | -s | --upstream | -U)
+        --install | -i | --build | -b | --remove | -r | --update | -u | --list | -l | --get | -g | --prune | -p | --clean | -c | --history | -H | --about | -a | --long-about| -A | --stats | -s | --upstream | -U)
             _comps=($(compgen -W "$(find /var/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/var/ports/||' | grep -Ev '^\.|/\.')" -- "$cur"))
             _describe 'package' _comps
             return 0

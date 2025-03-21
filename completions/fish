@@ -1,8 +1,8 @@
-# fish completions for 2
-# current as of 0.0.75
+# Fish completions for 2
+# Current as of 0.0.92
 #
-# note these are untested as i don't use fish
-# kindly lmk if they're broken
+# Note these are untested as I don't use fish
+# Kindly lmk if they're broken
 
 function __2_complete_packages
     find /var/ports -maxdepth 2 -mindepth 2 -type d -printf "%h/%f\n" | sed 's|/var/ports/||' | grep -Ev '^\.|/\.'
@@ -12,22 +12,25 @@ function __2_complete_repos
     find /var/ports -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -Ev '^\.|/\.'
 end
 
-# Short and long options
+# define options
 complete -c 2 -s i -l install -d "Install a package"
 complete -c 2 -s b -l build -d "Build a package"
 complete -c 2 -s r -l remove -d "Remove a package"
 complete -c 2 -s u -l update -d "Update packages"
 complete -c 2 -s l -l list -d "List installed packages"
 complete -c 2 -s g -l get -d "Get package info"
-complete -c 2 -s p -l prune -d "Remove unused dependencies"
-complete -c 2 -s c -l clean -d "Clean package cache"
+complete -c 2 -s p -l prune -d "Remove unused files"
+complete -c 2 -s c -l clean -d "Clean package build"
 complete -c 2 -s L -l logs -d "Show logs"
 complete -c 2 -s H -l history -d "Show package history"
-complete -c 2 -s s -l summary -d "Show system summary"
+complete -c 2 -s a -l about -d "Display information about a package"
+complete -c 2 -s A -l long-about -d "More information about a package"
+complete -c 2 -s s -l summary -d "Show package summary"
 complete -c 2 -s U -l upstream -d "Check upstream updates"
-complete -c 2 -s S -l sync-repos -d "Sync repositories"
+complete -c 2 -s '/' -l list-repos -d "List repositories"
 complete -c 2 -s '@' -l list-sets -d "List package sets"
-complete -c 2 -s a -l add-repos -d "Add repositories"
+complete -c 2 -s '+' -l list-repos -d "Add repositories"
+complete -c 2 -s S -l sync-repos -d "Sync repositories"
 complete -c 2 -s P -l provides -d "Find which package provides a file"
 complete -c 2 -s v -l verbose -d "Enable verbose output"
 complete -c 2 -s q -l quiet -d "Quiet mode"
@@ -35,12 +38,11 @@ complete -c 2 -s f -l force -d "Force an operation"
 complete -c 2 -s V -l version -d "Show version"
 complete -c 2 -s h -l help -d "Show help"
 
-# Provide package names for commands that expect them
-for opt in --install -i --build -b --remove -r --update -u --list -l --get -g --prune -p --clean -c --logs -L --history -H --summary -s --upstream -U
+# suggest package/repos for relevant flags
+for opt in --install -i --build -b --remove -r --update -u --list -l --get -g --prune -p --clean -c --history -H --about -a --long-about --A --stats -s --upstream -U
     complete -c 2 -n "__fish_seen_subcommand_from $opt" -a "(__2_complete_packages)"
 end
 
-# Provide repository names for relevant commands
 for opt in --sync-repos -S --list-sets -@
     complete -c 2 -n "__fish_seen_subcommand_from $opt" -a "(__2_complete_repos)"
 end
