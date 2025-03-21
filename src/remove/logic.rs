@@ -105,7 +105,7 @@ pub fn remove(package: &Package) -> bool {
             erm!("Retaining protected path: {:?}", path); return
         }
 
-        rm(&path).fail("Failed to remove path");
+        let _ = rm(&path); // TODO: Log failed removals
 
         if !quiet {
             pr!("'{}' -x", p);
