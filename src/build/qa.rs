@@ -22,14 +22,16 @@ fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
     let mut found_with = false;
     let mut found_use = false;
 
+    let mut previous = "";
     for &line in lines {
-        if line.contains("with ") && line.contains(env) && !line.contains('#') {
+        if line.contains("with ") && line.contains(env) && !line.contains('#') && !previous.contains("2qa skip") {
             found_with = true;
         }
 
         if r#use.iter().all(|u| line.contains(u)) {
             found_use = true;
         }
+        previous = line;
     }
 
     found_with == found_use
