@@ -47,9 +47,9 @@ endif
 
 ifeq ($(ENABLE_DOCS),1)
 	@echo "Installing documentation..."
-	rm -rf 		$(DESTDIR)$(DOCDIR)
-	mkdir -p 	$(DESTDIR)$(DOCDIR)
-	cp -a docs 	$(DESTDIR)$(DOCDIR)
+	rm -rf 				$(DESTDIR)$(DOCDIR)
+	mkdir -p 			$(DESTDIR)$(DOCDIR)
+	cp -a docs/book/* 	$(DESTDIR)$(DOCDIR)
 endif
 
 ifeq ($(ENABLE_MAIN),1)
