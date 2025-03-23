@@ -170,7 +170,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
             return
         }
 
-        rm(&path).fail("Failed to remove path");
+        let _ = rm(&path); // don't crash <- TODO: Log this failure
 
         if !quiet {
             pr!("'{}' -x", p);
