@@ -42,7 +42,7 @@ git clone --depth 1 https://github.com/Toxikuu/2.git /tmp/2-installsh
 cd /tmp/2-installsh
 
 for f in envs/*; do
-    install -vDm644 $f /usr/share/2/$f
+    install -vDm644 "${f}" /usr/share/2/"${f}"
 done
 
 if [[ ! -e /var/ports/main ]]; then
