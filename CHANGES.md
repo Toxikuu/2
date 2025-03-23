@@ -1,3 +1,11 @@
+# 2=0.0.92
+## Changes
+- Updated uninstall and install.sh
+- Removal crash hotfixes
+- Updated completions
+- Fixed documentation install path
+- Added a skip for QA checks
+
 # 2=0.0.91
 ## Changes
 - Tweaks to TDL and config.toml
