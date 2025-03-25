@@ -17,6 +17,7 @@ use crate::{
     shell::fs::mkdir,
     utils::{
         fail::Fail,
+        hash::try_truncate_commit_hash,
         logger,
         time::Stopwatch,
     }
@@ -258,7 +259,7 @@ impl PM<'_> {
         }
 
         for p in &pkgs {
-            let package_info = format!("  \x1b[0;37m{}/{}", p.repo, p);
+            let package_info = format!("  \x1b[0;37m{}/{}={}", p.repo, p.name, try_truncate_commit_hash(&p.version));
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", p.data.status);
         };

@@ -24,6 +24,18 @@ pub fn twohash(file_path: &Path) -> String {
     URL_SAFE_NO_PAD.encode(hasher.finalize())
 }
 
+pub fn is_commit_hash(s: &str) -> bool {
+    s.len() == 40 && s.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+pub fn try_truncate_commit_hash(s: &str) -> &str {
+    if is_commit_hash(s) {
+        &s[..7]
+    } else {
+        s
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

@@ -6,7 +6,10 @@ use crate::{
     comms::out::{pr, erm, vpr},
     globals::config::CONFIG,
     package::Package,
-    utils::fail::Fail,
+    utils::{
+        fail::Fail,
+        hash::{try_truncate_commit_hash, is_commit_hash}
+    },
 };
 use log::debug;
 use serde::Deserialize;
@@ -25,6 +28,7 @@ use std::{
 pub struct UVConfig<'u> {
     upstream: Option<&'u str>,
     command: Option<&'u str>,
+    commit: bool,
 }
 
 /// # Description
@@ -65,6 +69,7 @@ fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
         upstream: package.upstream.as_deref(),
         command: package.version_command.as_deref(),
+        commit: is_commit_hash(&package.version),
     }
 }
 
@@ -73,9 +78,15 @@ fn gen_cc(package: &Package) -> UVConfig {
 ///
 /// If no command is provided, runs a default command
 fn run_command(cc: &UVConfig, timeout: u8) -> Result<String> {
-    let command = cc.command.map_or_else(
-        || format!("git ls-remote --tags --refs {} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1",
-        cc.upstream.fail("Upstream should always be some here")),
+    let command = cc.command.map_or_else(|| {
+        let upstream = cc.upstream.fail("[UNREACHABLE] Upstream should always be some here");
+        
+        if cc.commit {
+            format!("git ls-remote {upstream} HEAD | cut -c1-7")
+        } else {
+            format!("git ls-remote --tags --refs {upstream} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1")
+        }
+    }, 
         std::string::ToString::to_string
     );
 
@@ -147,6 +158,9 @@ fn display_version(package: &Package, version: &str) {
 /// # Description
 /// Formats the second half of the upstream version check display
 fn format_second_half(v: &str, version: &str) -> String {
+    let v = try_truncate_commit_hash(v);
+    let version = try_truncate_commit_hash(version);
+
     if v == version {
         format!("{v} ~ {version}")
     } else {
