@@ -80,13 +80,13 @@ fn gen_cc(package: &Package) -> UVConfig {
 fn run_command(cc: &UVConfig, timeout: u8) -> Result<String> {
     let command = cc.command.map_or_else(|| {
         let upstream = cc.upstream.fail("[UNREACHABLE] Upstream should always be some here");
-        
+
         if cc.commit {
             format!("git ls-remote {upstream} HEAD | grep '\\sHEAD$' | cut -c1-7")
         } else {
             format!("git ls-remote --tags --refs {upstream} | sed 's|.*/||' | grep -Ev 'rc|dev|beta|alpha' | sort -V | tail -n1")
         }
-    }, 
+    },
         std::string::ToString::to_string
     );
 
