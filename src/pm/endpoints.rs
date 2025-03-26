@@ -142,7 +142,7 @@ impl PM<'_> {
 
         if rl::remove(p) {
             stopwatch.stop();
-            log::info!("Removed '{}'", p);
+            log::info!("Removed '{p}'");
             msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
         }
     }
@@ -198,7 +198,7 @@ impl PM<'_> {
         let mut total_count = 0;
         self.packages.iter().for_each(|p| {
             let count = rl::prune(p);
-            log::info!("Pruned {}", p);
+            log::info!("Pruned {p}");
 
             total_count += count;
         });
@@ -217,7 +217,7 @@ impl PM<'_> {
         let mut cleaned = 0;
         self.packages.iter().for_each(|p| {
             cleaned += rl::clean(p);
-            log::debug!("Cleaned build for {}", p);
+            log::debug!("Cleaned build for {p}");
         });
 
         stopwatch.stop();

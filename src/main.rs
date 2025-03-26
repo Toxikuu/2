@@ -76,8 +76,8 @@ fn initialize() -> Args {
     let args = Args::init();
     flags::set(&args);
 
-    log::debug!("Initialized args: {:#?}", args);
-    log::debug!("Initialized flags: {:#?}", FLAGS);
+    log::debug!("Initialized args: {args:#?}");
+    log::debug!("Initialized flags: {FLAGS:#?}");
 
     args
 }

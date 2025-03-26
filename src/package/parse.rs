@@ -60,7 +60,7 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
 
         if let Some(i) = p.find('=') {
             let msg = format!("Version control is not supported; stripping version for '{set}' member '{p}'");
-            erm!("{}", msg); log::warn!("{}", msg);
+            erm!("{msg}"); log::warn!("{msg}");
             p = &p[..i];
         }
 
