@@ -1,3 +1,13 @@
+# 2=0.0.93
+## Changes
+- Added support for commit versions
+- Added a default upstream command for commit-versioned packages
+- Added commit truncation
+    - Currently, commits are only truncated when listing or viewing upstream versions
+    - This is likely to see improvements in the future
+- Added some flags to tar
+    - Should help reproducibility
+
 # 2=0.0.92
 ## Changes
 - Updated uninstall and install.sh
