@@ -89,6 +89,8 @@ fn dist_install(package: &Package) {
     tar xvf {:?} -C "$PREFIX"       \
         --strip-components=1        \
         --keep-directory-symlink    \
+        --numeric-owner             \
+        --no-overwrite-dir          \
         --exclude-from='/etc/2/exclusions.txt' |
     sed -e 's@/$@@' \
         -e 's@^D@@' \
