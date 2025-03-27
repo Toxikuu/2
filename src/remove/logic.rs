@@ -1,26 +1,20 @@
 // src/remove/logic.rs
 //! Logic for package removal
 
-use anyhow::Result;
+use super::manifest::{find_dead_files, find_unique_paths};
 use crate::{
-    comms::out::{pr, erm, vpr},
-    globals::{
-        config::CONFIG,
-        flags::Flags,
-    },
+    comms::out::{erm, pr, vpr},
+    globals::{config::CONFIG, flags::Flags},
     package::Package,
-    shell::fs::{rm, mkdir},
+    shell::fs::{mkdir, rm},
     utils::fail::{BoolFail, Fail},
 };
+use anyhow::Result;
 use log::warn;
 use std::{
-    fs::{
-        read_dir,
-        remove_dir_all,
-    },
+    fs::{read_dir, remove_dir_all},
     path::{Path, PathBuf},
 };
-use super::manifest::{find_dead_files, find_unique_paths};
 use walkdir::WalkDir;
 
 // TODO: Consider using glob patterns for the below, allowing to protect against removal of boot/*
@@ -71,13 +65,13 @@ pub fn remove(package: &Package) -> bool {
     if !package.data.is_installed && !Flags::grab().force {
         warn!("Not installed: '{package}'");
         erm!("Not installed: '{package}'");
-        return false
+        return false;
     }
 
     if category == Categories::Critical {
         warn!("Refusing to remove critical package: '{package}'");
         erm!("Refusing to remove critical package: '{package}'");
-        return false
+        return false;
     }
 
     if category == Categories::Core {
@@ -92,7 +86,7 @@ pub fn remove(package: &Package) -> bool {
 
     let Ok(unique) = find_unique_paths(&manifest) else {
         warn!("Missing manifest for {package}");
-        return false
+        return false;
     };
 
     let quiet = Flags::grab().quiet;
@@ -102,7 +96,8 @@ pub fn remove(package: &Package) -> bool {
         let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            erm!("Retaining protected path: {:?}", path); return
+            erm!("Retaining protected path: {:?}", path);
+            return;
         }
 
         let _ = rm(&path); // TODO: Log failed removals
@@ -116,8 +111,12 @@ pub fn remove(package: &Package) -> bool {
     let status_file = package.data.port_dir.join(".data").join("INSTALLED");
     rm(&status_file).fail("Failed to remove the status file");
 
-    if CONFIG.removal.remove_sources { remove_sources(package) }
-    if CONFIG.removal.remove_dist { remove_dist(package) }
+    if CONFIG.removal.remove_sources {
+        remove_sources(package)
+    }
+    if CONFIG.removal.remove_dist {
+        remove_dist(package)
+    }
 
     true
 }
@@ -133,11 +132,11 @@ fn remove_sources(package: &Package) {
 fn remove_dist(package: &Package) {
     let distdir = package.data.port_dir.join(".dist");
     if !distdir.exists() {
-        return erm!("Dist dir doesn't exist for '{package}'")
+        return erm!("Dist dir doesn't exist for '{package}'");
     }
 
     let Ok(dists) = read_dir(distdir) else {
-        return erm!("Failed to read dist dir for '{package}'")
+        return erm!("Failed to read dist dir for '{package}'");
     };
 
     for d in dists.flatten() {
@@ -152,11 +151,13 @@ fn remove_dist(package: &Package) {
 /// # Description
 /// Removes dead files after an update
 pub fn remove_dead_files_after_update(package: &Package) {
-    if !package.data.is_installed { return erm!("'{}' is not installed!", package) }
+    if !package.data.is_installed {
+        return erm!("'{}' is not installed!", package);
+    }
 
     let Ok(dead_files) = find_dead_files(package) else {
         warn!("Missing manifest for '{package}'");
-        return
+        return;
     };
 
     let quiet = Flags::grab().quiet;
@@ -167,7 +168,7 @@ pub fn remove_dead_files_after_update(package: &Package) {
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
             erm!("Retaining protected path: {path:?}");
-            return
+            return;
         }
 
         let _ = rm(&path); // don't crash <- TODO: Log this failure
@@ -188,10 +189,12 @@ pub fn remove_dead_files_after_update(package: &Package) {
 pub fn prune(package: &Package) -> usize {
     let src_dir = package.data.port_dir.join(".sources");
     if !src_dir.exists() {
-        return 0
+        return 0;
     }
 
-    let extra_files: Vec<PathBuf> = package.extra.iter()
+    let extra_files: Vec<PathBuf> = package
+        .extra
+        .iter()
         .map(|s| {
             let file_name = Path::new(s.url.as_str())
                 .file_name()
@@ -203,23 +206,28 @@ pub fn prune(package: &Package) -> usize {
     let tarball_approx = src_dir.join(package.to_string());
     let mut pruned_count = 0;
 
-    for entry in read_dir(&src_dir)
-        .efail(|| format!("Failed to read sources directory '{}' for '{package}'", src_dir.display()))
-        {
-            let entry = entry.fail("Invalid source entry");
-            let path = entry.path();
+    for entry in read_dir(&src_dir).efail(|| {
+        format!(
+            "Failed to read sources directory '{}' for '{package}'",
+            src_dir.display()
+        )
+    }) {
+        let entry = entry.fail("Invalid source entry");
+        let path = entry.path();
 
-            if !path.is_file() {
-                warn!("Detected non-file {path:?} in {src_dir:?}");
-                continue
+        if !path.is_file() {
+            warn!("Detected non-file {path:?} in {src_dir:?}");
+            continue;
         }
 
-        let should_keep = path.to_string_lossy().starts_with(&*tarball_approx.to_string_lossy())
+        let should_keep = path
+            .to_string_lossy()
+            .starts_with(&*tarball_approx.to_string_lossy())
             || extra_files.iter().any(|f| f == &path);
 
         // don't continue if force is passed, meaning the path gets pruned
         if should_keep && !Flags::grab().force {
-            continue
+            continue;
         }
 
         vpr!("Pruning: {:?}", path);
@@ -227,9 +235,15 @@ pub fn prune(package: &Package) -> usize {
         pruned_count += 1;
     }
 
-    if CONFIG.removal.prune_manifests { pruned_count += prune_manifests(package) }
-    if CONFIG.removal.prune_logs { pruned_count += prune_logs(package) }
-    if CONFIG.removal.prune_dist { pruned_count += prune_dist(package) }
+    if CONFIG.removal.prune_manifests {
+        pruned_count += prune_manifests(package)
+    }
+    if CONFIG.removal.prune_logs {
+        pruned_count += prune_logs(package)
+    }
+    if CONFIG.removal.prune_dist {
+        pruned_count += prune_dist(package)
+    }
 
     pruned_count
 }
@@ -239,21 +253,27 @@ pub fn prune(package: &Package) -> usize {
 fn prune_logs(package: &Package) -> usize {
     let log_dir = package.data.port_dir.join(".logs");
     if !log_dir.exists() {
-        return 0
+        return 0;
     }
 
     let mut pruned_count = 0;
-    for entry in read_dir(&log_dir).efail(|| format!("Failed to read log directory '{}' for '{package}'", log_dir.display())) {
+    for entry in read_dir(&log_dir).efail(|| {
+        format!(
+            "Failed to read log directory '{}' for '{package}'",
+            log_dir.display()
+        )
+    }) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
         if !path.is_file() {
-            continue
+            continue;
         }
 
         if path.file_name().and_then(|f| f.to_str()).is_none()
-        || path.extension().is_some_and(|x| x != "log") {
-            continue
+            || path.extension().is_some_and(|x| x != "log")
+        {
+            continue;
         }
 
         let msg = format!("Proning log {path:?}");
@@ -271,7 +291,7 @@ fn prune_logs(package: &Package) -> usize {
 fn prune_manifests(package: &Package) -> usize {
     let data_dir = package.data.port_dir.join(".data");
     if !data_dir.exists() {
-        return 0 // data dir should always exist, but in case it doesn't, give up
+        return 0; // data dir should always exist, but in case it doesn't, give up
     }
 
     // these manifests aren't pruned, regardless of force
@@ -281,22 +301,26 @@ fn prune_manifests(package: &Package) -> usize {
     ];
 
     let mut pruned_count = 0;
-    for entry in read_dir(&data_dir).efail(|| format!("Failed to read data directory '{}' for '{package}'", data_dir.display())) {
+    for entry in read_dir(&data_dir).efail(|| {
+        format!(
+            "Failed to read data directory '{}' for '{package}'",
+            data_dir.display()
+        )
+    }) {
         let entry = entry.fail("Invalid directory entry");
         let path = entry.path();
 
         if !path.is_file() {
             warn!("Detected non-file {path:?} in {data_dir:?}");
-            continue
+            continue;
         }
 
         let Some(file_name) = path.file_name().and_then(|f| f.to_str()) else {
-            continue
+            continue;
         };
 
-        if !file_name.starts_with("MANIFEST=")
-        || protected_manifests.iter().any(|p| p == &path) {
-            continue
+        if !file_name.starts_with("MANIFEST=") || protected_manifests.iter().any(|p| p == &path) {
+            continue;
         }
 
         log::debug!("Pruning manifest {path:?}");
@@ -309,33 +333,40 @@ fn prune_manifests(package: &Package) -> usize {
 fn prune_dist(package: &Package) -> usize {
     let dist_dir = package.data.port_dir.join(".dist");
     if !dist_dir.exists() {
-        return 0 // data dir should always exist, but in case it doesn't, give up
+        return 0; // data dir should always exist, but in case it doesn't, give up
     }
 
     let protected_dists = [
         dist_dir.join(format!("{}={}.tar.zst", package.name, package.version)),
-        dist_dir.join(format!("{}={}.tar.zst", package.name, package.data.installed_version)),
+        dist_dir.join(format!(
+            "{}={}.tar.zst",
+            package.name, package.data.installed_version
+        )),
     ];
 
     let mut pruned_count = 0;
     for entry in read_dir(&dist_dir)
-        .efail(|| format!("Failed to read data directory '{}' for '{package}'", dist_dir.display()))
+        .efail(|| {
+            format!(
+                "Failed to read data directory '{}' for '{package}'",
+                dist_dir.display()
+            )
+        })
         .flatten()
     {
         let path = entry.path();
 
         if !path.is_file() {
             warn!("Detected non-file {path:?} in {dist_dir:?}");
-            continue
+            continue;
         }
 
         let Some(file_name) = path.file_name().and_then(|f| f.to_str()) else {
-            continue
+            continue;
         };
 
-        if !file_name.ends_with(".tar.zst")
-        || protected_dists.iter().any(|p| p == &path) {
-            continue
+        if !file_name.ends_with(".tar.zst") || protected_dists.iter().any(|p| p == &path) {
+            continue;
         }
 
         log::debug!("Pruning dist {path:?}");
@@ -353,7 +384,7 @@ pub fn clean(package: &Package) -> u64 {
     let dir = package.data.port_dir.join(".build");
 
     if !dir.exists() {
-        return 0
+        return 0;
     }
 
     let mut count = 0;

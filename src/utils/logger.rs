@@ -1,15 +1,13 @@
 // src/utils/logger.rs
 //! Logging-related utilities
 
+use super::fail::Fail;
+use crate::{comms::out::erm, globals::config::CONFIG, shell::fs::mkdir};
 use anyhow::Result;
-use crate::{
-    comms::out::erm,
-    globals::config::CONFIG, shell::fs::mkdir,
-};
 use log::LevelFilter;
 use log4rs::{
     append::file::FileAppender,
-    config::{Config, Appender, Root, Logger as L4L},
+    config::{Appender, Config, Logger as L4L, Root},
     encode::pattern::PatternEncoder,
 };
 use regex::Regex;
@@ -19,15 +17,17 @@ use std::{
     io::{BufRead, BufReader},
     path::{Path, PathBuf},
     str::FromStr,
-    sync::{LazyLock, Once}
+    sync::{LazyLock, Once},
 };
-use super::fail::Fail;
 
 const MASTER_LOG: &str = "/tmp/2/master.log";
 static LOG_INIT: Once = Once::new();
 /// # Description
 /// Regex pattern for matching against 2's logs
-static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+").fail("Invalid regex for 2 log entry"));
+static RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} (TRACE|DEBUG|INFO |WARN |ERROR) \| \[.+")
+        .fail("Invalid regex for 2 log entry")
+});
 
 /// # Description
 /// Retrieve the log level
@@ -53,11 +53,17 @@ fn get_log_level() -> LevelFilter {
 pub fn init() {
     LOG_INIT.call_once(|| {
         let log_file = PathBuf::from(MASTER_LOG);
-        let log_dir = log_file.parent()
-            .efail(|| format!("[UNREACHABLE] Log file '{}' has no parent", log_file.display()));
+        let log_dir = log_file.parent().efail(|| {
+            format!(
+                "[UNREACHABLE] Log file '{}' has no parent",
+                log_file.display()
+            )
+        });
         mkdir(log_dir).efail(|| format!("Failed to create log dir '{}'", log_dir.display()));
 
-        OO::new().create(true).append(true)
+        OO::new()
+            .create(true)
+            .append(true)
             .open(&log_file)
             .efail(|| format!("Failed to open log file '{}'", log_file.display()));
 
@@ -81,13 +87,13 @@ fn build_config() -> Result<Config> {
         .appender(Appender::builder().build("master", Box::new(master_log_file)))
         // tell ureq to stfu
         .logger(L4L::builder().build("rustls::webpki::server_verifier", LevelFilter::Info))
-        .logger(L4L::builder().build("rustls::client",      LevelFilter::Info))
-        .logger(L4L::builder().build("rustls::conn",        LevelFilter::Info))
-        .logger(L4L::builder().build("ureq::pool",          LevelFilter::Info))
-        .logger(L4L::builder().build("ureq::tls",           LevelFilter::Info))
-        .logger(L4L::builder().build("ureq::unversioned",   LevelFilter::Warn))
-        .logger(L4L::builder().build("ureq_proto::util",    LevelFilter::Info))
-        .logger(L4L::builder().build("ureq_proto::client",  LevelFilter::Info));
+        .logger(L4L::builder().build("rustls::client", LevelFilter::Info))
+        .logger(L4L::builder().build("rustls::conn", LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::pool", LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::tls", LevelFilter::Info))
+        .logger(L4L::builder().build("ureq::unversioned", LevelFilter::Warn))
+        .logger(L4L::builder().build("ureq_proto::util", LevelFilter::Info))
+        .logger(L4L::builder().build("ureq_proto::client", LevelFilter::Info));
 
     Ok(config_builder.build(Root::builder().appender("master").build(get_log_level()))?)
 }
@@ -120,12 +126,12 @@ impl LogEntry {
     fn color(&self) -> String {
         let message = &self.message;
         match self.level {
-            LevelFilter::Trace => format!("\x1b[0m{}{message}", CONFIG.message.stdout .trim()),
+            LevelFilter::Trace => format!("\x1b[0m{}{message}", CONFIG.message.stdout.trim()),
             LevelFilter::Debug => format!("\x1b[0m{}{message}", CONFIG.message.verbose.trim()),
-            LevelFilter::Info  => format!("\x1b[0m{}{message}", CONFIG.message.message.trim()),
-            LevelFilter::Warn  => format!("\x1b[0m{}{message}", CONFIG.message.prompt .trim()),
-            LevelFilter::Error => format!("\x1b[0m{}{message}", CONFIG.message.danger .trim()),
-            LevelFilter::Off   => message.to_string(),
+            LevelFilter::Info => format!("\x1b[0m{}{message}", CONFIG.message.message.trim()),
+            LevelFilter::Warn => format!("\x1b[0m{}{message}", CONFIG.message.prompt.trim()),
+            LevelFilter::Error => format!("\x1b[0m{}{message}", CONFIG.message.danger.trim()),
+            LevelFilter::Off => message.to_string(),
         }
     }
 }
@@ -134,22 +140,25 @@ impl LogEntry {
 /// Collects all logs from a log file's bufreader
 /// Ignores invalid lines
 /// Panics if a log entry is missing a log level
-fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
+fn collect_logs<R: BufRead>(reader: R) -> VecDeque<LogEntry> {
     reader
         .lines()
         .map_while(Result::ok)
-        .fold((VecDeque::new(), String::new()), |(mut logs, mut curr), line| {
-            if RE.is_match(&line) && !curr.is_empty() {
-                logs.push_back(LogEntry {
-                    level: extract_log_level(&curr).unwrap_or(LevelFilter::Warn),
-                    message: curr.clone(),
-                });
-                curr.clear();
-            }
-            curr.push_str(&line);
-            curr.push('\n');
-            (logs, curr)
-        })
+        .fold(
+            (VecDeque::new(), String::new()),
+            |(mut logs, mut curr), line| {
+                if RE.is_match(&line) && !curr.is_empty() {
+                    logs.push_back(LogEntry {
+                        level: extract_log_level(&curr).unwrap_or(LevelFilter::Warn),
+                        message: curr.clone(),
+                    });
+                    curr.clear();
+                }
+                curr.push_str(&line);
+                curr.push('\n');
+                (logs, curr)
+            },
+        )
         .0
     // let mut logs = VecDeque::new();
     // let mut curr = String::new();
@@ -181,11 +190,12 @@ fn collect_logs<R: BufRead>(reader: R)-> VecDeque<LogEntry> {
 /// Displays formatted logs for a log file
 pub fn display(log_file: &Path) {
     let log_level = get_log_level();
-    let f = File::open(log_file)
-        .efail(|| format!("Failed to open log file '{}'", log_file.display()));
+    let f =
+        File::open(log_file).efail(|| format!("Failed to open log file '{}'", log_file.display()));
     let reader = BufReader::new(f);
     let mut log_entries = collect_logs(reader);
-    log_entries.iter_mut()
+    log_entries
+        .iter_mut()
         .filter(|e| e.level <= log_level)
         .for_each(|e| {
             e.message = e.color();
@@ -208,10 +218,10 @@ fn extract_log_level(entry: &str) -> Option<LevelFilter> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use crate::erm;
+    use std::path::PathBuf;
 
-    use super::{display, MASTER_LOG};
+    use super::{MASTER_LOG, display};
 
     // return result for test skipping
     #[test]

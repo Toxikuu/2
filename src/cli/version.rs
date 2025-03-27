@@ -7,9 +7,9 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// # Description
 /// Displays 2's version
 pub fn display() {
-println!(
-r"2={VERSION}
+    println!(
+        r"2={VERSION}
 {REPO}
 "
-);
+    );
 }

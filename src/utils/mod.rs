@@ -3,9 +3,9 @@
 
 pub mod esc;
 pub mod fail;
+pub mod hash;
 pub mod logger;
 pub mod time;
-pub mod hash;
 
 #[cfg(feature = "parallelism")]
 pub mod par;

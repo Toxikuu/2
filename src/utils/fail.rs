@@ -7,15 +7,8 @@
 //! Efail should be preferred for all other error messages
 
 #[cfg(not(test))]
-use crate::{
-    comms::out::erm,
-    globals::config::CONFIG,
-};
-use std::{
-    fmt,
-    panic::Location,
-    panic,
-};
+use crate::{comms::out::erm, globals::config::CONFIG};
+use std::{fmt, panic, panic::Location};
 
 /// # Description
 /// A utility macro which panics with custom formatting, suppressing the default panic output
@@ -41,7 +34,12 @@ pub fn report(msg: &str, location: &'static Location<'static>) -> ! {
         erm!("{LINK}\n");
     }
 
-    let loc_msg = format!("Failure in {} @ {}:{}", location.file(), location.line(), location.column());
+    let loc_msg = format!(
+        "Failure in {} @ {}:{}",
+        location.file(),
+        location.line(),
+        location.column()
+    );
     log::debug!("{loc_msg}");
     log::debug!("{msg}");
     log::error!("Process died\n\n\t----------------\n");
@@ -104,7 +102,11 @@ where
         match self {
             Ok(t) => t,
             Err(e) => {
-                let err = format!("{e:#?}").lines().map(|l| format!("\t{l}")).collect::<Vec<_>>().join("\n");
+                let err = format!("{e:#?}")
+                    .lines()
+                    .map(|l| format!("\t{l}"))
+                    .collect::<Vec<_>>()
+                    .join("\n");
                 let msg = &format!("{msg}:\n{err}");
                 let location = Location::caller();
                 report(msg, location);
@@ -120,7 +122,11 @@ where
         match self {
             Ok(t) => t,
             Err(e) => {
-                let err = format!("{e:#?}").lines().map(|l| format!("\t{l}")).collect::<Vec<_>>().join("\n");
+                let err = format!("{e:#?}")
+                    .lines()
+                    .map(|l| format!("\t{l}"))
+                    .collect::<Vec<_>>()
+                    .join("\n");
                 let msg = &format!("{}:\n{err}", f());
                 let location = Location::caller();
                 report(msg, location);
@@ -132,10 +138,13 @@ where
 impl<T> Fail<T, ()> for Option<T> {
     #[track_caller]
     fn fail(self, msg: &str) -> T {
-        self.map_or_else(|| {
-            let location = Location::caller();
-            report(msg, location);
-        }, |t| t)
+        self.map_or_else(
+            || {
+                let location = Location::caller();
+                report(msg, location);
+            },
+            |t| t,
+        )
 
         // match self {
         //     Some(t) => t,
@@ -149,13 +158,15 @@ impl<T> Fail<T, ()> for Option<T> {
     #[track_caller]
     fn efail<F>(self, f: F) -> T
     where
-        F: FnOnce() -> String
+        F: FnOnce() -> String,
     {
-
-        self.map_or_else(|| {
-            let location = Location::caller();
-            report(&f(), location);
-        }, |t| t)
+        self.map_or_else(
+            || {
+                let location = Location::caller();
+                report(&f(), location);
+            },
+            |t| t,
+        )
 
         // match self {
         //     Some(t) => t,
@@ -199,7 +210,8 @@ impl BoolFail for bool {
 
     #[track_caller]
     fn and_efail<F>(self, f: F)
-    where F: FnOnce() -> String
+    where
+        F: FnOnce() -> String,
     {
         if self {
             let location = Location::caller();
@@ -209,7 +221,8 @@ impl BoolFail for bool {
 
     #[track_caller]
     fn or_efail<F>(self, f: F)
-    where F: FnOnce() -> String
+    where
+        F: FnOnce() -> String,
     {
         if !self {
             let location = Location::caller();

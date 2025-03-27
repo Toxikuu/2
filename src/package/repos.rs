@@ -19,7 +19,14 @@ pub fn find_all() -> Rc<[String]> {
     let dir = "/var/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
 
-    let repos: Rc<[String]> = entries.map(|f| f.fail("Invalid entry?").file_name().into_string().fail("Invalid unicode?")).collect();
+    let repos: Rc<[String]> = entries
+        .map(|f| {
+            f.fail("Invalid entry?")
+                .file_name()
+                .into_string()
+                .fail("Invalid unicode?")
+        })
+        .collect();
     if repos.is_empty() {
         erm!("No repos available!");
     }
@@ -63,7 +70,8 @@ pub fn prioritize(list: &mut [String]) {
 /// Returns the ordered repo priorities from ``/etc/2/repo_priority.txt``
 /// Formatted as a vector of repo/
 fn get_ordered_repos() -> Vec<String> {
-    let contents = read_to_string("/etc/2/repo_priority.txt").fail("Failed to open /etc/2/repo_priority.txt");
+    let contents =
+        read_to_string("/etc/2/repo_priority.txt").fail("Failed to open /etc/2/repo_priority.txt");
 
     contents
         .lines()
@@ -83,15 +91,16 @@ pub fn add(repo_url: &str) {
     let short = if is_short(repo_url) {
         repo_url
     } else {
-        repo_url.trim_start_matches("https://github.com/").trim_end_matches(".git")
+        repo_url
+            .trim_start_matches("https://github.com/")
+            .trim_end_matches(".git")
     };
 
     let (author, repo_name) = short.split_once('/').fail("Invalid repo url");
-    let (_, repo_name) = repo_name
-        .split_once("2-")
-        .fail("Invalid repo name");
+    let (_, repo_name) = repo_name.split_once("2-").fail("Invalid repo name");
 
-    let command = format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
+    let command =
+        format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
 
     msg!("󰐗  Adding '{repo_name}/'...");
     log::info!("Adding '{repo_name}/'...");

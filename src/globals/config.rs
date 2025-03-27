@@ -1,8 +1,8 @@
 // src/globals/config.rs
 //! Defines 2's config
 
-use anyhow::{Result, Context};
 use crate::utils::{esc::escape_escapes, fail::Fail};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::{
     fs,
@@ -11,7 +11,6 @@ use std::{
 
 /// # Description
 /// The config struct
-///
 /// Includes options for customizing 2
 #[derive(Deserialize, Debug)]
 pub struct Config {
@@ -117,6 +116,5 @@ impl Config {
     }
 }
 
-pub static CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| Arc::new(
-    Config::load().fail("Failed to load /etc/2/config.toml")
-));
+pub static CONFIG: LazyLock<Arc<Config>> =
+    LazyLock::new(|| Arc::new(Config::load().fail("Failed to load /etc/2/config.toml")));

@@ -1,16 +1,16 @@
 // src/upstream/core.rs
 //! Core logic for --upstream
 
-use anyhow::{bail, Result};
 use crate::{
-    comms::out::{pr, erm, vpr},
+    comms::out::{erm, pr, vpr},
     globals::config::CONFIG,
     package::Package,
     utils::{
         fail::Fail,
-        hash::{try_truncate_commit_hash, is_commit_hash}
+        hash::{is_commit_hash, try_truncate_commit_hash},
     },
 };
+use anyhow::{Result, bail};
 use log::debug;
 use serde::Deserialize;
 use std::{
@@ -53,7 +53,7 @@ fn sex(command: &str, timeout: u8) -> Result<String> {
             if let Some(mut stdout) = child.stdout.take() {
                 stdout.read_to_string(&mut output)?;
             }
-            return Ok(output)
+            return Ok(output);
         }
 
         if start.elapsed() >= timeout_duration {
@@ -96,23 +96,18 @@ fn run_command(cc: &UVConfig, timeout: u8) -> Result<String> {
 /// # Description
 /// Strips the package name from a git tag (output from ``run_command()``)
 /// Also strips out the 'v' prefix
-fn extract_version<'a> (stdout: &'a str, package: &'a Package) -> &'a str {
+fn extract_version<'a>(stdout: &'a str, package: &'a Package) -> &'a str {
     let name = &package.name;
     vpr!("Extracting version from '{stdout}' for '{package}'...");
 
     let namelen = name.len();
-    let unnamed =
-    if stdout.len() >= namelen
-        && stdout[..namelen].eq_ignore_ascii_case(name)
-    {
+    let unnamed = if stdout.len() >= namelen && stdout[..namelen].eq_ignore_ascii_case(name) {
         &stdout[namelen..]
     } else {
         stdout
     };
 
-    let extracted = unnamed
-        .trim_start_matches('-')
-        .trim_start_matches('v');
+    let extracted = unnamed.trim_start_matches('-').trim_start_matches('v');
 
     vpr!("Extracted to '{extracted}'");
     extracted
@@ -173,13 +168,13 @@ fn format_second_half(v: &str, version: &str) -> String {
 pub fn check_upstream(package: &Package) {
     if package.upstream.is_none() {
         debug!("No upstream specified for '{package}'");
-        return
+        return;
     }
 
     for _ in 0..CONFIG.upstream.retries {
         let version = get_version(package);
         if version.is_empty() {
-            continue
+            continue;
         }
         return display_version(package, &version);
     }

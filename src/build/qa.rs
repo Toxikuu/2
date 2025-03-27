@@ -1,12 +1,12 @@
 // src/build/qa.rs
 //! Quality assurance checks for builds
 
-use anyhow::{Result, bail};
 use crate::{package::Package, utils::fail::Fail};
+use anyhow::{Result, bail};
 use std::{
-    fs::{read_dir, read_to_string, File},
+    fs::{File, read_dir, read_to_string},
     io::Read,
-    path::{Path, PathBuf}
+    path::{Path, PathBuf},
 };
 use walkdir::WalkDir;
 
@@ -24,7 +24,11 @@ fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
 
     let mut previous = "";
     for &line in lines {
-        if line.contains("with ") && line.contains(env) && !line.contains('#') && !previous.contains("2qa skip") {
+        if line.contains("with ")
+            && line.contains(env)
+            && !line.contains('#')
+            && !previous.contains("2qa skip")
+        {
             found_with = true;
         }
 
@@ -40,7 +44,7 @@ fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
 pub fn destdir_has_stuff(p: &Package) -> bool {
     let destdir = PathBuf::from(&p.data.port_dir).join(".build").join("D");
     let Ok(dir) = read_dir(destdir) else {
-        return false
+        return false;
     };
     dir.into_iter().next().is_some()
 }
@@ -59,13 +63,17 @@ pub fn libs_ok(p: &Package) -> bool {
     if collect_libs(&usr.join("lib32"))
         .into_iter()
         .any(|l| matches!(check_elf(&l), Ok(ELF::M64)))
-    { return false }
+    {
+        return false;
+    }
 
     // ensure no m32 ELF files exist in lib
     if collect_libs(&usr.join("lib"))
         .into_iter()
         .any(|l| matches!(check_elf(&l), Ok(ELF::M32)))
-    { return false }
+    {
+        return false;
+    }
 
     true
 }
@@ -99,6 +107,6 @@ fn check_elf(path: &Path) -> Result<ELF> {
     match buf[4] {
         1 => Ok(ELF::M32),
         2 => Ok(ELF::M64),
-        _ => bail!("tf wrong with this elf: {path:?}")
+        _ => bail!("tf wrong with this elf: {path:?}"),
     }
 }

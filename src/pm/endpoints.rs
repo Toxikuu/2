@@ -1,39 +1,30 @@
 // src/pm/endpoints.rs
 //! Defines endpoints for PM
 
+use super::PM;
+#[cfg(feature = "upstream")]
+use crate::upstream::core::check_upstream;
 use crate::{
     build::logic as bl,
     cli::args::Args,
     comms::out::{erm, msg, pr, vpr},
-    fetch::download::{download, DownloadStatus},
+    fetch::download::{DownloadStatus, download},
     globals::config::CONFIG,
-    package::{
-        history,
-        parse::expand_set,
-        stats,
-        Package
-    },
+    package::{Package, history, parse::expand_set, stats},
     remove::logic as rl,
     shell::fs::mkdir,
-    utils::{
-        fail::Fail,
-        hash::try_truncate_commit_hash,
-        logger,
-        time::Stopwatch,
-    }
+    utils::{fail::Fail, hash::try_truncate_commit_hash, logger, time::Stopwatch},
 };
-#[cfg(feature = "upstream")]
-use crate::upstream::core::check_upstream;
 use indicatif::ProgressStyle;
 use once_cell::sync::Lazy;
 #[cfg(feature = "parallelism")]
 use rayon::prelude::*;
 use std::path::PathBuf;
-use super::PM;
 
 /// # Description
 /// The format for the download bar
-const BAR: &str = "{prefix:.red} {msg:32.red} [{elapsed_precise}] [{bar:64.red/black}] {bytes}/{total_bytes}";
+const BAR: &str =
+    "{prefix:.red} {msg:32.red} [{elapsed_precise}] [{bar:64.red/black}] {bytes}/{total_bytes}";
 
 static STY: Lazy<ProgressStyle> = Lazy::new(|| {
     ProgressStyle::with_template(BAR)
@@ -56,23 +47,49 @@ impl PM<'_> {
         }
 
         #[cfg(feature = "upstream")]
-        if a.upstream { self.upstream () }
-        if a.get      { self.get      () }
+        if a.upstream {
+            self.upstream()
+        }
+        if a.get {
+            self.get()
+        }
 
         self.packages.iter().for_each(|p| {
-            if a.build      { Self::build   (p) }
-            if a.install    { Self::install (p) }
-            if a.update     { Self::update  (p) }
-            if a.history    { Self::history (p) }
-            if a.about      { p.about()         }
-            if a.long_about { p.long_about()    }
-            if a.stats      { Self::stats   (p) }
+            if a.build {
+                Self::build(p)
+            }
+            if a.install {
+                Self::install(p)
+            }
+            if a.update {
+                Self::update(p)
+            }
+            if a.history {
+                Self::history(p)
+            }
+            if a.about {
+                p.about()
+            }
+            if a.long_about {
+                p.long_about()
+            }
+            if a.stats {
+                Self::stats(p)
+            }
         });
 
-        if a.prune    { self.prune () }
-        if a.clean    { self.clean () }
-        if a.list     { self.list  () }
-        if a.logs     { Self::logs () }
+        if a.prune {
+            self.prune()
+        }
+        if a.clean {
+            self.clean()
+        }
+        if a.list {
+            self.list()
+        }
+        if a.logs {
+            Self::logs()
+        }
     }
 
     /// # Description
@@ -89,7 +106,7 @@ impl PM<'_> {
             bl::InstallStatus::Already => {
                 log::warn!("Already installed '{p}'");
                 msg!("󰗠  Already installed '{p}'");
-            },
+            }
             bl::InstallStatus::Dist => {
                 log::info!("Installed '{p}'");
                 msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
@@ -118,7 +135,7 @@ impl PM<'_> {
             bl::UpdateStatus::BuildFirst => {
                 PM::build(p);
                 PM::update(p);
-            },
+            }
             bl::UpdateStatus::Dist => {
                 log::info!("Updated to '{p}'");
                 msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
@@ -160,7 +177,8 @@ impl PM<'_> {
                 log::info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
 
-                let mut package_stats = package_stats.efail(|| format!("[UNREACHABLE] Stats for '{p}' should be some but isn't?"));
+                let mut package_stats = package_stats
+                    .efail(|| format!("[UNREACHABLE] Stats for '{p}' should be some but isn't?"));
                 package_stats.record_build_time(stopwatch.elapsed());
                 stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
             }
@@ -204,7 +222,11 @@ impl PM<'_> {
         });
 
         stopwatch.stop();
-        msg!("󰗠  Pruned {total_count} files for {} packages in {}", self.packages.len(), stopwatch.display());
+        msg!(
+            "󰗠  Pruned {total_count} files for {} packages in {}",
+            self.packages.len(),
+            stopwatch.display()
+        );
     }
 
     // TODO: clean might be a good candidate for parallelism
@@ -222,7 +244,11 @@ impl PM<'_> {
 
         stopwatch.stop();
 
-        msg!("󰗠  Cleaned {cleaned} files for {} packages in {}", self.packages.len(), stopwatch.display());
+        msg!(
+            "󰗠  Cleaned {cleaned} files for {} packages in {}",
+            self.packages.len(),
+            stopwatch.display()
+        );
     }
 
     /// # Description
@@ -246,8 +272,11 @@ impl PM<'_> {
 
         let mut pkgs = packages.to_vec();
         if pkgs.is_empty() {
-            if imply { pkgs = expand_set("//@@").to_vec(); }
-            else { erm!("Nothing to list"); }
+            if imply {
+                pkgs = expand_set("//@@").to_vec();
+            } else {
+                erm!("Nothing to list");
+            }
         }
 
         if CONFIG.general.alphabetize {
@@ -259,10 +288,15 @@ impl PM<'_> {
         }
 
         for p in &pkgs {
-            let package_info = format!("  \x1b[0;37m{}/{}={}", p.repo, p.name, try_truncate_commit_hash(&p.version));
+            let package_info = format!(
+                "  \x1b[0;37m{}/{}={}",
+                p.repo,
+                p.name,
+                try_truncate_commit_hash(&p.version)
+            );
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", p.data.status);
-        };
+        }
     }
 
     /// # Description
@@ -322,14 +356,16 @@ impl PM<'_> {
     /// This logs "fetching" instead of "downloading" to differentiate between this and ``get()``
     fn fetch_all_sources_if_needed(&self, args: &Args) {
         // 'if needed' means one of these are passed
-        if ! (args.install || args.update || args.build) {
+        if !(args.install || args.update || args.build) {
             log::debug!("Sources were not automatically fetched as they were not needed");
-            return
+            return;
         }
 
         self.packages.iter().for_each(|p| {
             // don't bother downloading sources if the dist exists and the sources aren't needed
-            if p.dist_exists() && !args.build { return }
+            if p.dist_exists() && !args.build {
+                return;
+            }
 
             log::info!("Automatically fetching sources for '{p}'...");
             vpr!("Automatically fetching sources for '{p}'...");
@@ -344,18 +380,13 @@ impl PM<'_> {
     /// Creates necessary dotdirs for all packages contained in PM
     fn create_all_dotdirs_if_needed(&self) {
         // 'if needed' means they don't exist
-        const DOTDIRS: [&str; 5] = [
-            ".build",
-            ".data",
-            ".dist",
-            ".logs",
-            ".sources",
-        ];
+        const DOTDIRS: [&str; 5] = [".build", ".data", ".dist", ".logs", ".sources"];
 
         self.packages.iter().for_each(|p| {
             for d in &DOTDIRS {
                 let dir = p.data.port_dir.join(d);
-                mkdir(&dir).efail(|| format!("Failed to create dotdir '{}' for '{p}'", dir.display()));
+                mkdir(&dir)
+                    .efail(|| format!("Failed to create dotdir '{}' for '{p}'", dir.display()));
             }
         });
     }

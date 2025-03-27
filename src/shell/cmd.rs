@@ -1,17 +1,17 @@
 // src/shell/cmd.rs
 //! Defines functions for sending commands through bash
 
-use anyhow::{Result, Context, bail};
 use crate::{
     globals::{config::CONFIG, flags::Flags},
     utils::fail::Fail,
 };
+use anyhow::{Context, Result, bail};
 use std::{
     fs::OpenOptions as OO,
     io::{BufRead, BufReader, BufWriter, Write},
     path::PathBuf,
     process::{Command, Stdio},
-    thread
+    thread,
 };
 
 /// # Description
@@ -45,7 +45,10 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
     let stdout_thread = thread::spawn(move || {
         let mut reader = BufReader::new(stdout);
         let mut writer = log.as_ref().map(|log| {
-            let f = OO::new().create(true).append(true).open(log)
+            let f = OO::new()
+                .create(true)
+                .append(true)
+                .open(log)
                 .fail("Failed to open log file");
             BufWriter::new(f)
         });
@@ -71,7 +74,10 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
     let stderr_thread = thread::spawn(move || {
         let mut reader = BufReader::new(stderr);
         let mut writer = log_clone.as_ref().map(|log| {
-            let f = OO::new().create(true).append(true).open(log)
+            let f = OO::new()
+                .create(true)
+                .append(true)
+                .open(log)
                 .fail("Failed to open log file");
             BufWriter::new(f)
         });
@@ -100,8 +106,12 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
         bail!("Command failed");
     }
 
-    stdout_thread.join().fail("Failed to join the stdout thread");
-    stderr_thread.join().fail("Failed to join the stderr thread");
+    stdout_thread
+        .join()
+        .fail("Failed to join the stdout thread");
+    stderr_thread
+        .join()
+        .fail("Failed to join the stderr thread");
 
     Ok(())
 }
@@ -113,12 +123,12 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
 #[macro_export]
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{
-        use $crate::shell::cmd::exec;
         use $crate::globals::flags::Flags;
+        use $crate::shell::cmd::exec;
 
         let debug = if Flags::grab().verbose { 'x' } else { ' ' };
         let command = format!(
-        r#"
+            r#"
         set -e{}
         source /usr/share/2/envs/core || exit 211
 
@@ -131,9 +141,7 @@ macro_rules! pkgexec {
 
         {}
         "#,
-        debug,
-        $pkg.data.port_dir,
-        $cmd,
+            debug, $pkg.data.port_dir, $cmd,
         );
 
         let build_log = $pkg.data.port_dir.join(".logs/build.log");

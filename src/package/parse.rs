@@ -1,15 +1,8 @@
 // src/package/parse.rs
 //! Functions for parsing positional arguments
 
-use crate::{
-    comms::out::erm,
-    utils::fail::Fail,
-};
-use super::{
-    ambiguity::resolve_ambiguity,
-    Package,
-    sets::Set,
-};
+use super::{Package, ambiguity::resolve_ambiguity, sets::Set};
+use crate::{comms::out::erm, utils::fail::Fail};
 
 /// # Description
 /// Parses the raw package positional arguments into packages
@@ -25,7 +18,8 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 
         if let Some(i) = p.find('=') {
             let msg = format!("Version control is not supported; stripping version for '{p}'");
-            erm!("{msg}"); log::warn!("{msg}");
+            erm!("{msg}");
+            log::warn!("{msg}");
             p = &p[..i];
         }
 
@@ -37,10 +31,10 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
         if p.contains('@') {
             let mut set = expand_set(&p).to_vec();
             parsed.append(&mut set);
-            continue
+            continue;
         }
 
-        if ! p.contains('/') {
+        if !p.contains('/') {
             p = resolve_ambiguity(&p);
         }
 
@@ -55,21 +49,27 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
 pub fn expand_set(set: &str) -> Box<[Package]> {
     let packages = Set::new(set).unravel();
 
-    packages.iter().map(|p| {
-        let mut p = p.as_str();
+    packages
+        .iter()
+        .map(|p| {
+            let mut p = p.as_str();
 
-        if let Some(i) = p.find('=') {
-            let msg = format!("Version control is not supported; stripping version for '{set}' member '{p}'");
-            erm!("{msg}"); log::warn!("{msg}");
-            p = &p[..i];
-        }
+            if let Some(i) = p.find('=') {
+                let msg = format!(
+                    "Version control is not supported; stripping version for '{set}' member '{p}'"
+                );
+                erm!("{msg}");
+                log::warn!("{msg}");
+                p = &p[..i];
+            }
 
-        let mut p = p.to_string();
-        if ! p.contains('/') {
-            p = resolve_ambiguity(&p);
-        }
+            let mut p = p.to_string();
+            if !p.contains('/') {
+                p = resolve_ambiguity(&p);
+            }
 
-        let (repo, name) = p.split_once('/').fail("p does not contain '/'");
-        Package::new(repo, name)
-    }).collect()
+            let (repo, name) = p.split_once('/').fail("p does not contain '/'");
+            Package::new(repo, name)
+        })
+        .collect()
 }

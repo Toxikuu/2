@@ -17,7 +17,6 @@ use clap::Parser;
 pub struct Args {
     // Type: Core
     // Arguments that call core 2 functions
-
     /// Installs packages, building them if necessary
     ///
     /// If combined with force, does not forcibly rebuild, only forcibly installs
@@ -65,7 +64,6 @@ pub struct Args {
 
     // Type: Extra
     // Arguments that call non-core 2 functions
-
     /// Deletes package files for older versions
     ///
     /// The files that are pruned include old manifests, logs, and sources
@@ -94,7 +92,6 @@ pub struct Args {
     #[arg(short = 'A', long)]
     pub long_about: bool,
     // TODO: Consider merging with stats and consider including installed libraries/binaries too
-
     /// Dsiplays stats for a package
     #[arg(short = 's', long)]
     pub stats: bool,
@@ -107,7 +104,6 @@ pub struct Args {
     // Type: Special
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2
-
     /// Lists all available repositories
     ///
     /// Takes no arguments
@@ -137,7 +133,6 @@ pub struct Args {
     // Type: Generic
     // Arguments that are not specific to 2
     // They do not take positional arguments
-
     /// Increases output verbosity
     #[arg(short = 'v', long)]
     pub verbose: bool,

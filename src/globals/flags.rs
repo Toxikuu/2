@@ -1,12 +1,8 @@
 // src/globals/flags.rs
 //! Defines flags
 
+use crate::{cli::args::Args, globals::config::CONFIG, utils::fail::Fail};
 use once_cell::sync::OnceCell;
-use crate::{
-    cli::args::Args,
-    globals::config::CONFIG,
-    utils::fail::Fail,
-};
 
 /// # Description
 /// The generic global flags object
@@ -32,7 +28,11 @@ impl Flags {
         let quiet = args.quiet || CONFIG.flags.quiet;
         let verbose = args.verbose || CONFIG.flags.verbose;
 
-        Self { force, quiet, verbose }
+        Self {
+            force,
+            quiet,
+            verbose,
+        }
     }
 
     pub fn grab() -> &'static Self {

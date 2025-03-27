@@ -1,17 +1,18 @@
 // src/package/stats.rs
 //! Tracks stats for packages
 
-use anyhow::Result;
+use super::Package;
 use crate::{
     comms::out::{erm, msg, pr},
-    utils::{
-        fail::Fail,
-        time::Pretty,
-    }
+    utils::{fail::Fail, time::Pretty},
 };
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::{fs::{self, File}, io::Write, time::Duration};
-use super::Package;
+use std::{
+    fs::{self, File},
+    io::Write,
+    time::Duration,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct PackageStats {
@@ -22,9 +23,7 @@ pub fn load(package: &Package) -> Result<PackageStats> {
     let statsfile = package.data.port_dir.join(".data").join("STATS");
 
     if !statsfile.exists() {
-        return Ok(
-            PackageStats::default()
-        )
+        return Ok(PackageStats::default());
     }
 
     let contents = fs::read_to_string(statsfile)?;
@@ -52,7 +51,7 @@ impl PackageStats {
 
     pub fn display(&self, package: &Package) {
         if !package.data.port_dir.join(".data").join("STATS").exists() {
-            return erm!("No stats exist for '{package}'")
+            return erm!("No stats exist for '{package}'");
         }
 
         msg!("Stats for {package}:");
@@ -68,7 +67,9 @@ impl PackageStats {
 
 #[allow(clippy::cast_precision_loss)]
 fn avg(pts: &[u64]) -> f64 {
-    if pts.is_empty() { return 0. }
+    if pts.is_empty() {
+        return 0.;
+    }
     let sum = pts.iter().sum::<u64>();
     (sum / pts.len() as u64) as f64
 }

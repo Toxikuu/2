@@ -2,14 +2,8 @@
 //! Functions for viewing the history of a package
 
 use super::Package;
-use std::{
-    fmt::Write,
-    fs,
-};
-use crate::{
-    globals::config::CONFIG,
-    utils::fail::Fail,
-};
+use crate::{globals::config::CONFIG, utils::fail::Fail};
+use std::{fmt::Write, fs};
 
 /// # Description
 /// Reads $PORT/CHANGELOG into a string
@@ -47,5 +41,8 @@ pub fn view(package: &Package) {
     let history = read_history(package);
     let history = format_history(&history);
 
-    println!("{}Changelog for '{package}':\n\n{history}", CONFIG.message.prompt);
+    println!(
+        "{}Changelog for '{package}':\n\n{history}",
+        CONFIG.message.prompt
+    );
 }

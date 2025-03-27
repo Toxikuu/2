@@ -1,6 +1,7 @@
 // src/package/endpoints.rs
 //! Defines endpoints for the package struct
 
+use super::Package;
 use crate::{
     comms::out::{msg, pr},
     utils::fail::{BoolFail, Fail},
@@ -9,7 +10,6 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use super::Package;
 
 impl Package {
     /// # Description
@@ -17,23 +17,34 @@ impl Package {
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
         // TODO: I'm pretty confident this is unreachable, and should be handled instead in parse()
-        name.starts_with('.').and_efail(|| format!("Invalid package name '{name}'"));
+        name.starts_with('.')
+            .and_efail(|| format!("Invalid package name '{name}'"));
 
         let port_dir = PathBuf::from("/var/ports").join(repo).join(name);
         let lock_path = port_dir.join("LOCK");
-        log::debug!("Determined LOCK path for '{repo}/{name}': '{}'", lock_path.display());
-        let contents = fs::read_to_string(&lock_path).efail(|| format!("Failed to read LOCK for '{repo}/{name}'"));
+        log::debug!(
+            "Determined LOCK path for '{repo}/{name}': '{}'",
+            lock_path.display()
+        );
+        let contents = fs::read_to_string(&lock_path)
+            .efail(|| format!("Failed to read LOCK for '{repo}/{name}'"));
 
-        let mut package: Self = toml::de::from_str(&contents).efail(|| format!("Invalid syntax in LOCK for '{repo}/{name}'"));
+        let mut package: Self = toml::de::from_str(&contents)
+            .efail(|| format!("Invalid syntax in LOCK for '{repo}/{name}'"));
 
         package.relpath = format!("{}/{}", &package.repo, &package.name);
-        let port_dir = PathBuf::from("/var/ports").join(&package.repo).join(&package.name);
+        let port_dir = PathBuf::from("/var/ports")
+            .join(&package.repo)
+            .join(&package.name);
         let dist_tb = format!("{}={}.tar.zst", package.name, package.version);
 
         let status_path = port_dir.join(".data").join("INSTALLED");
         package.data.is_installed = status_path.exists();
 
-        package.data.installed_version = fs::read_to_string(&status_path).unwrap_or_default().trim().to_string();
+        package.data.installed_version = fs::read_to_string(&status_path)
+            .unwrap_or_default()
+            .trim()
+            .to_string();
         package.data.dist = port_dir.join(".dist").join(&dist_tb);
         package.data.port_dir = port_dir;
         package.status();
@@ -69,31 +80,52 @@ impl Package {
 
     pub fn about(&self) {
         let status = &self.data.status;
-        let sty = if status.contains("Available") { "\x1b[30m" }
-            else if status.contains("Outdated") { "\x1b[1;31m" }
-            else { "\x1b[1;36m" };
+        let sty = if status.contains("Available") {
+            "\x1b[30m"
+        } else if status.contains("Outdated") {
+            "\x1b[1;31m"
+        } else {
+            "\x1b[1;36m"
+        };
 
         msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
-        pr!("\x1b[37m {}", self.description.as_deref().unwrap_or("No description"));
-        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream"));
+        pr!(
+            "\x1b[37m {}",
+            self.description.as_deref().unwrap_or("No description")
+        );
+        pr!(
+            "\x1b[37m󰘬 {}",
+            self.upstream.as_deref().unwrap_or("No upstream")
+        );
     }
 
     pub fn long_about(&self) {
         let status = &self.data.status;
-        let sty = if status.contains("Available") { "\x1b[30m" }
-            else if status.contains("Outdated") { "\x1b[1;31m" }
-            else { "\x1b[1;36m" };
+        let sty = if status.contains("Available") {
+            "\x1b[30m"
+        } else if status.contains("Outdated") {
+            "\x1b[1;31m"
+        } else {
+            "\x1b[1;36m"
+        };
 
         msg!("{sty} 󰏖 {}/{}={}", self.repo, self.name, self.version);
-        pr!("\x1b[37m {}", self.description.as_deref().unwrap_or("No description"));
-        pr!("\x1b[37m󰘬 {}", self.upstream.as_deref().unwrap_or("No upstream"));
+        pr!(
+            "\x1b[37m {}",
+            self.description.as_deref().unwrap_or("No description")
+        );
+        pr!(
+            "\x1b[37m󰘬 {}",
+            self.upstream.as_deref().unwrap_or("No upstream")
+        );
 
         pr!("\n\x1b[37m {}", self.data.port_dir.display());
         if self.data.dist.exists() {
             pr!("\x1b[37m {}", self.data.dist.display());
         }
 
-        let categories = self.categories
+        let categories = self
+            .categories
             .as_ref()
             .map_or("No categories".to_owned(), |c| c.join(", "));
 

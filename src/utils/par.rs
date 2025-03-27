@@ -1,16 +1,8 @@
 // src/pm/par.rs
 //! Adds support functions for parallelism
 
-use crate::{
-    comms::out::vpr,
-    globals::config::CONFIG,
-    package::Package,
-    utils::fail::Fail,
-};
-use rayon::{
-    ThreadPool,
-    ThreadPoolBuilder,
-};
+use crate::{comms::out::vpr, globals::config::CONFIG, package::Package, utils::fail::Fail};
+use rayon::{ThreadPool, ThreadPoolBuilder};
 
 pub fn build_pool(packages: &[Package]) -> ThreadPool {
     vpr!("Building thread pool...");

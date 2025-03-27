@@ -1,15 +1,18 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
+use super::script;
 use crate::{
-    comms::out::{pr, msg},
+    comms::out::{msg, pr},
     globals::{config::CONFIG, flags::Flags},
-    package::{stats::{self, PackageStats}, Package},
+    package::{
+        Package,
+        stats::{self, PackageStats},
+    },
     remove::logic::{clean, remove_dead_files_after_update},
     shell::cmd::exec,
     utils::fail::Fail,
 };
-use super::script;
 
 pub enum InstallStatus {
     Already,
@@ -57,9 +60,7 @@ pub fn install(package: &Package) -> InstallStatus {
 pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<PackageStats>) {
     let stats = stats::load(package).fail("Failed to load package stats");
 
-    let built = package.dist_exists()
-        && !Flags::grab().force
-        && !r#override;
+    let built = package.dist_exists() && !Flags::grab().force && !r#override;
 
     if built {
         (BuildStatus::Already, None)
@@ -81,7 +82,7 @@ pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<Packag
 /// Uses tar under the hood. Reads /etc/2/exclusions.txt. Logs the installed files to a manifest.
 fn dist_install(package: &Package) {
     let command = format!(
-    r#"
+        r#"
 
     PREFIX={}
     mkdir -pv "$PREFIX"
@@ -101,10 +102,12 @@ fn dist_install(package: &Package) {
     ldconfig
 
     "#,
-    CONFIG.general.prefix,
-    package.data.dist,
-    package.data.port_dir, package.version,
-    package.version, package.data.port_dir,
+        CONFIG.general.prefix,
+        package.data.dist,
+        package.data.port_dir,
+        package.version,
+        package.version,
+        package.data.port_dir,
     );
 
     msg!("󰐗  Installing '{package}'...");
@@ -131,23 +134,32 @@ pub fn update(package: &Package) -> UpdateStatus {
     let force = flags.force;
     let quiet = flags.quiet;
     if !package.data.is_installed && !force {
-        return UpdateStatus::NotInstalled
+        return UpdateStatus::NotInstalled;
     }
 
     if !package.is_outdated() && !force {
-        return UpdateStatus::Latest
+        return UpdateStatus::Latest;
     }
 
-    msg!("󱍷  Updating '{}': '{}' -> '{}'", package.name, package.data.installed_version, package.version);
+    msg!(
+        "󱍷  Updating '{}': '{}' -> '{}'",
+        package.name,
+        package.data.installed_version,
+        package.version
+    );
 
     if !package.dist_exists() {
-        return UpdateStatus::BuildFirst
+        return UpdateStatus::BuildFirst;
     }
 
     dist_install(package);
     if package.version != package.data.installed_version {
         if !quiet {
-            pr!("Removing dead files for '{}={}'", package.name, package.data.installed_version);
+            pr!(
+                "Removing dead files for '{}={}'",
+                package.name,
+                package.data.installed_version
+            );
         }
         remove_dead_files_after_update(package);
     }

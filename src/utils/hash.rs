@@ -2,13 +2,10 @@
 //! Defines functions for handling 2's hashes
 //! The hashes are URL-safe base64-encoded sha256 hashes
 
-use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
-use sha2::{Sha256, Digest};
-use std::{
-    fs::File,
-    io::Read, path::Path,
-};
 use crate::utils::fail::Fail;
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+use sha2::{Digest, Sha256};
+use std::{fs::File, io::Read, path::Path};
 
 pub fn twohash(file_path: &Path) -> String {
     let mut file = File::open(file_path)
@@ -17,7 +14,9 @@ pub fn twohash(file_path: &Path) -> String {
     let mut buf = [0u8; 8192];
 
     while let Ok(n) = file.read(&mut buf) {
-        if n == 0 { break }
+        if n == 0 {
+            break;
+        }
         hasher.update(&buf[..n]);
     }
 
@@ -29,11 +28,7 @@ pub fn is_commit_hash(s: &str) -> bool {
 }
 
 pub fn try_truncate_commit_hash(s: &str) -> &str {
-    if is_commit_hash(s) {
-        &s[..7]
-    } else {
-        s
-    }
+    if is_commit_hash(s) { &s[..7] } else { s }
 }
 
 #[cfg(test)]
@@ -55,8 +50,10 @@ mod tests {
         let hash = twohash(&f);
 
         for c in dangerous {
-            assert!(!hash.contains(c), "Hash '{hash}' contains dangerous character '{c}'");
+            assert!(
+                !hash.contains(c),
+                "Hash '{hash}' contains dangerous character '{c}'"
+            );
         }
     }
-
 }

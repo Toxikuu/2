@@ -1,8 +1,8 @@
 // src/utils/time.rs
 //! Provides utility functions for dealing with time
 
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use super::fail::Fail;
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 pub fn timestamp() -> Duration {
     let now = SystemTime::now();
@@ -54,9 +54,9 @@ impl Stopwatch {
     /// # Description
     /// Returns the total elapsed time
     pub fn elapsed(&self) -> Duration {
-        self.start_time.map_or(
-            self.elapsed, |start_time| self.elapsed + start_time.elapsed()
-        )
+        self.start_time.map_or(self.elapsed, |start_time| {
+            self.elapsed + start_time.elapsed()
+        })
     }
 
     /// # Description
@@ -69,7 +69,7 @@ impl Stopwatch {
 /// # Description
 /// Adds the ``pretty()`` method for Duration
 /// This is used by ``Stopwatch::display()``
-pub trait Pretty{
+pub trait Pretty {
     fn pretty(self) -> String;
 }
 

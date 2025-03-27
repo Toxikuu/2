@@ -1,6 +1,7 @@
 // src/build/script.rs
 //! Interfaces with $PORT/BUILD
 
+use super::qa;
 use crate::{
     fetch::download::normalize_tarball,
     globals::config::CONFIG,
@@ -13,7 +14,6 @@ use crate::{
     },
 };
 use std::path::Path;
-use super::qa;
 
 /// ### Description
 /// Checks the hashes for package sources, failing if they don't match known ones
@@ -29,16 +29,24 @@ fn check_hashes(package: &Package, no_source: bool) {
 
     if !no_source {
         let url = &package.source.url;
-        let tarball = url.split('/').next_back().efail(|| format!("Invalid url '{url}' for '{package}'"));
+        let tarball = url
+            .split('/')
+            .next_back()
+            .efail(|| format!("Invalid url '{url}' for '{package}'"));
         let filename = &normalize_tarball(package, tarball);
         let knownhash = &package.source.hash;
-        passes(filename, knownhash).or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
+        passes(filename, knownhash)
+            .or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
     }
 
     package.extra.iter().for_each(|source| {
-        let filename = &Path::new(source.url.as_str()).file_name().efail(|| format!("Invalid file name for source '{source:?}' for '{package}'")).to_string_lossy();
+        let filename = &Path::new(source.url.as_str())
+            .file_name()
+            .efail(|| format!("Invalid file name for source '{source:?}' for '{package}'"))
+            .to_string_lossy();
         let knownhash = &source.hash;
-        passes(filename, knownhash).or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
+        passes(filename, knownhash)
+            .or_efail(|| format!("Hash checks failed for '{filename}' for '{package}'"));
     });
 }
 
@@ -48,11 +56,13 @@ fn check_hashes(package: &Package, no_source: bool) {
 /// The setup process involves checking hashes, cleaning, and extracting the sources to the build directory
 fn setup(package: &Package) {
     let no_source = package.source.url.is_empty();
-    if CONFIG.general.check_hashes { check_hashes(package, no_source) }
+    if CONFIG.general.check_hashes {
+        check_hashes(package, no_source)
+    }
     clean(package);
 
     let command = format!(
-    r#"
+        r#"
 
     XTR="/tmp/2/extraction"
     rm -rf "$XTR"
@@ -89,15 +99,19 @@ fn setup(package: &Package) {
 pub fn build(package: &Package) {
     setup(package);
 
-    qa::envs_properly_initialized(package).or_efail(|| format!("QA: Detected uninitialized or unused environment for '{package}'"));
+    qa::envs_properly_initialized(package)
+        .or_efail(|| format!("QA: Detected uninitialized or unused environment for '{package}'"));
 
     let command = r#"cd "$BLD"; 2b"#;
     pkgexec!(command, package).efail(|| format!("Build for '{package}' died"));
 
-    qa::destdir_has_stuff(package).or_efail(|| format!("QA: Detected empty destdir for '{package}'"));
-    qa::libs_ok(package).or_efail(|| format!("QA: Detected wrong-architecture libraries for '{package}'"));
+    qa::destdir_has_stuff(package)
+        .or_efail(|| format!("QA: Detected empty destdir for '{package}'"));
+    qa::libs_ok(package)
+        .or_efail(|| format!("QA: Detected wrong-architecture libraries for '{package}'"));
 
-    let command = format!(r#"
+    let command = format!(
+        r#"
     cd "$BLD"
     ORIG=$(du -sh D | awk '{{print $1}}')
     TB="$PORT/.dist/{package}.tar.zst"
@@ -118,15 +132,15 @@ pub fn build(package: &Package) {
 ///
 /// These instructions are defined in BUILD under the function ``2a()``.
 pub fn prep(package: &Package) {
-    let command =
-    r"
+    let command = r"
 
     if command -V 2a 2>&1 | grep 'is a function' >/dev/null 2>&1; then
         echo 'Executing pre-install steps'
         2a
     fi
 
-    ".to_string();
+    "
+    .to_string();
 
     pkgexec!(&command, package).efail(|| format!("Build for '{package}' died in pre-install"));
 }
@@ -139,15 +153,15 @@ pub fn prep(package: &Package) {
 /// The instructions should not interact with the build, but rather should perform any necessary
 /// post-install actions
 pub fn post(package: &Package) {
-    let command =
-    r"
+    let command = r"
 
     if command -V 2z 2>&1 | grep 'is a function' >/dev/null 2>&1; then
         echo 'Executing post-install steps'
         2z
     fi
 
-    ".to_string();
+    "
+    .to_string();
 
     pkgexec!(&command, package).efail(|| format!("Build for '{package}' died in post-install"));
 }

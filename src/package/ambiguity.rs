@@ -3,7 +3,8 @@
 
 use crate::{
     comms::{
-        r#in::select, out::{erm, pr}
+        r#in::select,
+        out::{erm, pr},
     },
     globals::config::CONFIG,
     package::repos::{self, prioritize},
@@ -46,8 +47,12 @@ pub fn resolve_ambiguity(name: &str) -> String {
     let mut matches = locate(name);
     prioritize(&mut matches);
 
-    matches.is_empty().and_efail(|| format!("Could not find '{name}' in any repo"));
-    if let [only] = matches.as_slice() { return only.to_string() }
+    matches
+        .is_empty()
+        .and_efail(|| format!("Could not find '{name}' in any repo"));
+    if let [only] = matches.as_slice() {
+        return only.to_string();
+    }
 
     erm!("Ambiguous: '{name}'");
     for (i, m) in matches.iter().enumerate() {
@@ -55,9 +60,11 @@ pub fn resolve_ambiguity(name: &str) -> String {
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().fail("[UNREACHABLE] Schrodinger's empty vector");
+        let m = matches
+            .first()
+            .fail("[UNREACHABLE] Schrodinger's empty vector");
         pr!("Auto-selected '{m}'");
-        return m.to_string()
+        return m.to_string();
     }
 
     // i went for maximum readability with this loop (and the next one)
@@ -67,14 +74,16 @@ pub fn resolve_ambiguity(name: &str) -> String {
         let selected = select!("Choose a package");
 
         let Ok(num) = selected.parse::<usize>() else {
-            erm!("Invalid input"); continue
+            erm!("Invalid input");
+            continue;
         };
 
         let Some(m) = matches.get(num) else {
-            erm!("Selection out of bounds"); continue
+            erm!("Selection out of bounds");
+            continue;
         };
 
-        return m.clone()
+        return m.clone();
     }
 }
 
@@ -87,12 +96,17 @@ fn locate_set(set: &str) -> Vec<String> {
     fs::read_dir("/var/ports")
         .fail("No package repos found")
         .filter_map(|r| {
-            let repo = r.ok().fail("Failed to read an entry in '/var/ports': Filesystem error?").path();
+            let repo = r
+                .ok()
+                .fail("Failed to read an entry in '/var/ports': Filesystem error?")
+                .path();
 
             if repo.join(&pattern).exists() {
                 repo.file_name()
                     .map(|name| format!("{}/{set}", name.to_string_lossy()))
-            } else { None }
+            } else {
+                None
+            }
         })
         .collect()
 }
@@ -101,18 +115,22 @@ fn locate_set(set: &str) -> Vec<String> {
 /// Given a set, finds its repository
 /// Prompts the user if multiple repositories contain the set
 pub fn resolve_set_ambiguity(set: &str) -> String {
-    let mut matches =
-        if super::sets::Set::is_special_set(set) {
-            let repos = repos::find_all();
-            repos.iter()
-                .map(|r| format!("{r}/{set}"))
-                .collect::<Vec<_>>()
-        } else {
-            locate_set(set)
-        };
+    let mut matches = if super::sets::Set::is_special_set(set) {
+        let repos = repos::find_all();
+        repos
+            .iter()
+            .map(|r| format!("{r}/{set}"))
+            .collect::<Vec<_>>()
+    } else {
+        locate_set(set)
+    };
 
-    matches.is_empty().and_efail(|| format!("Failed to find '{set}' in any repo"));
-    if let [only] = matches.as_slice() { return only.to_string() }
+    matches
+        .is_empty()
+        .and_efail(|| format!("Failed to find '{set}' in any repo"));
+    if let [only] = matches.as_slice() {
+        return only.to_string();
+    }
 
     prioritize(&mut matches);
 
@@ -122,22 +140,26 @@ pub fn resolve_set_ambiguity(set: &str) -> String {
     }
 
     if CONFIG.general.auto_ambiguity {
-        let m = matches.first().fail("[UNREACHABLE] Schrodinger's empty vector");
+        let m = matches
+            .first()
+            .fail("[UNREACHABLE] Schrodinger's empty vector");
         pr!("Auto-selected '{m}'");
-        return m.clone()
+        return m.clone();
     }
 
     loop {
         let selected = select!("Choose a set");
 
         let Ok(num) = selected.parse::<usize>() else {
-            erm!("Invalid selection"); continue
+            erm!("Invalid selection");
+            continue;
         };
 
         let Some(m) = matches.get(num) else {
-            erm!("Selection out of bounds"); continue
+            erm!("Selection out of bounds");
+            continue;
         };
 
-        return m.clone()
+        return m.clone();
     }
 }

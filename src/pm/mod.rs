@@ -3,16 +3,10 @@
 
 pub mod endpoints;
 
-use crate::{
-    cli::args::Args,
-    package::Package,
-};
+use crate::{cli::args::Args, package::Package};
 
 #[cfg(feature = "parallelism")]
-pub use {
-    crate::utils::par::build_pool,
-    rayon::ThreadPool,
-};
+pub use {crate::utils::par::build_pool, rayon::ThreadPool};
 
 /// # Description
 /// The package manager struct

@@ -1,10 +1,12 @@
 // src/fetch/download.rs
 //! Defines download functions
 
-use anyhow::{bail, Context, Result};
 use crate::{
-    comms::out::vpr, package::Package, utils::fail::{BoolFail, Fail}
+    comms::out::vpr,
+    package::Package,
+    utils::fail::{BoolFail, Fail},
 };
+use anyhow::{Context, Result, bail};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
     fs::File,
@@ -59,11 +61,16 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
     let mut dlct = 0;
     package.extra.iter().for_each(|source| {
         let url = &source.url;
-        let file_name = url.rsplit_once('/').map(|(_, name)| name.to_string()).efail(|| format!("Invalid extra url '{url}' for '{package}'"));
+        let file_name = url
+            .rsplit_once('/')
+            .map(|(_, name)| name.to_string())
+            .efail(|| format!("Invalid extra url '{url}' for '{package}'"));
         let out = package.data.port_dir.join(".sources").join(&file_name);
 
         if let Err(e) = download_url(&source.url, &out, force, sty) {
-            e.to_string().contains("Exists: ").or_efail(|| format!("Failed to get extra url '{url}' for '{package}'"));
+            e.to_string()
+                .contains("Exists: ")
+                .or_efail(|| format!("Failed to get extra url '{url}' for '{package}'"));
         }
         dlct += 1;
     });
@@ -82,7 +89,11 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
 /// - the file path cannot be created (unlikely)
 /// - random buffer-related rw failures (unlikely)
 pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> Result<String> {
-    let file_name = out.file_name().context("Failed to get filename")?.to_string_lossy().to_string();
+    let file_name = out
+        .file_name()
+        .context("Failed to get filename")?
+        .to_string_lossy()
+        .to_string();
     let file_path = Path::new(&out);
 
     if file_path.exists() && !force {
@@ -94,11 +105,12 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
         Ok(r) => r,
         Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
         Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
-        Err(_) => bail!("An unexpected error occured")
+        Err(_) => bail!("An unexpected error occured"),
     };
     vpr!("Response:\n{r:#?}");
 
-    let length: u64 = r.headers()
+    let length: u64 = r
+        .headers()
         .get(CONTENT_LENGTH)
         .and_then(|hv| hv.to_str().ok())
         .and_then(|s| s.parse().ok())
@@ -126,7 +138,9 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
 
     loop {
         let bytes_read = reader.read(&mut buffer)?;
-        if bytes_read == 0 { break }
+        if bytes_read == 0 {
+            break;
+        }
 
         f.write_all(&buffer[..bytes_read])?;
         downloaded += bytes_read as u64;
@@ -157,20 +171,23 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
 /// - ``tree_2.2.1.taz`` -> ``tree=2.2.1.tar.gz``
 /// - ``tar_src.stupid_tarball_name=1.35.0.tar.zst`` -> ``tar=1.35.tar.zst``
 pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
-    let ext = tarball.rsplit_once(".t")
+    let ext = tarball
+        .rsplit_once(".t")
         .map(|(_, ext)| format!(".t{ext}"))
         .efail(|| format!("[UNREACHABLE] Unsupported tarball format for tarball '{tarball}'"));
 
     // if failures occur, i may use .tar.xz as a generic fallback, even if it's inaccurate
     let to = match ext.as_str() {
-        ".tar.bz2"  | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2" ),
-        ".tar.gz"   | ".tgz" | ".taz"                    => format!("{package}.tar.gz"  ),
-        ".tar.lz"                                        => format!("{package}.tar.lz"  ),
-        ".tar.lzma" | ".tlz"                             => format!("{package}.tar.lzma"),
-        ".tar.lzo"                                       => format!("{package}.tar.lzo" ),
-        ".tar.xz"   | ".txz"                             => format!("{package}.tar.xz"  ),
-        ".tar.zst"  | ".tzst"                            => format!("{package}.tar.zst" ),
-        _ => unreachable!("Unsupported tarball extension '{ext}' for tarball '{tarball}'.\nYour ass should not be seeing this error.\nWtf did you do?"),
+        ".tar.bz2" | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2"),
+        ".tar.gz" | ".tgz" | ".taz" => format!("{package}.tar.gz"),
+        ".tar.lz" => format!("{package}.tar.lz"),
+        ".tar.lzma" | ".tlz" => format!("{package}.tar.lzma"),
+        ".tar.lzo" => format!("{package}.tar.lzo"),
+        ".tar.xz" | ".txz" => format!("{package}.tar.xz"),
+        ".tar.zst" | ".tzst" => format!("{package}.tar.zst"),
+        _ => unreachable!(
+            "Unsupported tarball extension '{ext}' for tarball '{tarball}'.\nYour ass should not be seeing this error.\nWtf did you do?"
+        ),
     };
 
     to
@@ -190,9 +207,15 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 /// Saves the downloaded sources to ``/var/ports/<repo>/<package>/.sources/<name>``
 fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool {
     let url = package.source.url.clone();
-    if url.is_empty() { return false }
+    if url.is_empty() {
+        return false;
+    }
 
-    let file_name = url.split('/').next_back().context("Likely the repo's maintainer's fault").efail(|| format!("Invalid url '{url}' for '{package}'"));
+    let file_name = url
+        .split('/')
+        .next_back()
+        .context("Likely the repo's maintainer's fault")
+        .efail(|| format!("Invalid url '{url}' for '{package}'"));
     let file_name = normalize_tarball(package, file_name);
 
     let srcpath = package.data.port_dir.join(".sources");
@@ -200,8 +223,10 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool
 
     vpr!("Downloading tarball...");
     if let Err(e) = download_url(&url, &out, force, sty) {
-        e.to_string().contains("Exists: ").or_efail(|| format!("Failed to download tarball from '{url}' for '{package}'"));
-        return false
+        e.to_string()
+            .contains("Exists: ")
+            .or_efail(|| format!("Failed to download tarball from '{url}' for '{package}'"));
+        return false;
     }
     true
 }

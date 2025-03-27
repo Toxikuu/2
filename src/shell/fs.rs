@@ -1,15 +1,11 @@
 // src/shell/fs.rs
 //! Utility functions for filesystem interactions
 
-use anyhow::{bail, Result};
 use crate::erm;
+use anyhow::{Result, bail};
 use std::{
+    fs::{create_dir, read_link, remove_dir, remove_file},
     io::ErrorKind as IOE,
-    fs::{
-        create_dir,
-        remove_dir, remove_file,
-        read_link,
-    },
     path::{Path, PathBuf},
 };
 
@@ -37,8 +33,8 @@ pub fn rmdir(path: &PathBuf) -> Result<()> {
             IOE::DirectoryNotEmpty => {
                 erm!("Ignoring '{}': populated", path.display());
                 bail!("Populated directory")
-            },
-            _ => bail!("Failed to remove '{}': {e}", path.display())
+            }
+            _ => bail!("Failed to remove '{}': {e}", path.display()),
         }
     }
     Ok(())
@@ -55,7 +51,7 @@ pub fn rmf(path: &PathBuf) -> Result<()> {
                 erm!("Ignoring '{}': missing", path.display());
                 bail!("Missing file")
             }
-            _ => bail!("Failed to remove '{}': {e}", path.display())
+            _ => bail!("Failed to remove '{}': {e}", path.display()),
         }
     }
     Ok(())
@@ -74,8 +70,5 @@ pub fn rm(path: &PathBuf) -> Result<()> {
 /// # Description
 /// Returns true if the given path is a directory, following symlinks.
 pub fn is_dir(path: &Path) -> Result<bool> {
-    Ok(
-        path.is_dir() ||
-        (path.is_symlink() && read_link(path)?.is_dir())
-    )
+    Ok(path.is_dir() || (path.is_symlink() && read_link(path)?.is_dir()))
 }

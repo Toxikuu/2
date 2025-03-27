@@ -1,12 +1,8 @@
 // src/remove/manifest.rs
 //! Reads the package manifest
 
+use crate::{comms::out::vpr, package::Package, utils::fail::Fail};
 use anyhow::{Context, Result};
-use crate::{
-    comms::out::vpr,
-    package::Package,
-    utils::fail::Fail,
-};
 use std::{
     collections::{HashMap, HashSet},
     fs,
@@ -19,18 +15,17 @@ use walkdir::{DirEntry, WalkDir};
 /// # Description
 /// Returns true if none of the directory entry's ancestors contain .data
 fn is_in_wrong_hidden(entry: &DirEntry) -> bool {
-    entry.path()
-        .components()
-        .any(|c| {
-            let component = c.as_os_str().to_string_lossy();
-            component.starts_with('.') && component != ".data"
-        })
+    entry.path().components().any(|c| {
+        let component = c.as_os_str().to_string_lossy();
+        component.starts_with('.') && component != ".data"
+    })
 }
 
 /// # Description
 /// Returns true if a directory entry is a manifest
 fn is_manifest(entry: &DirEntry) -> bool {
-    entry.file_name()
+    entry
+        .file_name()
         .to_str()
         .unwrap_or("")
         .contains("MANIFEST=")
@@ -80,14 +75,19 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
 /// Backend for ``find_unique_paths``
 ///
 /// Returns the unique lines in reverse order (meaning /path/to/file is above /path/to)
-fn find_unique(all_data: &HashMap<PathBuf, Rc<[String]>>, this_manifest: &PathBuf) -> Result<Rc<[String]>> {
+fn find_unique(
+    all_data: &HashMap<PathBuf, Rc<[String]>>,
+    this_manifest: &PathBuf,
+) -> Result<Rc<[String]>> {
     let this_data = all_data.get(this_manifest).context("Missing manifest")?;
-    let all_other_lines: HashSet<_> = all_data.iter()
+    let all_other_lines: HashSet<_> = all_data
+        .iter()
         .filter(|(path, _)| *path != this_manifest)
         .flat_map(|(_, lines)| lines.iter())
         .collect();
 
-    let unique = this_data.iter()
+    let unique = this_data
+        .iter()
         .filter(|l| !all_other_lines.contains(l))
         .cloned()
         .rev()
@@ -107,10 +107,17 @@ pub fn find_unique_paths(manifest: &PathBuf) -> Result<Rc<[String]>> {
 /// # Description
 /// Finds unique files in an old manifest (dead files)
 pub fn find_dead_files(package: &Package) -> Result<Rc<[String]>> {
-    let manifests = locate(&format!("/var/ports/{}/{}/.data", package.repo, package.name));
+    let manifests = locate(&format!(
+        "/var/ports/{}/{}/.data",
+        package.repo, package.name
+    ));
 
     let data = read_all(&manifests);
-    let old_manifest = Path::new(&format!("/var/ports/{}/{}/.data/MANIFEST={}", package.repo, package.name, package.data.installed_version)).to_path_buf();
+    let old_manifest = Path::new(&format!(
+        "/var/ports/{}/{}/.data/MANIFEST={}",
+        package.repo, package.name, package.data.installed_version
+    ))
+    .to_path_buf();
 
     find_unique(&data, &old_manifest)
 }

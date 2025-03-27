@@ -10,12 +10,7 @@
 
 #![feature(duration_millis_float)]
 #![feature(str_as_str)]
-
-#![deny(
-    clippy::perf,
-    clippy::todo,
-    clippy::complexity,
-)]
+#![deny(clippy::perf, clippy::todo, clippy::complexity)]
 #![warn(
     clippy::all,
     clippy::pedantic,
@@ -41,12 +36,9 @@ mod shell;
 mod upstream;
 mod utils;
 
-use cli::{
-    args::Args,
-    version as v,
-};
+use cli::{args::Args, version as v};
 use globals::flags::{self, FLAGS};
-use package::{parse, sets, repos, provides};
+use package::{parse, provides, repos, sets};
 use pm::PM;
 use utils::{fail::BoolFail, logger};
 
@@ -70,7 +62,10 @@ fn initialize() -> Args {
     logger::init();
 
     log::info!("Process initiated");
-    log::debug!("Command line: {:?}", std::env::args().collect::<Vec<String>>().join(" "));
+    log::debug!(
+        "Command line: {:?}",
+        std::env::args().collect::<Vec<String>>().join(" ")
+    );
     log::debug!("Initialized logger");
 
     let args = Args::init();
@@ -85,15 +80,21 @@ fn initialize() -> Args {
 /// ### Description
 /// Handles special arguments if any were passed
 fn handle_special_args(args: &mut Args) {
-    if args.version { v::display() }
+    if args.version {
+        v::display()
+    }
 
-    args.provides.iter  ().for_each(|p| provides::provides(p));
-    args.add_repos.iter ().for_each(|r| repos::add (r));
+    args.provides.iter().for_each(|p| provides::provides(p));
+    args.add_repos.iter().for_each(|r| repos::add(r));
     if let Some(repos) = &mut args.sync_repos {
-        if repos.is_empty() { *repos = repos::find_all().to_vec(); }
+        if repos.is_empty() {
+            *repos = repos::find_all().to_vec();
+        }
         repos.iter().for_each(|r| repos::sync(r));
     }
-    args.list_sets.iter ().for_each(|r| sets::list (r));
+    args.list_sets.iter().for_each(|r| sets::list(r));
 
-    if args.list_repos { repos::list() }
+    if args.list_repos {
+        repos::list()
+    }
 }
