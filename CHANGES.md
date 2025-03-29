@@ -1,3 +1,10 @@
+# 2=0.0.94
+## Changes
+- Formatting
+    - Added rustfmt.toml among other things
+- Tweaks to Cargo.toml
+- Fixed a test failure
+
 # 2=0.0.93
 ## Changes
 - Added support for commit versions

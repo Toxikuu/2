@@ -1,6 +1,6 @@
 [package]
 name = "two"
-version = "0.0.93" # see CHANGES.md
+version = "0.0.94" # see CHANGES.md
 authors = [ "Toxikuu" ]
 edition = "2024"
 description = "A source-based package manager for LFS"
