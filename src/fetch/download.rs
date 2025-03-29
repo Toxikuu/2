@@ -1,22 +1,37 @@
 // src/fetch/download.rs
 //! Defines download functions
 
-use crate::{
-    comms::out::vpr,
-    package::Package,
-    utils::fail::{BoolFail, Fail},
-};
-use anyhow::{Context, Result, bail};
-use indicatif::{ProgressBar, ProgressStyle};
 use std::{
     fs::File,
-    io::{Read, Write},
+    io::{
+        Read,
+        Write,
+    },
     path::Path,
+};
+
+use anyhow::{
+    Context,
+    Result,
+    bail,
+};
+use indicatif::{
+    ProgressBar,
+    ProgressStyle,
 };
 use ureq::{
     Error as UE,
     http::header::CONTENT_LENGTH,
     // http::header::{CONTENT_LENGTH, CONTENT_TYPE},
+};
+
+use crate::{
+    comms::out::vpr,
+    package::Package,
+    utils::fail::{
+        BoolFail,
+        Fail,
+    },
 };
 
 pub enum DownloadStatus {
@@ -46,8 +61,8 @@ pub fn download(package: &Package, force: bool, sty: &ProgressStyle) -> Download
 }
 
 /// # Description
-/// Downloads any extra sources for a package, calculating the file name from the urls. If none are
-/// provided, doesn't download anything.
+/// Downloads any extra sources for a package, calculating the file name from
+/// the urls. If none are provided, doesn't download anything.
 ///
 /// Affected by force
 ///
@@ -80,8 +95,8 @@ pub fn download_extra(package: &Package, force: bool, sty: &ProgressStyle) -> bo
 /// # Description
 /// Lower level download function
 ///
-/// Downloads a specific url to an output destination; that output destination must be manually
-/// specified, and for 2, is usually in .sources
+/// Downloads a specific url to an output destination; that output destination
+/// must be manually specified, and for 2, is usually in .sources
 ///
 /// **Error conditions:**
 /// - the output path exists and force is not passed. Will overwrite if force is passed.
@@ -102,10 +117,10 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
 
     vpr!("Downloading '{url}'...");
     let r = match ureq::get(url).call() {
-        Ok(r) => r,
-        Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
-        Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
-        Err(_) => bail!("An unexpected error occured"),
+        | Ok(r) => r,
+        | Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
+        | Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
+        | Err(_) => bail!("An unexpected error occured"),
     };
     vpr!("Response:\n{r:#?}");
 
@@ -160,8 +175,9 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
 }
 
 /// # Description
-/// Normalizes tarball extensions to their long form. This is used to calculate the tarball file
-/// name in ``download_tarball()``. It's also used to calculate the tarball name for hash checks.
+/// Normalizes tarball extensions to their long form. This is used to calculate
+/// the tarball file name in ``download_tarball()``. It's also used to calculate
+/// the tarball name for hash checks.
 ///
 /// **Fail conditions:**
 /// - an unsupported tarball extension is passed
@@ -176,16 +192,15 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
         .map(|(_, ext)| format!(".t{ext}"))
         .efail(|| format!("[UNREACHABLE] Unsupported tarball format for tarball '{tarball}'"));
 
-    // if failures occur, i may use .tar.xz as a generic fallback, even if it's inaccurate
     let to = match ext.as_str() {
-        ".tar.bz2" | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2"),
-        ".tar.gz" | ".tgz" | ".taz" => format!("{package}.tar.gz"),
-        ".tar.lz" => format!("{package}.tar.lz"),
-        ".tar.lzma" | ".tlz" => format!("{package}.tar.lzma"),
-        ".tar.lzo" => format!("{package}.tar.lzo"),
-        ".tar.xz" | ".txz" => format!("{package}.tar.xz"),
-        ".tar.zst" | ".tzst" => format!("{package}.tar.zst"),
-        _ => unreachable!(
+        | ".tar.bz2" | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2"),
+        | ".tar.gz" | ".tgz" | ".taz" => format!("{package}.tar.gz"),
+        | ".tar.lz" => format!("{package}.tar.lz"),
+        | ".tar.lzma" | ".tlz" => format!("{package}.tar.lzma"),
+        | ".tar.lzo" => format!("{package}.tar.lzo"),
+        | ".tar.xz" | ".txz" => format!("{package}.tar.xz"),
+        | ".tar.zst" | ".tzst" => format!("{package}.tar.zst"),
+        | _ => unreachable!(
             "Unsupported tarball extension '{ext}' for tarball '{tarball}'.\nYour ass should not be seeing this error.\nWtf did you do?"
         ),
     };
@@ -194,8 +209,8 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
 }
 
 /// # Description
-/// Downloads a package's tarball. If a source url is not provided, returns early without
-/// downloading anything.
+/// Downloads a package's tarball. If a source url is not provided, returns
+/// early without downloading anything.
 ///
 /// Affected by force
 ///

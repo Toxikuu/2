@@ -11,8 +11,12 @@ pub mod sets;
 pub mod stats;
 pub mod traits;
 
+use std::{
+    path::PathBuf,
+    sync::Arc,
+};
+
 use serde::Deserialize;
-use std::{path::PathBuf, sync::Arc};
 
 /// # Description
 /// The package struct
@@ -22,22 +26,22 @@ use std::{path::PathBuf, sync::Arc};
 /// Contains package data
 #[derive(Deserialize, Debug, Clone)]
 pub struct Package {
-    pub name: String,
-    pub repo: String,
-    pub version: String,
-    pub timestamp: String,
+    pub name:        String,
+    pub repo:        String,
+    pub version:     String,
+    pub timestamp:   String,
+    pub categories:  Option<Vec<String>>,
     pub description: Option<String>,
-    pub categories: Option<Vec<String>>,
 
+    #[serde(default)]
+    pub extra:   Arc<[PackageSource]>,
+    #[serde(default)]
+    pub source:  PackageSource,
     #[serde(skip)]
     pub relpath: String,
-    #[serde(default)]
-    pub source: PackageSource,
-    #[serde(default)]
-    pub extra: Arc<[PackageSource]>,
 
     #[cfg(feature = "upstream")]
-    pub upstream: Option<String>,
+    pub upstream:        Option<String>,
     #[cfg(feature = "upstream")]
     pub version_command: Option<String>,
 
@@ -50,21 +54,21 @@ pub struct Package {
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct PackageData {
     #[serde(skip)]
-    pub is_installed: bool,
+    pub dist:              PathBuf,
+    #[serde(skip)]
+    pub status:            Arc<str>,
+    #[serde(skip)]
+    pub port_dir:          PathBuf,
+    #[serde(skip)]
+    pub is_installed:      bool,
     #[serde(skip)]
     pub installed_version: String,
-    #[serde(skip)]
-    pub dist: PathBuf,
-    #[serde(skip)]
-    pub port_dir: PathBuf,
-    #[serde(skip)]
-    pub status: Arc<str>,
 }
 
 /// # Description
 /// The package source struct
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct PackageSource {
-    pub url: Arc<str>, // must be thread safe
+    pub url:  Arc<str>, // must be thread safe
     pub hash: String,
 }

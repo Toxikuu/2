@@ -1,25 +1,45 @@
 // src/pm/endpoints.rs
 //! Defines endpoints for PM
 
+use std::path::PathBuf;
+
+use indicatif::ProgressStyle;
+use once_cell::sync::Lazy;
+#[cfg(feature = "parallelism")]
+use rayon::prelude::*;
+
 use super::PM;
 #[cfg(feature = "upstream")]
 use crate::upstream::core::check_upstream;
 use crate::{
     build::logic as bl,
     cli::args::Args,
-    comms::out::{erm, msg, pr, vpr},
-    fetch::download::{DownloadStatus, download},
+    comms::out::{
+        erm,
+        msg,
+        pr,
+        vpr,
+    },
+    fetch::download::{
+        DownloadStatus,
+        download,
+    },
     globals::config::CONFIG,
-    package::{Package, history, parse::expand_set, stats},
+    package::{
+        Package,
+        history,
+        parse::expand_set,
+        stats,
+    },
     remove::logic as rl,
     shell::fs::mkdir,
-    utils::{fail::Fail, hash::try_truncate_commit_hash, logger, time::Stopwatch},
+    utils::{
+        fail::Fail,
+        hash::try_truncate_commit_hash,
+        logger,
+        time::Stopwatch,
+    },
 };
-use indicatif::ProgressStyle;
-use once_cell::sync::Lazy;
-#[cfg(feature = "parallelism")]
-use rayon::prelude::*;
-use std::path::PathBuf;
 
 /// # Description
 /// The format for the download bar
@@ -103,23 +123,23 @@ impl PM<'_> {
         let status = bl::install(p);
         stopwatch.stop();
         match status {
-            bl::InstallStatus::Already => {
+            | bl::InstallStatus::Already => {
                 log::warn!("Already installed '{p}'");
                 msg!("󰗠  Already installed '{p}'");
-            }
-            bl::InstallStatus::Dist => {
+            },
+            | bl::InstallStatus::Dist => {
                 log::info!("Installed '{p}'");
                 msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
-            }
-            bl::InstallStatus::BuildFirst => {
+            },
+            | bl::InstallStatus::BuildFirst => {
                 PM::build(p);
                 PM::install(p);
-            }
-            bl::InstallStatus::UpdateInstead => {
+            },
+            | bl::InstallStatus::UpdateInstead => {
                 log::warn!("Updating instead of installing '{p}'...");
                 msg!("󱍷  Updating instead of installing '{p}'...");
                 PM::update(p);
-            }
+            },
         }
     }
 
@@ -132,22 +152,22 @@ impl PM<'_> {
         let status = bl::update(p);
         stopwatch.stop();
         match status {
-            bl::UpdateStatus::BuildFirst => {
+            | bl::UpdateStatus::BuildFirst => {
                 PM::build(p);
                 PM::update(p);
-            }
-            bl::UpdateStatus::Dist => {
+            },
+            | bl::UpdateStatus::Dist => {
                 log::info!("Updated to '{p}'");
                 msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
-            }
-            bl::UpdateStatus::Latest => {
+            },
+            | bl::UpdateStatus::Latest => {
                 log::info!("Up-to-date: '{p}'");
                 msg!("󰗠  Up-to-date: '{p}'");
-            }
-            bl::UpdateStatus::NotInstalled => {
+            },
+            | bl::UpdateStatus::NotInstalled => {
                 log::warn!("Didn't update '{p}' as it's not installed");
                 erm!("Didn't update '{p}' as it's not installed");
-            }
+            },
         }
     }
 
@@ -173,7 +193,7 @@ impl PM<'_> {
         let (status, package_stats) = bl::build(p, false);
         stopwatch.stop();
         match status {
-            bl::BuildStatus::Source => {
+            | bl::BuildStatus::Source => {
                 log::info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
 
@@ -181,11 +201,11 @@ impl PM<'_> {
                     .efail(|| format!("[UNREACHABLE] Stats for '{p}' should be some but isn't?"));
                 package_stats.record_build_time(stopwatch.elapsed());
                 stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
-            }
-            bl::BuildStatus::Already => {
+            },
+            | bl::BuildStatus::Already => {
                 log::info!("Already built '{p}'");
                 msg!("󰗠  Already built '{p}'");
-            }
+            },
         }
     }
 
@@ -229,7 +249,6 @@ impl PM<'_> {
         );
     }
 
-    // TODO: clean might be a good candidate for parallelism
     /// # Description
     /// Cleans the build directory for all packages in the PM struct
     fn clean(&self) {
@@ -311,11 +330,7 @@ impl PM<'_> {
     /// information from BUILD
     #[cfg(feature = "upstream")]
     fn upstream(&self) {
-        let pkgs = if self.packages.is_empty() {
-            expand_set("//@@")
-        } else {
-            self.packages.into()
-        };
+        let pkgs = if self.packages.is_empty() { expand_set("//@@") } else { self.packages.into() };
 
         let len = pkgs.len();
         vpr!("Checking upstream for {len} packages...");
@@ -341,9 +356,7 @@ impl PM<'_> {
         }
     }
 
-    fn history(p: &Package) {
-        history::view(p);
-    }
+    fn history(p: &Package) { history::view(p); }
 
     fn stats(p: &Package) {
         stats::load(p)
@@ -370,7 +383,6 @@ impl PM<'_> {
             log::info!("Automatically fetching sources for '{p}'...");
             vpr!("Automatically fetching sources for '{p}'...");
 
-            // TODO: add tracking for whether anything was actually downloaded
             download(p, false, &STY);
             log::info!("Automatically fetched sources for '{p}'");
         });

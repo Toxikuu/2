@@ -1,17 +1,34 @@
 // src/shell/cmd.rs
 //! Defines functions for sending commands through bash
 
-use crate::{
-    globals::{config::CONFIG, flags::Flags},
-    utils::fail::Fail,
-};
-use anyhow::{Context, Result, bail};
 use std::{
     fs::OpenOptions as OO,
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{
+        BufRead,
+        BufReader,
+        BufWriter,
+        Write,
+    },
     path::PathBuf,
-    process::{Command, Stdio},
+    process::{
+        Command,
+        Stdio,
+    },
     thread,
+};
+
+use anyhow::{
+    Context,
+    Result,
+    bail,
+};
+
+use crate::{
+    globals::{
+        config::CONFIG,
+        flags::Flags,
+    },
+    utils::fail::Fail,
 };
 
 /// # Description
@@ -119,12 +136,15 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
 /// # Description
 /// Executes a command in the context of a package
 ///
-/// This context is just sourcing ``$PORT/BUILD`` and setting environment variables
+/// This context is just sourcing ``$PORT/BUILD`` and setting environment
+/// variables.
 #[macro_export]
 macro_rules! pkgexec {
     ($cmd:expr, $pkg:expr) => {{
-        use $crate::globals::flags::Flags;
-        use $crate::shell::cmd::exec;
+        use $crate::{
+            globals::flags::Flags,
+            shell::cmd::exec,
+        };
 
         let debug = if Flags::grab().verbose { 'x' } else { ' ' };
         let command = format!(

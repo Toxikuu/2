@@ -1,39 +1,59 @@
 // src/upstream/core.rs
 //! Core logic for --upstream
 
+use std::{
+    io::Read,
+    process::{
+        Command,
+        Stdio,
+    },
+    time::{
+        Duration,
+        Instant,
+    },
+};
+
+use anyhow::{
+    Result,
+    bail,
+};
+use log::debug;
+use serde::Deserialize;
+
 use crate::{
-    comms::out::{erm, pr, vpr},
+    comms::out::{
+        erm,
+        pr,
+        vpr,
+    },
     globals::config::CONFIG,
     package::Package,
     utils::{
         fail::Fail,
-        hash::{is_commit_hash, try_truncate_commit_hash},
+        hash::{
+            is_commit_hash,
+            try_truncate_commit_hash,
+        },
     },
-};
-use anyhow::{Result, bail};
-use log::debug;
-use serde::Deserialize;
-use std::{
-    io::Read,
-    process::{Command, Stdio},
-    time::{Duration, Instant},
 };
 
 /// # Description
 /// The upstream version config, taken from Package by ``gen_cc()``
 ///
 /// Upstream represents the upstream url the command will check (unless empty)
-/// If command is specified, it is evaluated; if not, it uses a reasonable default
+/// If command is specified, it is evaluated; if not, it uses a reasonable
+/// default.
 #[derive(Deserialize, Debug)]
 pub struct UVConfig<'u> {
     upstream: Option<&'u str>,
-    command: Option<&'u str>,
-    commit: bool,
+    command:  Option<&'u str>,
+    commit:   bool,
 }
 
 /// # Description
-/// The conveniently named ``sex()`` is short for static execution. It takes a command and captures
-/// its output without printing that output or doing any thread shenanigans.
+/// The conveniently named ``sex()`` is short for static execution. It takes a
+/// command and captures its output without printing that output or doing any
+/// thread shenanigans.
 fn sex(command: &str, timeout: u8) -> Result<String> {
     // vpr!("Spawning static command '{command}'...");
     let start = Instant::now();
@@ -68,8 +88,8 @@ fn sex(command: &str, timeout: u8) -> Result<String> {
 fn gen_cc(package: &Package) -> UVConfig {
     UVConfig {
         upstream: package.upstream.as_deref(),
-        command: package.version_command.as_deref(),
-        commit: is_commit_hash(&package.version),
+        command:  package.version_command.as_deref(),
+        commit:   is_commit_hash(&package.version),
     }
 }
 
@@ -143,8 +163,8 @@ fn display_version(package: &Package, version: &str) {
         return erm!("{pkg} | Failed to get version :(");
     }
 
-    // NOTE: If you're experiencing an OOM with upstream, width is likely the culprit. Increase the
-    // value such that width isn't negative.
+    // NOTE: If you're experiencing an OOM with upstream, width is likely the
+    // culprit. Increase the value such that width isn't negative.
     let width = (max_pkg_len + 4) - pkg.len();
     let second_half = format_second_half(v, version);
     pr!("{pkg} {:<width$} | {second_half}", " ");

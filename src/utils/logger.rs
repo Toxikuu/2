@@ -1,23 +1,46 @@
 // src/utils/logger.rs
 //! Logging-related utilities
 
-use super::fail::Fail;
-use crate::{comms::out::erm, globals::config::CONFIG, shell::fs::mkdir};
+use std::{
+    collections::VecDeque,
+    fs::{
+        File,
+        OpenOptions as OO,
+    },
+    io::{
+        BufRead,
+        BufReader,
+    },
+    path::{
+        Path,
+        PathBuf,
+    },
+    str::FromStr,
+    sync::{
+        LazyLock,
+        Once,
+    },
+};
+
 use anyhow::Result;
 use log::LevelFilter;
 use log4rs::{
     append::file::FileAppender,
-    config::{Appender, Config, Logger as L4L, Root},
+    config::{
+        Appender,
+        Config,
+        Logger as L4L,
+        Root,
+    },
     encode::pattern::PatternEncoder,
 };
 use regex::Regex;
-use std::{
-    collections::VecDeque,
-    fs::{File, OpenOptions as OO},
-    io::{BufRead, BufReader},
-    path::{Path, PathBuf},
-    str::FromStr,
-    sync::{LazyLock, Once},
+
+use super::fail::Fail;
+use crate::{
+    comms::out::erm,
+    globals::config::CONFIG,
+    shell::fs::mkdir,
 };
 
 const MASTER_LOG: &str = "/tmp/2/master.log";
@@ -116,7 +139,7 @@ fn build_config() -> Result<Config> {
 /// Delimited by the entry regex
 #[derive(Debug)]
 struct LogEntry {
-    level: LevelFilter,
+    level:   LevelFilter,
     message: String,
 }
 
@@ -126,12 +149,12 @@ impl LogEntry {
     fn color(&self) -> String {
         let message = &self.message;
         match self.level {
-            LevelFilter::Trace => format!("\x1b[0m{}{message}", CONFIG.message.stdout.trim()),
-            LevelFilter::Debug => format!("\x1b[0m{}{message}", CONFIG.message.verbose.trim()),
-            LevelFilter::Info => format!("\x1b[0m{}{message}", CONFIG.message.message.trim()),
-            LevelFilter::Warn => format!("\x1b[0m{}{message}", CONFIG.message.prompt.trim()),
-            LevelFilter::Error => format!("\x1b[0m{}{message}", CONFIG.message.danger.trim()),
-            LevelFilter::Off => message.to_string(),
+            | LevelFilter::Trace => format!("\x1b[0m{}{message}", CONFIG.message.stdout.trim()),
+            | LevelFilter::Debug => format!("\x1b[0m{}{message}", CONFIG.message.verbose.trim()),
+            | LevelFilter::Info => format!("\x1b[0m{}{message}", CONFIG.message.message.trim()),
+            | LevelFilter::Warn => format!("\x1b[0m{}{message}", CONFIG.message.prompt.trim()),
+            | LevelFilter::Error => format!("\x1b[0m{}{message}", CONFIG.message.danger.trim()),
+            | LevelFilter::Off => message.to_string(),
         }
     }
 }
@@ -149,7 +172,7 @@ fn collect_logs<R: BufRead>(reader: R) -> VecDeque<LogEntry> {
             |(mut logs, mut curr), line| {
                 if RE.is_match(&line) && !curr.is_empty() {
                     logs.push_back(LogEntry {
-                        level: extract_log_level(&curr).unwrap_or(LevelFilter::Warn),
+                        level:   extract_log_level(&curr).unwrap_or(LevelFilter::Warn),
                         message: curr.clone(),
                     });
                     curr.clear();
@@ -207,21 +230,24 @@ pub fn display(log_file: &Path) {
 /// Parses the log level for a line from a log file
 fn extract_log_level(entry: &str) -> Option<LevelFilter> {
     match entry {
-        e if e.contains(" TRACE ") => Some(LevelFilter::Trace),
-        e if e.contains(" DEBUG ") => Some(LevelFilter::Debug),
-        e if e.contains(" INFO  ") => Some(LevelFilter::Info),
-        e if e.contains(" WARN  ") => Some(LevelFilter::Warn),
-        e if e.contains(" ERROR ") => Some(LevelFilter::Error),
-        _ => None,
+        | e if e.contains(" TRACE ") => Some(LevelFilter::Trace),
+        | e if e.contains(" DEBUG ") => Some(LevelFilter::Debug),
+        | e if e.contains(" INFO  ") => Some(LevelFilter::Info),
+        | e if e.contains(" WARN  ") => Some(LevelFilter::Warn),
+        | e if e.contains(" ERROR ") => Some(LevelFilter::Error),
+        | _ => None,
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::erm;
     use std::path::PathBuf;
 
-    use super::{MASTER_LOG, display};
+    use super::{
+        MASTER_LOG,
+        display,
+    };
+    use crate::erm;
 
     // return result for test skipping
     #[test]

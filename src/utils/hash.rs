@@ -2,10 +2,22 @@
 //! Defines functions for handling 2's hashes
 //! The hashes are URL-safe base64-encoded sha256 hashes
 
+use std::{
+    fs::File,
+    io::Read,
+    path::Path,
+};
+
+use base64::{
+    Engine,
+    engine::general_purpose::URL_SAFE_NO_PAD,
+};
+use sha2::{
+    Digest,
+    Sha256,
+};
+
 use crate::utils::fail::Fail;
-use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
-use sha2::{Digest, Sha256};
-use std::{fs::File, io::Read, path::Path};
 
 pub fn twohash(file_path: &Path) -> String {
     let mut file = File::open(file_path)
@@ -23,13 +35,9 @@ pub fn twohash(file_path: &Path) -> String {
     URL_SAFE_NO_PAD.encode(hasher.finalize())
 }
 
-pub fn is_commit_hash(s: &str) -> bool {
-    s.len() == 40 && s.chars().all(|c| c.is_ascii_hexdigit())
-}
+pub fn is_commit_hash(s: &str) -> bool { s.len() == 40 && s.chars().all(|c| c.is_ascii_hexdigit()) }
 
-pub fn try_truncate_commit_hash(s: &str) -> &str {
-    if is_commit_hash(s) { &s[..7] } else { s }
-}
+pub fn try_truncate_commit_hash(s: &str) -> &str { if is_commit_hash(s) { &s[..7] } else { s } }
 
 #[cfg(test)]
 mod tests {

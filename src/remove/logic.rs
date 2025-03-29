@@ -1,24 +1,48 @@
 // src/remove/logic.rs
 //! Logic for package removal
 
-use super::manifest::{find_dead_files, find_unique_paths};
-use crate::{
-    comms::out::{erm, pr, vpr},
-    globals::{config::CONFIG, flags::Flags},
-    package::Package,
-    shell::fs::{mkdir, rm},
-    utils::fail::{BoolFail, Fail},
+use std::{
+    fs::{
+        read_dir,
+        remove_dir_all,
+    },
+    path::{
+        Path,
+        PathBuf,
+    },
 };
+
 use anyhow::Result;
 use log::warn;
-use std::{
-    fs::{read_dir, remove_dir_all},
-    path::{Path, PathBuf},
-};
 use walkdir::WalkDir;
 
-// TODO: Consider using glob patterns for the below, allowing to protect against removal of boot/*
-// for instance
+use super::manifest::{
+    find_dead_files,
+    find_unique_paths,
+};
+use crate::{
+    comms::out::{
+        erm,
+        pr,
+        vpr,
+    },
+    globals::{
+        config::CONFIG,
+        flags::Flags,
+    },
+    package::Package,
+    shell::fs::{
+        mkdir,
+        rm,
+    },
+    utils::fail::{
+        BoolFail,
+        Fail,
+    },
+};
+
+// TODO: Consider using glob patterns for the below, allowing to protect against
+// removal of boot/* for instance
 //
 /// # Description
 /// Paths that are protected against removal no matter what

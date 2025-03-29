@@ -91,10 +91,11 @@ pub struct Args {
     /// Dsiplays a longer about for a package
     #[arg(short = 'A', long)]
     pub long_about: bool,
-    // TODO: Consider merging with stats and consider including installed libraries/binaries too
-    /// Dsiplays stats for a package
+    // TODO: Consider merging with stats and consider including installed
+    // libraries/binaries too
+    /// Displays stats for a package
     #[arg(short = 's', long)]
-    pub stats: bool,
+    pub stats:      bool,
 
     /// Retrieves upstream versions for packages
     #[cfg(feature = "upstream")]
@@ -153,7 +154,5 @@ pub struct Args {
 impl Args {
     /// ### Description
     /// Parses command line arguments
-    pub fn init() -> Self {
-        Self::parse()
-    }
+    pub fn init() -> Self { Self::parse() }
 }

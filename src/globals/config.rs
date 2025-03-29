@@ -1,12 +1,23 @@
 // src/globals/config.rs
 //! Defines 2's config
 
-use crate::utils::{esc::escape_escapes, fail::Fail};
-use anyhow::{Context, Result};
-use serde::Deserialize;
 use std::{
     fs,
-    sync::{Arc, LazyLock},
+    sync::{
+        Arc,
+        LazyLock,
+    },
+};
+
+use anyhow::{
+    Context,
+    Result,
+};
+use serde::Deserialize;
+
+use crate::utils::{
+    esc::escape_escapes,
+    fail::Fail,
 };
 
 /// # Description
@@ -14,10 +25,10 @@ use std::{
 /// Includes options for customizing 2
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    pub flags: FlagsConfig,
-    pub message: MessageConfig,
-    pub removal: RemovalConfig,
-    pub general: GeneralConfig,
+    pub flags:    FlagsConfig,
+    pub message:  MessageConfig,
+    pub removal:  RemovalConfig,
+    pub general:  GeneralConfig,
     #[cfg(feature = "upstream")]
     pub upstream: UpstreamConfig,
 }
@@ -31,7 +42,9 @@ pub struct Config {
 pub struct GeneralConfig {
     pub prefix: String,
     pub clean_after_build: bool,
+    #[cfg(not(test))]
     pub show_bug_report_message: bool,
+    #[cfg(not(test))]
     pub show_failure_location: bool,
     pub check_hashes: bool,
     pub auto_ambiguity: bool,
@@ -46,11 +59,11 @@ pub struct GeneralConfig {
 #[derive(Deserialize, Debug)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct RemovalConfig {
-    pub remove_sources: bool,
-    pub remove_dist: bool,
+    pub remove_sources:  bool,
+    pub remove_dist:     bool,
     pub prune_manifests: bool,
-    pub prune_logs: bool,
-    pub prune_dist: bool,
+    pub prune_logs:      bool,
+    pub prune_dist:      bool,
 }
 
 /// # Description
@@ -59,8 +72,8 @@ pub struct RemovalConfig {
 /// Config options for 2 flags
 #[derive(Deserialize, Debug)]
 pub struct FlagsConfig {
-    pub force: bool,
-    pub quiet: bool,
+    pub force:   bool,
+    pub quiet:   bool,
     pub verbose: bool,
 }
 
@@ -70,12 +83,12 @@ pub struct FlagsConfig {
 /// Config options for message formatting. Uses ansi escape codes.
 #[derive(Deserialize, Debug)]
 pub struct MessageConfig {
-    pub danger: String,
+    pub danger:  String,
     pub default: String,
     pub message: String,
-    pub prompt: String,
-    pub stderr: String,
-    pub stdout: String,
+    pub prompt:  String,
+    pub stderr:  String,
+    pub stdout:  String,
     pub verbose: String,
 }
 
@@ -87,8 +100,8 @@ pub struct MessageConfig {
 #[derive(Deserialize, Debug)]
 pub struct UpstreamConfig {
     pub max_threads: usize,
-    pub stack_size: usize,
-    pub retries: usize,
+    pub stack_size:  usize,
+    pub retries:     usize,
 }
 
 impl Config {

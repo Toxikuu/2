@@ -1,8 +1,15 @@
 // src/package/parse.rs
 //! Functions for parsing positional arguments
 
-use super::{Package, ambiguity::resolve_ambiguity, sets::Set};
-use crate::{comms::out::erm, utils::fail::Fail};
+use super::{
+    Package,
+    ambiguity::resolve_ambiguity,
+    sets::Set,
+};
+use crate::{
+    comms::out::erm,
+    utils::fail::Fail,
+};
 
 /// # Description
 /// Parses the raw package positional arguments into packages

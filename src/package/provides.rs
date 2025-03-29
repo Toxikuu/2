@@ -1,12 +1,22 @@
 // src/package/provides.rs
 //! Utilities for seeing what package(s) provide a specific path
 
-use super::Package;
-use crate::{comms::out::erm, pm::PM, remove::manifest, utils::fail::Fail};
-use anyhow::Context;
 use std::{
     fs,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
+};
+
+use anyhow::Context;
+
+use super::Package;
+use crate::{
+    comms::out::erm,
+    pm::PM,
+    remove::manifest,
+    utils::fail::Fail,
 };
 
 /// # Description
@@ -57,8 +67,8 @@ pub fn provides(path: &str) {
 
     let total = manifests.len();
     match total {
-        0 => erm!("No installed packages provide '{path}'"),
-        1 => {
+        | 0 => erm!("No installed packages provide '{path}'"),
+        | 1 => {
             let package = get_package_from_manifest(manifests.first().fail("1 != 1"));
             let packages = [package; 1];
             PM::list_packages(
@@ -66,8 +76,8 @@ pub fn provides(path: &str) {
                 &format!("1 installed package provides '{path}'"),
                 false,
             );
-        }
-        _ => {
+        },
+        | _ => {
             let packages = manifests
                 .iter()
                 .map(|m| get_package_from_manifest(m))
@@ -77,6 +87,6 @@ pub fn provides(path: &str) {
                 &format!("{total} installed packages provide '{path}'"),
                 false,
             );
-        }
+        },
     }
 }

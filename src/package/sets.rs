@@ -1,18 +1,40 @@
 // src/package/sets.rs
 //! Adds support for sets
 
-use super::{ambiguity::resolve_set_ambiguity, repos};
-use crate::{
-    comms::out::{erm, pr, vpr},
-    utils::fail::{BoolFail, Fail},
-};
-use anyhow::Result;
 use std::{
-    fmt::{self, Display, Formatter},
-    fs::{File, read_dir},
-    io::{BufRead, BufReader},
+    fmt::{
+        self,
+        Display,
+        Formatter,
+    },
+    fs::{
+        File,
+        read_dir,
+    },
+    io::{
+        BufRead,
+        BufReader,
+    },
     path::Path,
     rc::Rc,
+};
+
+use anyhow::Result;
+
+use super::{
+    ambiguity::resolve_set_ambiguity,
+    repos,
+};
+use crate::{
+    comms::out::{
+        erm,
+        pr,
+        vpr,
+    },
+    utils::fail::{
+        BoolFail,
+        Fail,
+    },
 };
 
 /// # Description
@@ -25,13 +47,11 @@ use std::{
 #[derive(Clone, Debug)]
 pub struct Set {
     repo: String,
-    set: String,
+    set:  String,
 }
 
 impl Display for Set {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}/{}", self.repo, self.set)
-    }
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result { write!(f, "{}/{}", self.repo, self.set) }
 }
 
 impl Set {
@@ -42,14 +62,14 @@ impl Set {
         if let Some(set) = str.strip_prefix("//") {
             return Self {
                 repo: "//".to_string(),
-                set: set.to_string(),
+                set:  set.to_string(),
             };
         }
 
         if let Some((repo, set)) = str.split_once('/') {
             Self {
                 repo: repo.to_string(),
-                set: set.to_string(),
+                set:  set.to_string(),
             }
         } else {
             let stupid_intermediate = resolve_set_ambiguity(str);
@@ -58,7 +78,7 @@ impl Set {
                 .fail("[UNREACHABLE] Somehow resolved ambiguity without returning repo/set");
             Self {
                 repo: repo.to_string(),
-                set: str.to_string(),
+                set:  str.to_string(),
             }
         }
     }
@@ -77,9 +97,7 @@ impl Set {
 
     /// # Description
     /// Returns true if a given string is a set
-    pub fn is(str: &str) -> bool {
-        str.contains('@')
-    }
+    pub fn is(str: &str) -> bool { str.contains('@') }
 
     /// # Description
     /// Returns true if a given string is a special set
@@ -133,13 +151,7 @@ impl Set {
         buf.lines()
             .map_while(Result::ok)
             .filter(|l| !(l.starts_with('#') || l.is_empty()))
-            .map(|l| {
-                if l.contains('/') {
-                    l
-                } else {
-                    format!("{repo}/{l}")
-                }
-            })
+            .map(|l| if l.contains('/') { l } else { format!("{repo}/{l}") })
             .collect()
     }
 
@@ -188,11 +200,7 @@ impl Set {
                         .fail("[UNREACHABLE] Invalid Unicode?")
                         .to_string();
 
-                    if pkg.starts_with('.') {
-                        None
-                    } else {
-                        Some(format!("{repo}/{pkg}"))
-                    }
+                    if pkg.starts_with('.') { None } else { Some(format!("{repo}/{pkg}")) }
                 } else {
                     None
                 }

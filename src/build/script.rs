@@ -1,6 +1,8 @@
 // src/build/script.rs
 //! Interfaces with $PORT/BUILD
 
+use std::path::Path;
+
 use super::qa;
 use crate::{
     fetch::download::normalize_tarball,
@@ -9,11 +11,13 @@ use crate::{
     remove::logic::clean,
     shell::cmd::pkgexec,
     utils::{
-        fail::{BoolFail, Fail},
+        fail::{
+            BoolFail,
+            Fail,
+        },
         hash::twohash,
     },
 };
-use std::path::Path;
 
 /// ### Description
 /// Checks the hashes for package sources, failing if they don't match known ones

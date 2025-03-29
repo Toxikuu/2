@@ -1,16 +1,34 @@
 // src/remove/manifest.rs
 //! Reads the package manifest
 
-use crate::{comms::out::vpr, package::Package, utils::fail::Fail};
-use anyhow::{Context, Result};
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{
+        HashMap,
+        HashSet,
+    },
     fs,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
     rc::Rc,
     string::ToString,
 };
-use walkdir::{DirEntry, WalkDir};
+
+use anyhow::{
+    Context,
+    Result,
+};
+use walkdir::{
+    DirEntry,
+    WalkDir,
+};
+
+use crate::{
+    comms::out::vpr,
+    package::Package,
+    utils::fail::Fail,
+};
 
 /// # Description
 /// Returns true if none of the directory entry's ancestors contain .data
@@ -36,7 +54,8 @@ fn is_manifest(entry: &DirEntry) -> bool {
 ///
 /// Ignores entries that aren't manifests and that aren't in .data
 ///
-/// dir is commonly ``/var/ports``, though can also be ``$PORT/.data`` for dead files
+/// dir is commonly ``/var/ports``, though can also be ``$PORT/.data`` for dead
+/// files
 pub fn locate(dir: &str) -> Rc<[PathBuf]> {
     WalkDir::new(dir)
         .max_depth(4)

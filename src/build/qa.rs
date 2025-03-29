@@ -1,14 +1,29 @@
 // src/build/qa.rs
 //! Quality assurance checks for builds
 
-use crate::{package::Package, utils::fail::Fail};
-use anyhow::{Result, bail};
 use std::{
-    fs::{File, read_dir, read_to_string},
+    fs::{
+        File,
+        read_dir,
+        read_to_string,
+    },
     io::Read,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
+};
+
+use anyhow::{
+    Result,
+    bail,
 };
 use walkdir::WalkDir;
+
+use crate::{
+    package::Package,
+    utils::fail::Fail,
+};
 
 pub fn envs_properly_initialized(p: &Package) -> bool {
     let build_file = PathBuf::from(&p.data.port_dir).join("BUILD");
@@ -105,8 +120,8 @@ fn check_elf(path: &Path) -> Result<ELF> {
     }
 
     match buf[4] {
-        1 => Ok(ELF::M32),
-        2 => Ok(ELF::M64),
-        _ => bail!("tf wrong with this elf: {path:?}"),
+        | 1 => Ok(ELF::M32),
+        | 2 => Ok(ELF::M64),
+        | _ => bail!("tf wrong with this elf: {path:?}"),
     }
 }

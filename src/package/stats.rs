@@ -1,17 +1,32 @@
 // src/package/stats.rs
 //! Tracks stats for packages
 
-use super::Package;
-use crate::{
-    comms::out::{erm, msg, pr},
-    utils::{fail::Fail, time::Pretty},
-};
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use std::{
-    fs::{self, File},
+    fs::{
+        self,
+        File,
+    },
     io::Write,
     time::Duration,
+};
+
+use anyhow::Result;
+use serde::{
+    Deserialize,
+    Serialize,
+};
+
+use super::Package;
+use crate::{
+    comms::out::{
+        erm,
+        msg,
+        pr,
+    },
+    utils::{
+        fail::Fail,
+        time::Pretty,
+    },
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -76,6 +91,4 @@ fn avg(pts: &[u64]) -> f64 {
 
 #[allow(clippy::cast_sign_loss)]
 #[allow(clippy::cast_possible_truncation)]
-fn from_micros_f64(micros: f64) -> Duration {
-    Duration::from_nanos((micros * 1_000.) as u64)
-}
+fn from_micros_f64(micros: f64) -> Duration { Duration::from_nanos((micros * 1_000.) as u64) }

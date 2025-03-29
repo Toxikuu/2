@@ -1,13 +1,26 @@
 // src/shell/fs.rs
 //! Utility functions for filesystem interactions
 
-use crate::erm;
-use anyhow::{Result, bail};
 use std::{
-    fs::{create_dir, read_link, remove_dir, remove_file},
+    fs::{
+        create_dir,
+        read_link,
+        remove_dir,
+        remove_file,
+    },
     io::ErrorKind as IOE,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
 };
+
+use anyhow::{
+    Result,
+    bail,
+};
+
+use crate::erm;
 
 /// # Description
 /// Creates a directory. Ignores existent directories.
@@ -20,21 +33,22 @@ pub fn mkdir(dir: &Path) -> Result<()> {
 }
 
 /// # Description
-/// Removes a directory. Ignores attempts to remove missing or populated directories.
+/// Removes a directory. Ignores attempts to remove missing or populated
+/// directories.
 ///
 /// Propagates any other io error
 pub fn rmdir(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_dir(path) {
         match e.kind() {
-            IOE::NotFound => {
+            | IOE::NotFound => {
                 erm!("Ignoring '{}': missing", path.display());
                 bail!("Missing directory")
-            }
-            IOE::DirectoryNotEmpty => {
+            },
+            | IOE::DirectoryNotEmpty => {
                 erm!("Ignoring '{}': populated", path.display());
                 bail!("Populated directory")
-            }
-            _ => bail!("Failed to remove '{}': {e}", path.display()),
+            },
+            | _ => bail!("Failed to remove '{}': {e}", path.display()),
         }
     }
     Ok(())
@@ -47,11 +61,11 @@ pub fn rmdir(path: &PathBuf) -> Result<()> {
 pub fn rmf(path: &PathBuf) -> Result<()> {
     if let Err(e) = remove_file(path) {
         match e.kind() {
-            IOE::NotFound => {
+            | IOE::NotFound => {
                 erm!("Ignoring '{}': missing", path.display());
                 bail!("Missing file")
-            }
-            _ => bail!("Failed to remove '{}': {e}", path.display()),
+            },
+            | _ => bail!("Failed to remove '{}': {e}", path.display()),
         }
     }
     Ok(())
@@ -60,11 +74,7 @@ pub fn rmf(path: &PathBuf) -> Result<()> {
 /// # Description
 /// Removes a symlink, file, or directory, deciding which internally.
 pub fn rm(path: &PathBuf) -> Result<()> {
-    if path.is_symlink() || path.is_file() {
-        rmf(path)
-    } else {
-        rmdir(path)
-    }
+    if path.is_symlink() || path.is_file() { rmf(path) } else { rmdir(path) }
 }
 
 /// # Description

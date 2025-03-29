@@ -3,13 +3,25 @@
 
 use super::script;
 use crate::{
-    comms::out::{msg, pr},
-    globals::{config::CONFIG, flags::Flags},
+    comms::out::{
+        msg,
+        pr,
+    },
+    globals::{
+        config::CONFIG,
+        flags::Flags,
+    },
     package::{
         Package,
-        stats::{self, PackageStats},
+        stats::{
+            self,
+            PackageStats,
+        },
     },
-    remove::logic::{clean, remove_dead_files_after_update},
+    remove::logic::{
+        clean,
+        remove_dead_files_after_update,
+    },
     shell::cmd::exec,
     utils::fail::Fail,
 };

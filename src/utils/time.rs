@@ -1,8 +1,14 @@
 // src/utils/time.rs
 //! Provides utility functions for dealing with time
 
+use std::time::{
+    Duration,
+    Instant,
+    SystemTime,
+    UNIX_EPOCH,
+};
+
 use super::fail::Fail;
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 pub fn timestamp() -> Duration {
     let now = SystemTime::now();
@@ -14,14 +20,14 @@ pub fn timestamp() -> Duration {
 /// It's mostly used for PM endpoints
 pub struct Stopwatch {
     pub start_time: Option<Instant>,
-    elapsed: Duration,
+    elapsed:        Duration,
 }
 
 impl Stopwatch {
     pub const fn new() -> Self {
         Self {
             start_time: None,
-            elapsed: Duration::ZERO,
+            elapsed:    Duration::ZERO,
         }
     }
 
@@ -61,9 +67,7 @@ impl Stopwatch {
 
     /// # Description
     /// Displays the elapsed time in a human-readable format
-    pub fn display(&self) -> String {
-        self.elapsed().pretty()
-    }
+    pub fn display(&self) -> String { self.elapsed().pretty() }
 }
 
 /// # Description

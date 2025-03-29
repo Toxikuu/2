@@ -1,16 +1,24 @@
 // src/package/repos.rs
 //! Functions for dealing with package repos
 
-use crate::{
-    comms::out::{erm, msg, pr},
-    shell::cmd::exec,
-    utils::fail::Fail,
-};
 use std::{
     cmp::Ordering,
     collections::HashMap,
-    fs::{read_dir, read_to_string},
+    fs::{
+        read_dir,
+        read_to_string,
+    },
     rc::Rc,
+};
+
+use crate::{
+    comms::out::{
+        erm,
+        msg,
+        pr,
+    },
+    shell::cmd::exec,
+    utils::fail::Fail,
 };
 
 /// # Description
@@ -35,9 +43,7 @@ pub fn find_all() -> Rc<[String]> {
 
 /// # Description
 /// Lists all repositories
-pub fn list() {
-    find_all().iter().for_each(|r| pr!("{}", r));
-}
+pub fn list() { find_all().iter().for_each(|r| pr!("{}", r)); }
 
 /// # Description
 /// Takes a list of packages in the form repo/name
@@ -58,10 +64,10 @@ pub fn prioritize(list: &mut [String]) {
         let pb = repo_priority.get(rb);
 
         match (pa, pb) {
-            (Some(a), Some(b)) => a.cmp(b),
-            (Some(_), _) => Ordering::Less,
-            (_, Some(_)) => Ordering::Greater,
-            (_, _) => ra.cmp(rb),
+            | (Some(a), Some(b)) => a.cmp(b),
+            | (Some(_), _) => Ordering::Less,
+            | (_, Some(_)) => Ordering::Greater,
+            | (..) => ra.cmp(rb),
         }
     });
 }
@@ -80,9 +86,7 @@ fn get_ordered_repos() -> Vec<String> {
         .collect()
 }
 
-fn is_short(repo_url: &str) -> bool {
-    repo_url.chars().filter(|c| *c == '/').count() == 1
-}
+fn is_short(repo_url: &str) -> bool { repo_url.chars().filter(|c| *c == '/').count() == 1 }
 
 /// # Description
 /// Takes the url of a git repo and adds it to /var/ports

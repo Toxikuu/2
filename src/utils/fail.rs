@@ -6,9 +6,17 @@
 //!
 //! Efail should be preferred for all other error messages
 
+use std::{
+    fmt,
+    panic,
+    panic::Location,
+};
+
 #[cfg(not(test))]
-use crate::{comms::out::erm, globals::config::CONFIG};
-use std::{fmt, panic, panic::Location};
+use crate::{
+    comms::out::erm,
+    globals::config::CONFIG,
+};
 
 /// # Description
 /// A utility macro which panics with custom formatting, suppressing the default panic output
@@ -51,9 +59,7 @@ pub fn report(msg: &str, location: &'static Location<'static>) -> ! {
 
 #[cfg(test)]
 #[allow(clippy::panic)]
-pub fn report(msg: &str, _location: &'static Location<'static>) -> ! {
-    panic!("{msg}")
-}
+pub fn report(msg: &str, _location: &'static Location<'static>) -> ! { panic!("{msg}") }
 
 /// # Description
 /// The Fail trait allows you to call ``.fail()`` and ``.efail()`` on result and option types.
@@ -83,7 +89,6 @@ pub fn report(msg: &str, _location: &'static Location<'static>) -> ! {
 /// num.fail("Shouldn't have failed");
 ///
 /// println!("Number: {num}"); // should output ``Number: 42``
-///
 /// ```
 pub trait Fail<T, E> {
     fn fail(self, msg: &str) -> T;
@@ -100,8 +105,8 @@ where
     #[track_caller]
     fn fail(self, msg: &str) -> T {
         match self {
-            Ok(t) => t,
-            Err(e) => {
+            | Ok(t) => t,
+            | Err(e) => {
                 let err = format!("{e:#?}")
                     .lines()
                     .map(|l| format!("\t{l}"))
@@ -110,7 +115,7 @@ where
                 let msg = &format!("{msg}:\n{err}");
                 let location = Location::caller();
                 report(msg, location);
-            }
+            },
         }
     }
 
@@ -120,8 +125,8 @@ where
         F: FnOnce() -> String,
     {
         match self {
-            Ok(t) => t,
-            Err(e) => {
+            | Ok(t) => t,
+            | Err(e) => {
                 let err = format!("{e:#?}")
                     .lines()
                     .map(|l| format!("\t{l}"))
@@ -130,7 +135,7 @@ where
                 let msg = &format!("{}:\n{err}", f());
                 let location = Location::caller();
                 report(msg, location);
-            }
+            },
         }
     }
 }
@@ -233,8 +238,9 @@ impl BoolFail for bool {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use anyhow::Result;
+
+    use super::*;
 
     #[test]
     fn option_success() {

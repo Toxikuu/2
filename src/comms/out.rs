@@ -3,6 +3,18 @@
 //! All the macros in this module take formatting from the message config
 
 /// # Description
+/// Prints to stdout with the danger formatting
+///
+/// Unaffected by the quiet flag
+#[macro_export]
+macro_rules! erm {
+    ($($arg:tt)*) => {{
+        use $crate::globals::config::CONFIG;
+        eprintln!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
+    }};
+}
+
+/// # Description
 /// Sends a message to stdout with the message formatting
 ///
 /// Unaffected by the quiet flag
@@ -23,18 +35,6 @@ macro_rules! pr {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
         println!("{}{}\x1b[0m", CONFIG.message.default, format!($($arg)*))
-    }};
-}
-
-/// # Description
-/// Prints to stdout with the danger formatting
-///
-/// Unaffected by the quiet flag
-#[macro_export]
-macro_rules! erm {
-    ($($arg:tt)*) => {{
-        use $crate::globals::config::CONFIG;
-        eprintln!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
     }};
 }
 
@@ -75,4 +75,7 @@ macro_rules! vpr {
     }};
 }
 
-pub(crate) use {erm, msg, pr, vpr};
+pub(crate) use erm;
+pub(crate) use msg;
+pub(crate) use pr;
+pub(crate) use vpr;

@@ -1,9 +1,16 @@
 // src/package/history.rs
 //! Functions for viewing the history of a package
 
+use std::{
+    fmt::Write,
+    fs,
+};
+
 use super::Package;
-use crate::{globals::config::CONFIG, utils::fail::Fail};
-use std::{fmt::Write, fs};
+use crate::{
+    globals::config::CONFIG,
+    utils::fail::Fail,
+};
 
 /// # Description
 /// Reads $PORT/CHANGELOG into a string

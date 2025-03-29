@@ -1,14 +1,24 @@
 // src/package/endpoints.rs
 //! Defines endpoints for the package struct
 
-use super::Package;
-use crate::{
-    comms::out::{msg, pr},
-    utils::fail::{BoolFail, Fail},
-};
 use std::{
     fs,
-    path::{Path, PathBuf},
+    path::{
+        Path,
+        PathBuf,
+    },
+};
+
+use super::Package;
+use crate::{
+    comms::out::{
+        msg,
+        pr,
+    },
+    utils::fail::{
+        BoolFail,
+        Fail,
+    },
 };
 
 impl Package {
@@ -16,7 +26,8 @@ impl Package {
     /// Creates a package given its repo and name
     pub fn new(repo: &str, name: &str) -> Self {
         // avoid problems with .sets, .git, etc
-        // TODO: I'm pretty confident this is unreachable, and should be handled instead in parse()
+        // TODO: I'm pretty confident this is unreachable, and should be handled
+        // in parse() instead
         name.starts_with('.')
             .and_efail(|| format!("Invalid package name '{name}'"));
 
@@ -57,9 +68,7 @@ impl Package {
         self.data.is_installed && self.data.installed_version != self.version
     }
 
-    pub fn dist_exists(&self) -> bool {
-        Path::new(&self.data.dist).exists()
-    }
+    pub fn dist_exists(&self) -> bool { Path::new(&self.data.dist).exists() }
 
     /// # Description
     /// Returns a package's (formatted) status

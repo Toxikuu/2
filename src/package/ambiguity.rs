@@ -1,18 +1,29 @@
 // src/package/ambiguity.rs
 //! Responsible for resolving ambiguity in packages and sets
 
+use std::fs;
+
+use walkdir::WalkDir;
+
 use crate::{
     comms::{
         r#in::select,
-        out::{erm, pr},
+        out::{
+            erm,
+            pr,
+        },
     },
     globals::config::CONFIG,
-    package::repos::{self, prioritize},
+    package::repos::{
+        self,
+        prioritize,
+    },
     shell::fs::is_dir,
-    utils::fail::{BoolFail, Fail},
+    utils::fail::{
+        BoolFail,
+        Fail,
+    },
 };
-use std::fs;
-use walkdir::WalkDir;
 
 /// # Description
 /// Searches across all repos for a given package
