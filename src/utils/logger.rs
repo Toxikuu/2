@@ -255,6 +255,7 @@ mod tests {
         let master_log = PathBuf::from(MASTER_LOG);
         if !master_log.exists() {
             erm!("Skipping test: master_log doesn't exist");
+            return // don't fail
         }
 
         display(&master_log);
