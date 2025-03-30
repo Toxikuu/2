@@ -1,13 +1,6 @@
 // src/main.rs
 //
-//! # 2
-//! 2 is a (mostly) source-based package manager for LFS
-//!
-//! It's got some fancy features:
-//! - distribution tarballs
-//! - per-package changelogs
-//! - TODO: finish this list
-
+#![doc = include_str!("../README.md")]
 #![feature(duration_millis_float)]
 #![feature(str_as_str)]
 #![deny(clippy::perf, clippy::todo, clippy::complexity)]
