@@ -14,7 +14,7 @@ pipb() {
 # pip install wrapper
 pipi() {
     export -f pipi
-    NAME="${NAME:-$1}"
+    NAME="${$1:-$NAME}"
     [[ -z "${NAME}" ]] && die "\$NAME is undefined"
     [[ -z "$1" ]] || shift
 
