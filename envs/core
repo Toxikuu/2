@@ -170,31 +170,51 @@ mi() {
 #####################################
 
 pathremove () {
-  export -f pathremove
-  local IFS=':'
-  local NEWPATH
-  local DIR
-  local PATHVARIABLE="${2:-PATH}"
+    export -f pathremove
+    local IFS=':'
+    local NEWPATH
+    local DIR
+    local PATHVARIABLE="${2:-PATH}"
 
-  for DIR in ${!PATHVARIABLE} ; do
-    if [[ "${DIR}" != "$1" ]] ; then
-      NEWPATH=${NEWPATH:+${NEWPATH}:}${DIR}
-    fi
-  done
+    for DIR in ${!PATHVARIABLE} ; do
+        if [[ "${DIR}" != "$1" ]] ; then
+            NEWPATH=${NEWPATH:+${NEWPATH}:}${DIR}
+        fi
+    done
 
-  export "${PATHVARIABLE}"="${NEWPATH}"
+    export "${PATHVARIABLE}"="${NEWPATH}"
 }
 
 pathprepend () {
-  export -f pathprepend
-  pathremove "$1" "$2"
-  local PATHVARIABLE="${2:-PATH}"
-  export "${PATHVARIABLE}"="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+    export -f pathprepend
+    pathremove "$1" "$2"
+    local PATHVARIABLE="${2:-PATH}"
+    export "${PATHVARIABLE}"="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
 }
 
 pathappend () {
-  export -f pathappend
-  pathremove "$1" "$2"
-  local PATHVARIABLE="${2:-PATH}"
-  export "${PATHVARIABLE}"="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+    export -f pathappend
+    pathremove "$1" "$2"
+    local PATHVARIABLE="${2:-PATH}"
+    export "${PATHVARIABLE}"="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+}
+
+#####################################
+# 2 Utilities
+#####################################
+
+ii () {
+    export -f ii
+    # 2 is used since it handles ambiguity resolution (may cause issues if
+    # auto-ambiguity is disabled)
+    # TODO: Use //package once I add it
+    # PERF: Use 2's API once I add it
+    echo "Checking whether $1 is installed"
+    if 2 -l "$1" | grep -i "installed" &>/dev/null; then
+        echo "Yes"
+        return 0
+    else
+        echo "No"
+        return 1
+    fi
 }
