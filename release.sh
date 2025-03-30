@@ -8,7 +8,7 @@ set -e +x
 
 # assume the script isn't moved out of the source dir because why would it be
 # stolen from https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 # helper functions
 warn() {
@@ -28,7 +28,7 @@ fail() {
     exit "${2:-1}"
 }
 
-pushd . > /dev/null
+pushd . >/dev/null
 cd "${SCRIPT_DIR}"
 
 info 'Ensuring changelog is up to date...'
@@ -107,13 +107,14 @@ done
 good 'Release made'
 
 info 'Validating all scripts...'
-if ( find . -type f -name '*.sh' -print0
+if (
+    find . -type f -name '*.sh' -print0
     find envs -type f -print0
-    ) | xargs -0 shellcheck -S style -s bash -o all; then
+) | xargs -0 shellcheck -S style -s bash -o all; then
     good 'Scripts passing'
 else
     warn 'Scripts failed validation'
 fi
 
-popd > /dev/null
+popd >/dev/null
 info 'Done!'

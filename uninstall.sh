@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # :(
 
-[[ "${EUID}" -ne 0 ]] && { echo 'This script must be run as root' >&2 ; exit 1 ;}
+[[ "${EUID}" -ne 0 ]] && {
+    echo 'This script must be run as root' >&2
+    exit 1
+}
 
 confirm() {
     local default="${2:-n}"
@@ -22,21 +25,27 @@ confirm() {
         [[ -z "${ans}" ]] && ans="${default}"
 
         case "${ans}" in
-            y|yes) return 0 ;;
-            n|no) return 1 ;;
-            *) echo "Please answer yes or no" >&2 ;;
+        y | yes) return 0 ;;
+        n | no) return 1 ;;
+        *) echo "Please answer yes or no" >&2 ;;
         esac
     done
 }
 
-confirm "Uninstall 2?" || { echo 'Cancelled uninstall' ; exit 0 ;}
+confirm "Uninstall 2?" || {
+    echo 'Cancelled uninstall'
+    exit 0
+}
 rm -rf \
     /usr/libexec/two \
-    /usr/share/2     \
-    /usr/bin/2       \
+    /usr/share/2 \
+    /usr/bin/2 \
     /etc/2
-    echo "Uninstalled 2"
+echo "Uninstalled 2"
 
-confirm "Would you like to also remove '/var/ports'?" || { echo 'Done' ; exit 0 ;}
-    rm -rf /var/ports
-    echo "Removed /var/ports"
+confirm "Would you like to also remove '/var/ports'?" || {
+    echo 'Done'
+    exit 0
+}
+rm -rf /var/ports
+echo "Removed /var/ports"
