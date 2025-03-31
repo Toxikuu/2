@@ -28,7 +28,7 @@ show_bug_report_message = true
 show_failure_location = true
 check_hashes = false
 auto_ambiguity = true
-log_level = "trace" # one of: trace, debug, info, warn, error
+log_level = "info" # one of: trace, debug, info, warn, error
 alphabetize = true
 
 [upstream]
