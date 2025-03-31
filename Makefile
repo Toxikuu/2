@@ -33,9 +33,9 @@ install:
 
 ifeq ($(ENABLE_CONF),1)
 	@echo "Installing configuration files..."
-	install -Dm644 config.toml 		 	$(DESTDIR)/$(SYSCONFDIR)/2/config.toml
-	install -Dm644 exclusions.txt 	 	$(DESTDIR)/$(SYSCONFDIR)/2/exclusions.txt
-	install -Dm644 repo_priority.txt 	$(DESTDIR)/$(SYSCONFDIR)/2/repo_priority.txt
+	install -Dm644 etc/config.toml 		 $(DESTDIR)/$(SYSCONFDIR)/2/config.toml
+	install -Dm644 etc/exclusions.txt 	 $(DESTDIR)/$(SYSCONFDIR)/2/exclusions.txt
+	install -Dm644 etc/repo_priority.txt $(DESTDIR)/$(SYSCONFDIR)/2/repo_priority.txt
 endif
 
 ifeq ($(ENABLE_COMP),1)
