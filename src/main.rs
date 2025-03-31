@@ -1,5 +1,5 @@
 // src/main.rs
-//
+
 #![doc = include_str!("../README.md")]
 #![feature(duration_millis_float)]
 #![deny(clippy::perf, clippy::todo, clippy::complexity)]
@@ -13,7 +13,7 @@
     clippy::panic,
     unused,
     missing_docs,
-    // clippy::cargo,
+    clippy::cargo
 )]
 
 mod build;
@@ -28,15 +28,18 @@ mod shell;
 mod upstream;
 mod utils;
 
-use std::env;
+use std::str::FromStr;
 
 use cli::{
     args::Args,
     version as v,
 };
-use globals::flags::{
-    self,
-    FLAGS,
+use globals::{
+    config::CONFIG,
+    flags::{
+        self,
+        FLAGS,
+    },
 };
 use package::{
     parse,
@@ -48,6 +51,7 @@ use pm::PM;
 use tracing::{
     debug,
     info,
+    level_filters::LevelFilter,
     warn,
 };
 use tracing_appender::{
@@ -97,15 +101,18 @@ fn initialize() -> (Args, WorkerGuard) {
 
 /// ### Description
 /// Initializes logging
+///
+/// Log level priority:
+/// Environment variable -> Config -> Default
 fn init_logging() -> WorkerGuard {
     let file_appender = rolling::never("/tmp/2", "log");
     let (file_writer, guard) = tracing_appender::non_blocking(file_appender);
 
-    let log_level = env::var("LOG_LEVEL")
-        .ok()
-        .filter(|s| !s.is_empty())
-        .unwrap_or("info".to_string());
-    let filter = EnvFilter::new(format!("{log_level}"));
+    let level = LevelFilter::from_str(&CONFIG.general.log_level).unwrap_or(LevelFilter::INFO);
+    let filter = EnvFilter::builder()
+        .with_default_directive(level.into())
+        .with_env_var("LOG_LEVEL")
+        .from_env_lossy();
 
     tracing_subscriber::fmt()
         .with_env_filter(filter)
