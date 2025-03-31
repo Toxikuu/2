@@ -6,10 +6,11 @@ TODO
         Existing documentation probably needs updating too
         Do this once I attempt to stabilize for 0.1.0
 
+WIP
+
     Consolidate logging and vpr/msg/erm
         Would also probably be a good idea to transition to tracing
-
-WIP
+        Also improve logs
 
     Test install.sh
         Seemed to work fine in chroot
@@ -19,12 +20,13 @@ WIP
         It needs to also show which files are being removed, suppressable with -q
 
     Complete 2lkit functionality
-        Add downgrade
-            restore's been added, but I might also add a simple downgrade
-        Add view
-        The error handling isn't user friendly but it's fine
-        Add Package::from(MaintArg)
-        Add QA checks and basic linting
+        # Add downgrade
+        #     restore's been added, but I might also add a simple downgrade
+        #     Dropped as update works fine and is used in 2
+        [*] Add view
+        [-] The error handling isn't user friendly but it's fine
+        [*] Add Package::from(MaintArg)
+        [-] Add QA checks and basic linting
         Won't make it into 0.1.0 most likely
 
     Expand the main & xorg repos
@@ -356,6 +358,10 @@ IDEAS
     consider allowing //package
         ex: //tree would be parsed into the tree package from *every* repo that contains it
 
+    Add an API
+        Would allow queries such as build (current/total_queued)
+        Would allow the retrieval of build times and such
+
 ROADMAP
 
     Features for 2-0.1.0:
@@ -368,6 +374,8 @@ ROADMAP
         [-] solid documentation with mdbook
 
     Features for 2-0.2.0:
+        split a lot of stuff into their own libraries
+        improve code organization with workspaces
         licenses & dependencies in long about
         Source-sharing for packages
         vulnerability checks (GLSA-based)
