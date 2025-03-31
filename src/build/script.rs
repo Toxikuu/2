@@ -44,7 +44,7 @@ fn check_hashes(package: &Package, no_source: bool) {
     }
 
     package.extra.iter().for_each(|source| {
-        let filename = &Path::new(source.url.as_str())
+        let filename = &Path::new(source.url.as_ref())
             .file_name()
             .efail(|| format!("Invalid file name for source '{source:?}' for '{package}'"))
             .to_string_lossy();

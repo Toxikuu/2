@@ -225,7 +225,7 @@ pub fn prune(package: &Package) -> usize {
         .extra
         .iter()
         .map(|s| {
-            let file_name = Path::new(s.url.as_str())
+            let file_name = Path::new(s.url.as_ref())
                 .file_name()
                 .fail("File in .sources ends in '..' tf??");
             src_dir.join(file_name)

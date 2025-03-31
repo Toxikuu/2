@@ -2,7 +2,6 @@
 //
 #![doc = include_str!("../README.md")]
 #![feature(duration_millis_float)]
-#![feature(str_as_str)]
 #![deny(clippy::perf, clippy::todo, clippy::complexity)]
 #![allow(clippy::semicolon_if_nothing_returned)]
 #![warn(
