@@ -76,10 +76,6 @@ pub struct Args {
     #[arg(short = 'c', long)]
     pub clean: bool,
 
-    /// Displays logs
-    #[arg(short = 'L', long)]
-    pub logs: bool,
-
     /// Displays the history for a package
     #[arg(short = 'H', long)]
     pub history: bool,

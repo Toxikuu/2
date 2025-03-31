@@ -13,7 +13,10 @@ use std::{
 };
 
 use anyhow::Result;
-use log::warn;
+use tracing::{
+    debug,
+    warn,
+};
 use walkdir::WalkDir;
 
 use super::manifest::{
@@ -304,7 +307,7 @@ fn prune_logs(package: &Package) -> usize {
 
         let msg = format!("Proning log {path:?}");
         vpr!("{msg}");
-        log::debug!("{msg}");
+        debug!("{msg}");
         rm(&path).fail("Failed to prune log");
         pruned_count += 1;
     }
@@ -349,7 +352,7 @@ fn prune_manifests(package: &Package) -> usize {
             continue;
         }
 
-        log::debug!("Pruning manifest {path:?}");
+        debug!("Pruning manifest {path:?}");
         rm(&path).fail("Failed to prune manifest");
         pruned_count += 1;
     }
@@ -395,7 +398,7 @@ fn prune_dist(package: &Package) -> usize {
             continue;
         }
 
-        log::debug!("Pruning dist {path:?}");
+        debug!("Pruning dist {path:?}");
         rm(&path).fail("Failed to prune dist");
         pruned_count += 1;
     }

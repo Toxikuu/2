@@ -17,8 +17,8 @@ use anyhow::{
     Result,
     bail,
 };
-use log::debug;
 use serde::Deserialize;
+use tracing::debug;
 
 use crate::{
     utils::comms::{

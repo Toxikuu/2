@@ -1,6 +1,8 @@
 // src/package/parse.rs
 //! Functions for parsing positional arguments
 
+use tracing::warn;
+
 use super::{
     Package,
     ambiguity::resolve_ambiguity,
@@ -26,7 +28,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
         if let Some(i) = p.find('=') {
             let msg = format!("Version control is not supported; stripping version for '{p}'");
             erm!("{msg}");
-            log::warn!("{msg}");
+            warn!("{msg}");
             p = &p[..i];
         }
 
@@ -66,7 +68,7 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
                     "Version control is not supported; stripping version for '{set}' member '{p}'"
                 );
                 erm!("{msg}");
-                log::warn!("{msg}");
+                warn!("{msg}");
                 p = &p[..i];
             }
 

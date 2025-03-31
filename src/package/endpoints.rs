@@ -9,6 +9,8 @@ use std::{
     },
 };
 
+use tracing::debug;
+
 use super::Package;
 use crate::{
     utils::comms::{
@@ -33,7 +35,7 @@ impl Package {
 
         let port_dir = PathBuf::from("/var/ports").join(repo).join(name);
         let lock_path = port_dir.join("LOCK");
-        log::debug!(
+        debug!(
             "Determined LOCK path for '{repo}/{name}': '{}'",
             lock_path.display()
         );
@@ -60,7 +62,7 @@ impl Package {
         package.data.port_dir = port_dir;
         package.status();
 
-        log::debug!("Generated new package: {package:#?}");
+        debug!("Generated new package: {package:#?}");
         package
     }
 

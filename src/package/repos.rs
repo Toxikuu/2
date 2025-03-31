@@ -11,6 +11,8 @@ use std::{
     rc::Rc,
 };
 
+use tracing::info;
+
 use crate::{
     utils::comms::{
         erm,
@@ -107,10 +109,10 @@ pub fn add(repo_url: &str) {
         format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
 
     msg!("󰐗  Adding '{repo_name}/'...");
-    log::info!("Adding '{repo_name}/'...");
+    info!("Adding '{repo_name}/'...");
     exec(&command, None).fail("Failed to add repo");
     msg!("󰗠  Added '{repo_name}/'");
-    log::info!("Added '{repo_name}/'");
+    info!("Added '{repo_name}/'");
 }
 
 /// # Description
@@ -119,8 +121,8 @@ pub fn sync(repo: &str) {
     let command = format!("cd /var/ports/{repo} && git pull");
 
     msg!("󱍸  Syncing '{repo}'...");
-    log::info!("Syncing '{repo}'...");
+    info!("Syncing '{repo}'...");
     exec(&command, None).fail("Failed to sync repo");
     msg!("󰗠  Synced '{repo}'");
-    log::info!("Synced '{repo}'");
+    info!("Synced '{repo}'");
 }

@@ -22,6 +22,7 @@ use anyhow::{
     Result,
     bail,
 };
+use tracing::debug;
 
 use crate::{
     globals::{
@@ -119,7 +120,7 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
 
     let status = child.wait()?;
     if !status.success() {
-        log::debug!("Command failed");
+        debug!("Command failed");
         bail!("Command failed");
     }
 

@@ -5,7 +5,6 @@ pub mod comms;
 pub mod esc;
 pub mod fail;
 pub mod hash;
-pub mod logger;
 pub mod time;
 
 #[cfg(feature = "parallelism")]

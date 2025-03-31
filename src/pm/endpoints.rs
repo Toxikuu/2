@@ -1,12 +1,15 @@
 // src/pm/endpoints.rs
 //! Defines endpoints for PM
 
-use std::path::PathBuf;
-
 use indicatif::ProgressStyle;
 use once_cell::sync::Lazy;
 #[cfg(feature = "parallelism")]
 use rayon::prelude::*;
+use tracing::{
+    debug,
+    info,
+    warn,
+};
 
 use super::PM;
 #[cfg(feature = "upstream")]
@@ -36,7 +39,6 @@ use crate::{
     utils::{
         fail::Fail,
         hash::try_truncate_commit_hash,
-        logger,
         time::Stopwatch,
     },
 };
@@ -107,9 +109,6 @@ impl PM<'_> {
         if a.list {
             self.list()
         }
-        if a.logs {
-            Self::logs()
-        }
     }
 
     /// # Description
@@ -124,11 +123,11 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::InstallStatus::Already => {
-                log::warn!("Already installed '{p}'");
+                warn!("Already installed '{p}'");
                 msg!("󰗠  Already installed '{p}'");
             },
             | bl::InstallStatus::Dist => {
-                log::info!("Installed '{p}'");
+                info!("Installed '{p}'");
                 msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
             },
             | bl::InstallStatus::BuildFirst => {
@@ -136,7 +135,7 @@ impl PM<'_> {
                 PM::install(p);
             },
             | bl::InstallStatus::UpdateInstead => {
-                log::warn!("Updating instead of installing '{p}'...");
+                warn!("Updating instead of installing '{p}'...");
                 msg!("󱍷  Updating instead of installing '{p}'...");
                 PM::update(p);
             },
@@ -157,15 +156,15 @@ impl PM<'_> {
                 PM::update(p);
             },
             | bl::UpdateStatus::Dist => {
-                log::info!("Updated to '{p}'");
+                info!("Updated to '{p}'");
                 msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
             },
             | bl::UpdateStatus::Latest => {
-                log::info!("Up-to-date: '{p}'");
+                info!("Up-to-date: '{p}'");
                 msg!("󰗠  Up-to-date: '{p}'");
             },
             | bl::UpdateStatus::NotInstalled => {
-                log::warn!("Didn't update '{p}' as it's not installed");
+                warn!("Didn't update '{p}' as it's not installed");
                 erm!("Didn't update '{p}' as it's not installed");
             },
         }
@@ -179,7 +178,7 @@ impl PM<'_> {
 
         if rl::remove(p) {
             stopwatch.stop();
-            log::info!("Removed '{p}'");
+            info!("Removed '{p}'");
             msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
         }
     }
@@ -194,7 +193,7 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::BuildStatus::Source => {
-                log::info!("Built '{p}'");
+                info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
 
                 let mut package_stats = package_stats
@@ -203,7 +202,7 @@ impl PM<'_> {
                 stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
             },
             | bl::BuildStatus::Already => {
-                log::info!("Already built '{p}'");
+                info!("Already built '{p}'");
                 msg!("󰗠  Already built '{p}'");
             },
         }
@@ -215,14 +214,14 @@ impl PM<'_> {
     /// This is separate from ``fetch_all_sources_if_needed()``
     fn get(&self) {
         self.packages.iter().for_each(|p| {
-            log::info!("Downloading sources for '{p}'...");
+            info!("Downloading sources for '{p}'...");
             vpr!("Downloading sources for '{p}'...");
 
             let status = download(p, self.args.force, &STY);
             if matches!(status, DownloadStatus::Nothing) {
-                log::info!("Didn't download sources for '{p}'");
+                info!("Didn't download sources for '{p}'");
             } else {
-                log::info!("Downloaded sources for '{p}'");
+                info!("Downloaded sources for '{p}'");
             }
         });
     }
@@ -236,7 +235,7 @@ impl PM<'_> {
         let mut total_count = 0;
         self.packages.iter().for_each(|p| {
             let count = rl::prune(p);
-            log::info!("Pruned {p}");
+            info!("Pruned {p}");
 
             total_count += count;
         });
@@ -258,7 +257,7 @@ impl PM<'_> {
         let mut cleaned = 0;
         self.packages.iter().for_each(|p| {
             cleaned += rl::clean(p);
-            log::debug!("Cleaned build for {p}");
+            debug!("Cleaned build for {p}");
         });
 
         stopwatch.stop();
@@ -279,7 +278,7 @@ impl PM<'_> {
         let imply = self.args.packages.is_empty();
         Self::list_packages(packages, "Packages", imply);
 
-        log::info!("Listed {} packages", packages.len());
+        info!("Listed {} packages", packages.len());
     }
 
     /// # Description
@@ -316,13 +315,6 @@ impl PM<'_> {
             let width = 48 - package_info.len();
             pr!("{} {:<width$} ~ {}", package_info, " ", p.data.status);
         }
-    }
-
-    /// # Description
-    /// Displays the two's formatted logs
-    pub fn logs() {
-        let log_file = PathBuf::from("/tmp/2/master.log");
-        logger::display(&log_file);
     }
 
     /// # Description
@@ -370,7 +362,7 @@ impl PM<'_> {
     fn fetch_all_sources_if_needed(&self, args: &Args) {
         // 'if needed' means one of these are passed
         if !(args.install || args.update || args.build) {
-            log::debug!("Sources were not automatically fetched as they were not needed");
+            debug!("Sources were not automatically fetched as they were not needed");
             return;
         }
 
@@ -380,11 +372,11 @@ impl PM<'_> {
                 return;
             }
 
-            log::info!("Automatically fetching sources for '{p}'...");
+            info!("Automatically fetching sources for '{p}'...");
             vpr!("Automatically fetching sources for '{p}'...");
 
             download(p, false, &STY);
-            log::info!("Automatically fetched sources for '{p}'");
+            info!("Automatically fetched sources for '{p}'");
         });
     }
 
