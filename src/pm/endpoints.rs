@@ -14,7 +14,7 @@ use crate::upstream::core::check_upstream;
 use crate::{
     build::logic as bl,
     cli::args::Args,
-    comms::out::{
+    utils::comms::{
         erm,
         msg,
         pr,

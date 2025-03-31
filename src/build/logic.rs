@@ -3,7 +3,7 @@
 
 use super::script;
 use crate::{
-    comms::out::{
+    utils::comms::{
         msg,
         pr,
     },

@@ -21,7 +21,7 @@ use log::debug;
 use serde::Deserialize;
 
 use crate::{
-    comms::out::{
+    utils::comms::{
         erm,
         pr,
         vpr,

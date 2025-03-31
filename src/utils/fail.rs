@@ -14,8 +14,8 @@ use std::{
 
 #[cfg(not(test))]
 use crate::{
-    comms::out::erm,
     globals::config::CONFIG,
+    utils::comms::erm,
 };
 
 /// # Description

@@ -7,7 +7,7 @@ use super::{
     sets::Set,
 };
 use crate::{
-    comms::out::erm,
+    utils::comms::erm,
     utils::fail::Fail,
 };
 

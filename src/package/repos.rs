@@ -12,7 +12,7 @@ use std::{
 };
 
 use crate::{
-    comms::out::{
+    utils::comms::{
         erm,
         msg,
         pr,

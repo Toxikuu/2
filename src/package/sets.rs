@@ -20,13 +20,14 @@ use std::{
 };
 
 use anyhow::Result;
+use tracing::debug;
 
 use super::{
     ambiguity::resolve_set_ambiguity,
     repos,
 };
 use crate::{
-    comms::out::{
+    utils::comms::{
         erm,
         pr,
         vpr,
@@ -138,7 +139,7 @@ impl Set {
         let set = &self.set;
         let repo = &self.repo;
         vpr!("Unraveling set:\n{self:#?}");
-        log::debug!("Unraveling '{self}'");
+        debug!("Unraveling '{self}'");
 
         if self.is_special() {
             return self.unravel_special();

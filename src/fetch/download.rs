@@ -26,7 +26,7 @@ use ureq::{
 };
 
 use crate::{
-    comms::out::vpr,
+    utils::comms::vpr,
     package::Package,
     utils::fail::{
         BoolFail,

@@ -6,22 +6,22 @@ use std::fs;
 use walkdir::WalkDir;
 
 use crate::{
-    comms::{
-        r#in::select,
-        out::{
-            erm,
-            pr,
-        },
-    },
     globals::config::CONFIG,
     package::repos::{
         self,
         prioritize,
     },
     shell::fs::is_dir,
-    utils::fail::{
-        BoolFail,
-        Fail,
+    utils::{
+        comms::{
+            erm,
+            pr,
+            select,
+        },
+        fail::{
+            BoolFail,
+            Fail,
+        },
     },
 };
 

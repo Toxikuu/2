@@ -21,11 +21,6 @@ use super::manifest::{
     find_unique_paths,
 };
 use crate::{
-    comms::out::{
-        erm,
-        pr,
-        vpr,
-    },
     globals::{
         config::CONFIG,
         flags::Flags,
@@ -35,9 +30,16 @@ use crate::{
         mkdir,
         rm,
     },
-    utils::fail::{
-        BoolFail,
-        Fail,
+    utils::{
+        comms::{
+            erm,
+            pr,
+            vpr,
+        },
+        fail::{
+            BoolFail,
+            Fail,
+        },
     },
 };
 

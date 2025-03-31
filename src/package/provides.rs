@@ -13,7 +13,7 @@ use anyhow::Context;
 
 use super::Package;
 use crate::{
-    comms::out::erm,
+    utils::comms::erm,
     pm::PM,
     remove::manifest,
     utils::fail::Fail,

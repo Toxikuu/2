@@ -7,10 +7,12 @@ use rayon::{
 };
 
 use crate::{
-    comms::out::vpr,
     globals::config::CONFIG,
     package::Package,
-    utils::fail::Fail,
+    utils::{
+        comms::vpr,
+        fail::Fail,
+    },
 };
 
 pub fn build_pool(packages: &[Package]) -> ThreadPool {

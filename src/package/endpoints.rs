@@ -11,7 +11,7 @@ use std::{
 
 use super::Package;
 use crate::{
-    comms::out::{
+    utils::comms::{
         msg,
         pr,
     },
