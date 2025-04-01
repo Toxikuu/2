@@ -1,3 +1,19 @@
+# 2=0.0.95
+## Changes
+- More formatting
+    - Moved rustfmt.toml to .rustfmt.toml
+- Moved project config files to etc/
+    - Tweaked install.sh and Makefile to match
+- Tweaked envs
+    - Added ii to core
+    - Prefer $1 to $NAME in pip
+- Moved comms to utils
+- Migrated to tracing and improved logs
+- Tweaked log level detection
+    - Priority is now: environment variable -> config -> default
+    - Set default log level to info
+- Dropped dependency on str_as_str feature
+
 # 2=0.0.94
 ## Changes
 - Formatting
