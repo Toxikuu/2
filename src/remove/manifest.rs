@@ -19,13 +19,13 @@ use anyhow::{
     Context,
     Result,
 };
+use tracing::instrument;
 use walkdir::{
     DirEntry,
     WalkDir,
 };
 
 use crate::{
-    utils::comms::vpr,
     package::Package,
     utils::fail::Fail,
 };
@@ -56,6 +56,7 @@ fn is_manifest(entry: &DirEntry) -> bool {
 ///
 /// dir is commonly ``/var/ports``, though can also be ``$PORT/.data`` for dead
 /// files
+#[instrument]
 pub fn locate(dir: &str) -> Rc<[PathBuf]> {
     WalkDir::new(dir)
         .max_depth(4)
@@ -63,18 +64,17 @@ pub fn locate(dir: &str) -> Rc<[PathBuf]> {
         .filter_entry(|e| !is_in_wrong_hidden(e))
         .filter_map(Result::ok)
         .filter(|entry| {
-            vpr!("ENTRY: {:?}", entry);
             entry.file_type().is_file()
                 && is_manifest(entry)
                 && entry.path().with_file_name("INSTALLED").exists()
         })
         .map(walkdir::DirEntry::into_path)
-        .inspect(|path| vpr!("Located manifest: {path:?}"))
         .collect::<Rc<[PathBuf]>>()
 }
 
 /// # Description
 /// Reads manifests and returns a hashmap of their paths and their contents
+#[instrument]
 fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
     let mut data = HashMap::new();
 
@@ -94,6 +94,7 @@ fn read_all(manifests: &[PathBuf]) -> HashMap<PathBuf, Rc<[String]>> {
 /// Backend for ``find_unique_paths``
 ///
 /// Returns the unique lines in reverse order (meaning /path/to/file is above /path/to)
+#[instrument]
 fn find_unique(
     all_data: &HashMap<PathBuf, Rc<[String]>>,
     this_manifest: &PathBuf,
@@ -125,6 +126,7 @@ pub fn find_unique_paths(manifest: &PathBuf) -> Result<Rc<[String]>> {
 
 /// # Description
 /// Finds unique files in an old manifest (dead files)
+#[instrument]
 pub fn find_dead_files(package: &Package) -> Result<Rc<[String]>> {
     let manifests = locate(&format!(
         "/var/ports/{}/{}/.data",

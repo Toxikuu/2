@@ -74,7 +74,7 @@ fn main() {
 
     let packages = parse::parse(&args.packages);
     PM::new(&packages, &args).run();
-    info!("Finished all tasks\n\n\t----------------\n");
+    info!("Finished all tasks\n\n");
     drop(guard);
 }
 

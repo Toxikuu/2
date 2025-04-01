@@ -22,7 +22,11 @@ use anyhow::{
     Result,
     bail,
 };
-use tracing::debug;
+use tracing::{
+    instrument,
+    trace,
+    warn,
+};
 
 use crate::{
     globals::{
@@ -45,6 +49,7 @@ use crate::{
 /// - failed to source /usr/share/2/envs/core
 /// - some sync shenanigans (unlikely)
 /// - failing to read stderr/stdout (unlikely)
+#[instrument]
 pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
     let quiet = Flags::grab().quiet;
 
@@ -78,8 +83,12 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
 
             // write an unformatted line to the log
             if let Some(ref mut w) = writer {
-                writeln!(w, "[STDOUT] {line}").fail("Failed to write to log file");
+                if writeln!(w, "{msg}").is_err() {
+                    warn!("Failed to write command output to log file");
+                }
             }
+
+            trace!("[STDOUT] {line}");
 
             if !quiet {
                 println!("{msg}");
@@ -105,10 +114,13 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
             let line = buf.trim_end();
             let msg = format!("{}{line}\x1b[0m", CONFIG.message.stderr);
 
-            // write an unformatted line to the log
             if let Some(ref mut w) = writer {
-                writeln!(w, "[STDERR] {line}").fail("Failed to write to log file");
+                if writeln!(w, "{msg}").is_err() {
+                    warn!("Failed to write command output to log file");
+                }
             }
+
+            trace!("[STDERR] {line}");
 
             if !quiet {
                 println!("{msg}");
@@ -120,7 +132,7 @@ pub fn exec(command: &str, log: Option<PathBuf>) -> Result<()> {
 
     let status = child.wait()?;
     if !status.success() {
-        debug!("Command failed");
+        warn!("Command failed");
         bail!("Command failed");
     }
 

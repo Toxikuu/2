@@ -13,10 +13,7 @@ use std::{
 };
 
 #[cfg(not(test))]
-use tracing::{
-    debug,
-    error,
-};
+use tracing::error;
 
 #[cfg(not(test))]
 use crate::{
@@ -54,12 +51,12 @@ pub fn report(msg: &str, location: &'static Location<'static>) -> ! {
         location.line(),
         location.column()
     );
-    debug!("{loc_msg}");
-    debug!("{msg}");
-    error!("Process died\n\n\t----------------\n");
+    error!("{loc_msg}");
+    error!("{msg}");
     if CONFIG.general.show_failure_location {
         erm!("{loc_msg}");
     }
+    error!("Process died\n\n");
     die!("{msg}");
 }
 

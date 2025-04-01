@@ -1,12 +1,13 @@
 // src/build/logic.rs
 //! Defines the logic for package builds
 
+use tracing::{
+    debug,
+    info,
+};
+
 use super::script;
 use crate::{
-    utils::comms::{
-        msg,
-        pr,
-    },
     globals::{
         config::CONFIG,
         flags::Flags,
@@ -23,7 +24,13 @@ use crate::{
         remove_dead_files_after_update,
     },
     shell::cmd::exec,
-    utils::fail::Fail,
+    utils::{
+        comms::{
+            msg,
+            pr,
+        },
+        fail::Fail,
+    },
 };
 
 pub enum InstallStatus {
@@ -75,9 +82,11 @@ pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<Packag
     let built = package.dist_exists() && !Flags::grab().force && !r#override;
 
     if built {
+        debug!("Package '{package}' is already built");
         (BuildStatus::Already, None)
     } else {
-        msg!("󱠇  Building '{}'...", package);
+        msg!("󱠇  Building '{package}'...");
+        info!("Building '{package}'...");
         script::prep(package);
         script::build(package);
 
@@ -123,6 +132,7 @@ fn dist_install(package: &Package) {
     );
 
     msg!("󰐗  Installing '{package}'...");
+    info!("Installing '{package}'...");
     exec(&command, None).fail("Failed to perform dist install");
     script::post(package);
 }

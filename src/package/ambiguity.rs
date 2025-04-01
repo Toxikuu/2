@@ -3,6 +3,7 @@
 
 use std::fs;
 
+use tracing::instrument;
 use walkdir::WalkDir;
 
 use crate::{
@@ -28,6 +29,7 @@ use crate::{
 /// # Description
 /// Searches across all repos for a given package
 /// Returns all packages matching the name in the form 'repo/name'
+#[instrument]
 fn locate(name: &str) -> Vec<String> {
     WalkDir::new("/var/ports")
         .max_depth(2)
@@ -54,6 +56,7 @@ fn locate(name: &str) -> Vec<String> {
 /// # Description
 /// Given a package, finds its repository
 /// Prompts the user if multiple repositories contain the package
+#[instrument]
 pub fn resolve_ambiguity(name: &str) -> String {
     let mut matches = locate(name);
     prioritize(&mut matches);
@@ -101,16 +104,14 @@ pub fn resolve_ambiguity(name: &str) -> String {
 /// # Description
 /// Searches across all repos for a given set
 /// Returns an empty vector if no sets are found, otherwise returns a vector of <repo>/@<set>
+#[instrument]
 fn locate_set(set: &str) -> Vec<String> {
     let pattern = format!(".sets/{set}");
 
     fs::read_dir("/var/ports")
         .fail("No package repos found")
         .filter_map(|r| {
-            let repo = r
-                .ok()
-                .fail("Failed to read an entry in '/var/ports': Filesystem error?")
-                .path();
+            let repo = r.fail("Failed to read an entry in '/var/ports'").path();
 
             if repo.join(&pattern).exists() {
                 repo.file_name()
@@ -125,6 +126,7 @@ fn locate_set(set: &str) -> Vec<String> {
 /// # Description
 /// Given a set, finds its repository
 /// Prompts the user if multiple repositories contain the set
+#[instrument]
 pub fn resolve_set_ambiguity(set: &str) -> String {
     let mut matches = if super::sets::Set::is_special_set(set) {
         let repos = repos::find_all();

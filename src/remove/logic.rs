@@ -37,7 +37,6 @@ use crate::{
         comms::{
             erm,
             pr,
-            vpr,
         },
         fail::{
             BoolFail,
@@ -125,26 +124,28 @@ pub fn remove(package: &Package) -> bool {
         let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            erm!("Retaining protected path: {:?}", path);
+            debug!("Retaining protected path: '{}'", path.display());
             return;
         }
 
-        let _ = rm(&path); // TODO: Log failed removals
+        if let Err(e) = rm(&path) {
+            warn!("Failed to remove path '{}': {e}", path.display());
+        }
 
         if !quiet {
-            pr!("'{}' -x", p);
+            pr!("'{p}' -x");
         }
     });
 
     // NOTE: the manifest is not removed as prune handles that
     let status_file = package.data.port_dir.join(".data").join("INSTALLED");
-    rm(&status_file).fail("Failed to remove the status file");
+    rm(&status_file).fail("Failed to remove the status file"); // this shouldn't happen
 
     if CONFIG.removal.remove_sources {
-        remove_sources(package)
+        remove_sources(package);
     }
     if CONFIG.removal.remove_dist {
-        remove_dist(package)
+        remove_dist(package);
     }
 
     true
@@ -181,7 +182,7 @@ fn remove_dist(package: &Package) {
 /// Removes dead files after an update
 pub fn remove_dead_files_after_update(package: &Package) {
     if !package.data.is_installed {
-        return erm!("'{}' is not installed!", package);
+        return erm!("'{package}' is not installed!");
     }
 
     let Ok(dead_files) = find_dead_files(package) else {
@@ -196,14 +197,16 @@ pub fn remove_dead_files_after_update(package: &Package) {
         let path = pfx.join(p);
 
         if KEPT.iter().any(|&s| path.ends_with(s)) {
-            erm!("Retaining protected path: {path:?}");
+            debug!("Retaining protected path: '{}'", path.display());
             return;
         }
 
-        let _ = rm(&path); // don't crash <- TODO: Log this failure
+        if let Err(e) = rm(&path) {
+            warn!("Failed to remove path '{}': {e}", path.display())
+        }
 
         if !quiet {
-            pr!("'{}' -x", p);
+            pr!("'{p}' -x");
         }
     });
 }
@@ -245,7 +248,11 @@ pub fn prune(package: &Package) -> usize {
         let path = entry.path();
 
         if !path.is_file() {
-            warn!("Detected non-file {path:?} in {src_dir:?}");
+            warn!(
+                "Detected non-file '{}' in '{}'",
+                path.display(),
+                src_dir.display()
+            );
             continue;
         }
 
@@ -259,8 +266,16 @@ pub fn prune(package: &Package) -> usize {
             continue;
         }
 
-        vpr!("Pruning: {:?}", path);
-        rm(&path).efail(|| format!("Failed to prune file '{}' for '{package}'", path.display()));
+        if !Flags::grab().quiet {
+            pr!("Pruning '{}'", path.display());
+        }
+
+        if let Err(e) = rm(&path) {
+            warn!(
+                "Failed to prune file '{}' for '{package}': {e}",
+                path.display()
+            );
+        }
         pruned_count += 1;
     }
 
@@ -305,9 +320,10 @@ fn prune_logs(package: &Package) -> usize {
             continue;
         }
 
-        let msg = format!("Proning log {path:?}");
-        vpr!("{msg}");
-        debug!("{msg}");
+        if !Flags::grab().quiet {
+            pr!("Pruning log '{}'", path.display());
+        }
+
         rm(&path).fail("Failed to prune log");
         pruned_count += 1;
     }
@@ -340,7 +356,11 @@ fn prune_manifests(package: &Package) -> usize {
         let path = entry.path();
 
         if !path.is_file() {
-            warn!("Detected non-file {path:?} in {data_dir:?}");
+            warn!(
+                "Detected non-file '{}' in '{}'",
+                path.display(),
+                data_dir.display()
+            );
             continue;
         }
 
@@ -352,7 +372,9 @@ fn prune_manifests(package: &Package) -> usize {
             continue;
         }
 
-        debug!("Pruning manifest {path:?}");
+        if !Flags::grab().quiet {
+            pr!("Pruning manifest '{}'", path.display());
+        }
         rm(&path).fail("Failed to prune manifest");
         pruned_count += 1;
     }
@@ -386,7 +408,11 @@ fn prune_dist(package: &Package) -> usize {
         let path = entry.path();
 
         if !path.is_file() {
-            warn!("Detected non-file {path:?} in {dist_dir:?}");
+            warn!(
+                "Detected non-file '{}' in '{}'",
+                path.display(),
+                dist_dir.display(),
+            );
             continue;
         }
 
@@ -398,7 +424,10 @@ fn prune_dist(package: &Package) -> usize {
             continue;
         }
 
-        debug!("Pruning dist {path:?}");
+        if !Flags::grab().quiet {
+            pr!("Pruning dist {path:?}");
+        }
+
         rm(&path).fail("Failed to prune dist");
         pruned_count += 1;
     }

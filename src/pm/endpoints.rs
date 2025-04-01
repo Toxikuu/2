@@ -17,12 +17,6 @@ use crate::upstream::core::check_upstream;
 use crate::{
     build::logic as bl,
     cli::args::Args,
-    utils::comms::{
-        erm,
-        msg,
-        pr,
-        vpr,
-    },
     fetch::download::{
         DownloadStatus,
         download,
@@ -37,6 +31,12 @@ use crate::{
     remove::logic as rl,
     shell::fs::mkdir,
     utils::{
+        comms::{
+            erm,
+            msg,
+            pr,
+            vpr,
+        },
         fail::Fail,
         hash::try_truncate_commit_hash,
         time::Stopwatch,
@@ -123,11 +123,9 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::InstallStatus::Already => {
-                warn!("Already installed '{p}'");
                 msg!("󰗠  Already installed '{p}'");
             },
             | bl::InstallStatus::Dist => {
-                info!("Installed '{p}'");
                 msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
             },
             | bl::InstallStatus::BuildFirst => {
@@ -135,7 +133,6 @@ impl PM<'_> {
                 PM::install(p);
             },
             | bl::InstallStatus::UpdateInstead => {
-                warn!("Updating instead of installing '{p}'...");
                 msg!("󱍷  Updating instead of installing '{p}'...");
                 PM::update(p);
             },
@@ -156,15 +153,12 @@ impl PM<'_> {
                 PM::update(p);
             },
             | bl::UpdateStatus::Dist => {
-                info!("Updated to '{p}'");
                 msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
             },
             | bl::UpdateStatus::Latest => {
-                info!("Up-to-date: '{p}'");
                 msg!("󰗠  Up-to-date: '{p}'");
             },
             | bl::UpdateStatus::NotInstalled => {
-                warn!("Didn't update '{p}' as it's not installed");
                 erm!("Didn't update '{p}' as it's not installed");
             },
         }
@@ -178,8 +172,7 @@ impl PM<'_> {
 
         if rl::remove(p) {
             stopwatch.stop();
-            info!("Removed '{p}'");
-            msg!("󰗠  Removed '{}' in {}", p, stopwatch.display());
+            msg!("󰗠  Removed '{p}' in {}", stopwatch.display());
         }
     }
 
@@ -193,7 +186,6 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::BuildStatus::Source => {
-                info!("Built '{p}'");
                 msg!("󰗠  Built '{p}' in {}", stopwatch.display());
 
                 let mut package_stats = package_stats
@@ -202,7 +194,6 @@ impl PM<'_> {
                 stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
             },
             | bl::BuildStatus::Already => {
-                info!("Already built '{p}'");
                 msg!("󰗠  Already built '{p}'");
             },
         }
@@ -214,7 +205,6 @@ impl PM<'_> {
     /// This is separate from ``fetch_all_sources_if_needed()``
     fn get(&self) {
         self.packages.iter().for_each(|p| {
-            info!("Downloading sources for '{p}'...");
             vpr!("Downloading sources for '{p}'...");
 
             let status = download(p, self.args.force, &STY);
@@ -277,8 +267,6 @@ impl PM<'_> {
         let packages = self.packages;
         let imply = self.args.packages.is_empty();
         Self::list_packages(packages, "Packages", imply);
-
-        info!("Listed {} packages", packages.len());
     }
 
     /// # Description
@@ -372,11 +360,9 @@ impl PM<'_> {
                 return;
             }
 
-            info!("Automatically fetching sources for '{p}'...");
-            vpr!("Automatically fetching sources for '{p}'...");
-
-            download(p, false, &STY);
-            info!("Automatically fetched sources for '{p}'");
+            if !matches!(download(p, false, &STY), DownloadStatus::Nothing) {
+                info!("Automatically fetched sources for '{p}'");
+            }
         });
     }
 

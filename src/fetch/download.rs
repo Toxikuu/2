@@ -26,11 +26,13 @@ use ureq::{
 };
 
 use crate::{
-    utils::comms::vpr,
     package::Package,
-    utils::fail::{
-        BoolFail,
-        Fail,
+    utils::{
+        comms::vpr,
+        fail::{
+            BoolFail,
+            Fail,
+        },
     },
 };
 
@@ -138,11 +140,6 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
     pb.set_message(file_name.clone());
 
     let mut f = File::create(file_path)?;
-
-    // let is_text = r.headers()
-    //     .get(CONTENT_TYPE)
-    //     .and_then(|ct| ct.to_str().ok())
-    //     .is_some_and(|s| s.starts_with("text/"));
 
     let body = r.into_body();
     let reader = body.into_reader();

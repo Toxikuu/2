@@ -10,17 +10,21 @@ use std::{
 };
 
 use anyhow::Context;
+use tracing::instrument;
 
 use super::Package;
 use crate::{
-    utils::comms::erm,
     pm::PM,
     remove::manifest,
-    utils::fail::Fail,
+    utils::{
+        comms::erm,
+        fail::Fail,
+    },
 };
 
 /// # Description
 /// Finds all manifests containing a given path
+#[instrument]
 fn find_manifests_with_path(path: &str) -> Vec<PathBuf> {
     manifest::locate("/var/ports")
         .iter()
@@ -39,6 +43,7 @@ fn find_manifests_with_path(path: &str) -> Vec<PathBuf> {
 
 /// # Description
 /// Returns a package given its manifest
+#[instrument]
 fn get_package_from_manifest(manifest: &Path) -> Package {
     let components = manifest.components().collect::<Vec<_>>();
 
@@ -62,6 +67,7 @@ fn get_package_from_manifest(manifest: &Path) -> Package {
 /// Lists the packages that provide a given path
 ///
 /// Handles display, returns nothing
+#[instrument]
 pub fn provides(path: &str) {
     let manifests = find_manifests_with_path(path);
 

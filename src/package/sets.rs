@@ -20,19 +20,22 @@ use std::{
 };
 
 use anyhow::Result;
-use tracing::debug;
+use tracing::{
+    debug,
+    instrument,
+};
 
 use super::{
     ambiguity::resolve_set_ambiguity,
     repos,
 };
-use crate::{
-    utils::comms::{
+use crate::utils::{
+    comms::{
         erm,
         pr,
         vpr,
     },
-    utils::fail::{
+    fail::{
         BoolFail,
         Fail,
     },
@@ -135,6 +138,7 @@ impl Set {
     /// Given a set, returns all member packages
     /// Sets are defined in ``/var/ports/<repo>/.sets/<@set>``
     // TODO: Implement and test set recursion
+    #[instrument]
     pub fn unravel(&self) -> Rc<[String]> {
         let set = &self.set;
         let repo = &self.repo;
@@ -161,6 +165,7 @@ impl Set {
     /// Output is in the form 'repo/package'
     ///
     /// alias: @@
+    #[instrument]
     fn all(&self) -> Rc<[String]> {
         let dirs = self.dirs();
         let entries = dirs

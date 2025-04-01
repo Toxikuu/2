@@ -17,16 +17,14 @@ use serde::{
 };
 
 use super::Package;
-use crate::{
-    utils::comms::{
+use crate::utils::{
+    comms::{
         erm,
         msg,
         pr,
     },
-    utils::{
-        fail::Fail,
-        time::Pretty,
-    },
+    fail::Fail,
+    time::Pretty,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

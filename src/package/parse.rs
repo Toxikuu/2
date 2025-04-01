@@ -8,10 +8,7 @@ use super::{
     ambiguity::resolve_ambiguity,
     sets::Set,
 };
-use crate::{
-    utils::comms::erm,
-    utils::fail::Fail,
-};
+use crate::utils::fail::Fail;
 
 /// # Description
 /// Parses the raw package positional arguments into packages
@@ -26,9 +23,7 @@ pub fn parse(packages: &[String]) -> Vec<Package> {
         let mut p = p.as_str();
 
         if let Some(i) = p.find('=') {
-            let msg = format!("Version control is not supported; stripping version for '{p}'");
-            erm!("{msg}");
-            warn!("{msg}");
+            warn!("Version control is not supported; stripping version for '{p}'");
             p = &p[..i];
         }
 
@@ -64,11 +59,9 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
             let mut p = p.as_str();
 
             if let Some(i) = p.find('=') {
-                let msg = format!(
+                warn!(
                     "Version control is not supported; stripping version for '{set}' member '{p}'"
                 );
-                erm!("{msg}");
-                warn!("{msg}");
                 p = &p[..i];
             }
 

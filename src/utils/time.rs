@@ -4,16 +4,12 @@
 use std::time::{
     Duration,
     Instant,
-    SystemTime,
-    UNIX_EPOCH,
 };
 
-use super::fail::Fail;
-
-pub fn timestamp() -> Duration {
-    let now = SystemTime::now();
-    now.duration_since(UNIX_EPOCH).fail("Back to the future")
-}
+// pub fn timestamp() -> Duration {
+//     let now = SystemTime::now();
+//     now.duration_since(UNIX_EPOCH).fail("Back to the future")
+// }
 
 /// # Description
 /// Stopwatch is a helper struct for timing sections of code

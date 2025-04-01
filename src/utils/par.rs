@@ -5,18 +5,15 @@ use rayon::{
     ThreadPool,
     ThreadPoolBuilder,
 };
+use tracing::debug;
 
 use crate::{
     globals::config::CONFIG,
     package::Package,
-    utils::{
-        comms::vpr,
-        fail::Fail,
-    },
+    utils::fail::Fail,
 };
-
 pub fn build_pool(packages: &[Package]) -> ThreadPool {
-    vpr!("Building thread pool...");
+    debug!("Building thread pool...");
     let num_threads = CONFIG.upstream.max_threads.min(packages.len());
     ThreadPoolBuilder::new()
         .num_threads(num_threads)

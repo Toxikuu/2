@@ -18,17 +18,20 @@ use anyhow::{
     bail,
 };
 use serde::Deserialize;
-use tracing::debug;
+use tracing::{
+    debug,
+    instrument,
+    warn,
+};
 
 use crate::{
-    utils::comms::{
-        erm,
-        pr,
-        vpr,
-    },
     globals::config::CONFIG,
     package::Package,
     utils::{
+        comms::{
+            erm,
+            pr,
+        },
         fail::Fail,
         hash::{
             is_commit_hash,
@@ -54,8 +57,9 @@ pub struct UVConfig<'u> {
 /// The conveniently named ``sex()`` is short for static execution. It takes a
 /// command and captures its output without printing that output or doing any
 /// thread shenanigans.
+#[instrument]
 fn sex(command: &str, timeout: u8) -> Result<String> {
-    // vpr!("Spawning static command '{command}'...");
+    debug!("Spawning static command '{command}'...");
     let start = Instant::now();
     let timeout_duration = Duration::from_secs(u64::from(timeout));
 
@@ -118,7 +122,7 @@ fn run_command(cc: &UVConfig, timeout: u8) -> Result<String> {
 /// Also strips out the 'v' prefix
 fn extract_version<'a>(stdout: &'a str, package: &'a Package) -> &'a str {
     let name = &package.name;
-    vpr!("Extracting version from '{stdout}' for '{package}'...");
+    debug!("Extracting version from '{stdout}' for '{package}'...");
 
     let namelen = name.len();
     let unnamed = if stdout.len() >= namelen && stdout[..namelen].eq_ignore_ascii_case(name) {
@@ -129,7 +133,7 @@ fn extract_version<'a>(stdout: &'a str, package: &'a Package) -> &'a str {
 
     let extracted = unnamed.trim_start_matches('-').trim_start_matches('v');
 
-    vpr!("Extracted to '{extracted}'");
+    debug!("Extracted to '{extracted}'");
     extracted
 }
 
@@ -139,7 +143,7 @@ fn get_version(package: &Package) -> String {
     let cc = gen_cc(package);
     let stdout = run_command(&cc, 16).unwrap_or_default();
     let stdout = stdout.trim();
-    vpr!("Version command stdout for {package}: {stdout}");
+    debug!("Version command stdout for {package}: {stdout}");
 
     extract_version(stdout, package).to_string()
 }
@@ -149,10 +153,9 @@ fn get_version(package: &Package) -> String {
 fn display_version(package: &Package, version: &str) {
     let max_pkg_len = 32;
 
-    vpr!("Displaying version '{version}' for '{package}'...");
     let pkg = format!("{}/{}", package.repo, package.name);
     let pkg = if pkg.len() > max_pkg_len {
-        format!("{}...", &pkg[..max_pkg_len])
+        format!("{}...", &pkg[..max_pkg_len - 3])
     } else {
         pkg
     };
@@ -160,7 +163,8 @@ fn display_version(package: &Package, version: &str) {
     let v = &package.version;
 
     if version.is_empty() {
-        return erm!("{pkg} | Failed to get version :(");
+        erm!("{pkg} | Failed to get version");
+        return
     }
 
     // NOTE: If you're experiencing an OOM with upstream, width is likely the

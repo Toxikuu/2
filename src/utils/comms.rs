@@ -11,13 +11,18 @@ macro_rules! select {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
         use std::io::{self, Write};
+        use tracing::debug;
+
         let mut input = String::new();
+        let prompt = format!("{}", format!($($arg)*));
 
-        print!("{}{}: \x1b[0m", CONFIG.message.prompt, format!($($arg)*));
+        print!("{}{prompt}: \x1b[0m", CONFIG.message.prompt);
         io::stdout().flush().unwrap();
-        io::stdin().read_line(&mut input).unwrap();
 
+        io::stdin().read_line(&mut input).unwrap();
         let input = input.trim().to_string();
+
+        debug!("Received user input '{input}' from prompt '{prompt}'");
         input
     }};
 }
@@ -32,7 +37,11 @@ pub(crate) use select;
 macro_rules! erm {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        eprintln!("{}{}\x1b[0m", CONFIG.message.danger, format!($($arg)*))
+        use tracing::warn;
+
+        let message = format!("{}", format!($($arg)*));
+        eprintln!("{}{message}\x1b[0m", CONFIG.message.danger);
+        warn!("Sent error message:\n\t{message}")
     }};
 }
 
@@ -44,7 +53,11 @@ macro_rules! erm {
 macro_rules! msg {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        println!("{}{}\x1b[0m", CONFIG.message.message, format!($($arg)*))
+        use tracing::info;
+
+        let message = format!("{}", format!($($arg)*));
+        println!("{}{message}\x1b[0m", CONFIG.message.message);
+        info!("Sent message:\n\t{message}")
     }};
 }
 
@@ -56,7 +69,11 @@ macro_rules! msg {
 macro_rules! pr {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
-        println!("{}{}\x1b[0m", CONFIG.message.default, format!($($arg)*))
+        use tracing::debug;
+
+        let message = format!("{}", format!($($arg)*));
+        println!("{}{message}\x1b[0m", CONFIG.message.default);
+        debug!("Printed:\n\t{message}")
     }};
 }
 
@@ -89,11 +106,16 @@ macro_rules! vpr {
 macro_rules! vpr {
     ($($arg:tt)*) => {{
         use $crate::globals::config::CONFIG;
+        use tracing::trace;
+
         let f = std::path::Path::new(file!())
             .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("Unknown");
-        println!("{}[{}] {}\x1b[0m", CONFIG.message.verbose, f, format!($($arg)*))
+
+        let message = format!("[{}] {}", f, format!($($arg)*));
+        println!("{}{}\x1b[0m", CONFIG.message.verbose, message);
+        trace!("Sent verbose message:\n\t{message}")
     }};
 }
 

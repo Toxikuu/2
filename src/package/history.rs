@@ -6,6 +6,8 @@ use std::{
     fs,
 };
 
+use tracing::instrument;
+
 use super::Package;
 use crate::{
     globals::config::CONFIG,
@@ -44,6 +46,7 @@ fn format_history(history: &str) -> String {
 
 /// # Description
 /// Retrieves and displays formatted history for a package
+#[instrument]
 pub fn view(package: &Package) {
     let history = read_history(package);
     let history = format_history(&history);

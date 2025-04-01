@@ -11,20 +11,26 @@ use std::{
     rc::Rc,
 };
 
-use tracing::info;
+use tracing::{
+    info,
+    instrument,
+};
 
 use crate::{
-    utils::comms::{
-        erm,
-        msg,
-        pr,
-    },
     shell::cmd::exec,
-    utils::fail::Fail,
+    utils::{
+        comms::{
+            erm,
+            msg,
+            pr,
+        },
+        fail::Fail,
+    },
 };
 
 /// # Description
 /// Returns a vector of all repositories under /var/ports
+#[instrument]
 pub fn find_all() -> Rc<[String]> {
     let dir = "/var/ports";
     let entries = read_dir(dir).fail("Error checking for repos");
@@ -50,6 +56,7 @@ pub fn list() { find_all().iter().for_each(|r| pr!("{}", r)); }
 /// # Description
 /// Takes a list of packages in the form repo/name
 /// Orders that list according to priority in ``/etc/2/repo_priority.txt``
+#[instrument]
 pub fn prioritize(list: &mut [String]) {
     let priorities = get_ordered_repos();
     let repo_priority: HashMap<&str, usize> = priorities
@@ -77,6 +84,7 @@ pub fn prioritize(list: &mut [String]) {
 /// # Description
 /// Returns the ordered repo priorities from ``/etc/2/repo_priority.txt``
 /// Formatted as a vector of repo/
+#[instrument]
 fn get_ordered_repos() -> Vec<String> {
     let contents =
         read_to_string("/etc/2/repo_priority.txt").fail("Failed to open /etc/2/repo_priority.txt");
@@ -93,6 +101,7 @@ fn is_short(repo_url: &str) -> bool { repo_url.chars().filter(|c| *c == '/').cou
 /// # Description
 /// Takes the url of a git repo and adds it to /var/ports
 /// Requires git to work
+#[instrument]
 pub fn add(repo_url: &str) {
     let short = if is_short(repo_url) {
         repo_url
@@ -109,20 +118,17 @@ pub fn add(repo_url: &str) {
         format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
 
     msg!("󰐗  Adding '{repo_name}/'...");
-    info!("Adding '{repo_name}/'...");
     exec(&command, None).fail("Failed to add repo");
     msg!("󰗠  Added '{repo_name}/'");
-    info!("Added '{repo_name}/'");
 }
 
 /// # Description
 /// Syncs an installed git repo. Requires git to work.
+#[instrument]
 pub fn sync(repo: &str) {
     let command = format!("cd /var/ports/{repo} && git pull");
 
     msg!("󱍸  Syncing '{repo}'...");
-    info!("Syncing '{repo}'...");
     exec(&command, None).fail("Failed to sync repo");
     msg!("󰗠  Synced '{repo}'");
-    info!("Synced '{repo}'");
 }

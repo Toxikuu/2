@@ -18,6 +18,10 @@ use anyhow::{
     Result,
     bail,
 };
+use tracing::{
+    debug,
+    warn,
+};
 use walkdir::WalkDir;
 
 use crate::{
@@ -30,7 +34,16 @@ pub fn envs_properly_initialized(p: &Package) -> bool {
     let contents = read_to_string(build_file).fail("Failed to read BUILD");
     let lines = contents.lines().collect::<Vec<_>>();
 
-    check_env(&lines, "xorg", &["${XORG_CONFIG", "[@]}"])
+    match check_env(&lines, "xorg", &["${XORG_CONFIG", "[@]}"]) {
+        | true => {
+            debug!("Passed QA check 'envs_properly_initialized'");
+            true
+        },
+        | false => {
+            warn!("Failed QA check 'envs_properly_initialized'");
+            false
+        },
+    }
 }
 
 fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
@@ -58,10 +71,17 @@ fn check_env(lines: &[&str], env: &str, r#use: &[&str]) -> bool {
 
 pub fn destdir_has_stuff(p: &Package) -> bool {
     let destdir = PathBuf::from(&p.data.port_dir).join(".build").join("D");
-    let Ok(dir) = read_dir(destdir) else {
-        return false;
-    };
-    dir.into_iter().next().is_some()
+    let has_stuff = read_dir(destdir)
+        .map(|mut d| d.next().is_some())
+        .unwrap_or(false);
+
+    if has_stuff {
+        debug!("Passed QA check 'destdir_has_stuff'");
+        true
+    } else {
+        warn!("Failed QA check 'destdir_has_stuff'");
+        false
+    }
 }
 
 #[allow(clippy::upper_case_acronyms)]
@@ -79,6 +99,7 @@ pub fn libs_ok(p: &Package) -> bool {
         .into_iter()
         .any(|l| matches!(check_elf(&l), Ok(ELF::M64)))
     {
+        warn!("Found m64 ELF files in lib32");
         return false;
     }
 
@@ -87,9 +108,11 @@ pub fn libs_ok(p: &Package) -> bool {
         .into_iter()
         .any(|l| matches!(check_elf(&l), Ok(ELF::M32)))
     {
+        warn!("Found m32 ELF files in lib");
         return false;
     }
 
+    debug!("Passed QA check 'libs_ok'");
     true
 }
 
