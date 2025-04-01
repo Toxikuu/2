@@ -203,6 +203,7 @@ pathappend () {
 # 2 Utilities
 #####################################
 
+# is installed
 ii () {
     export -f ii
     echo "Checking whether $1 is installed"
@@ -213,4 +214,10 @@ ii () {
         echo "No"
         return 1
     fi
+}
+
+# get version
+gv () {
+    export -f gv
+    2 -l "$1" 2>/dev/null | tail -n1 | cut -d= -f2 | cut -d' ' -f1
 }
