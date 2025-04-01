@@ -293,6 +293,7 @@ impl PM<'_> {
             });
         }
 
+        let max_width: usize = 48;
         for p in &pkgs {
             let package_info = format!(
                 "  \x1b[0;37m{}/{}={}",
@@ -300,8 +301,11 @@ impl PM<'_> {
                 p.name,
                 try_truncate_commit_hash(&p.version)
             );
-            let width = 48 - package_info.len();
-            pr!("{} {:<width$} ~ {}", package_info, " ", p.data.status);
+
+            let package_info_len = package_info.len();
+            let width = if package_info_len > max_width { 0 } else { max_width - package_info_len };
+
+            pr!("{package_info} {:<width$} ~ {}", " ", p.data.status);
         }
     }
 
