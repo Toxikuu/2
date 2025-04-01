@@ -14,6 +14,7 @@
     - Set default log level to info
 - Dropped dependency on str_as_str feature
 - Made package listing less prone to OOM failures
+- Added prune output
 
 # 2=0.0.94
 ## Changes
