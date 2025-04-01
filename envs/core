@@ -205,12 +205,8 @@ pathappend () {
 
 ii () {
     export -f ii
-    # 2 is used since it handles ambiguity resolution (may cause issues if
-    # auto-ambiguity is disabled)
-    # TODO: Use //package once I add it
-    # PERF: Use 2's API once I add it
     echo "Checking whether $1 is installed"
-    if 2 -l "$1" | grep -i "installed" &>/dev/null; then
+    if find /var/ports/*/"$1"/.data -type f -name 'INSTALLED' &>/dev/null; then
         echo "Yes"
         return 0
     else
