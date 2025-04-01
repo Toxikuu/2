@@ -5,7 +5,7 @@
 - Moved project config files to etc/
     - Tweaked install.sh and Makefile to match
 - Tweaked envs
-    - Added ii to core
+    - Added ii and gv to core
     - Prefer $1 to $NAME in pip
 - Moved comms to utils
 - Migrated to tracing and improved logs
