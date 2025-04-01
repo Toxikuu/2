@@ -36,7 +36,7 @@
     - [2lkit](advanced/2lkit.md)
     - [Repos](advanced/repos/README.md)
         - [Creating Repos](advanced/repos/creating.md)
-        - [Deleting Repos](advanced/repos/creating.md)
+        - [Deleting Repos](advanced/repos/deleting.md)
     - [Ports](advanced/ports/README.md)
         - [Anatomy](advanced/ports/anatomy/README.md)
             - [Dotfiles](advanced/ports/anatomy/dotfiles.md)
