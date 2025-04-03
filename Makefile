@@ -53,8 +53,12 @@ ifeq ($(ENABLE_DOCS),1)
 endif
 
 ifeq ($(ENABLE_MAIN),1)
-	@echo "Cloning main package repo..."
-	git clone --depth=1 --single-branch --branch master https://github.com/Toxikuu/2-main.git $(DESTDIR)/var/ports/main
+	@if [ -d "$(DESTDIR)/var/ports/main" ]; then \
+		echo "Main package repo exists, skipping clone."; \
+	else \
+		echo "Cloning main package repo..."; \
+		git clone --depth=1 --single-branch --branch master https://github.com/Toxikuu/2-main.git $(DESTDIR)/var/ports/main; \
+	fi
 endif
 
 uninstall:
