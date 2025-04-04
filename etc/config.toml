@@ -22,7 +22,7 @@ prune_dist              = true
 
 [general]
 # Note: The prefix only works for installs. You still need dependencies installed to /
-prefix                  = "/dry" # where distribution tarballs are extractes to
+prefix                  = "/" # where distribution tarballs are extracted to
 clean_after_build       = false
 show_bug_report_message = true
 show_failure_location   = true
