@@ -1,37 +1,37 @@
 [flags]
-force = false
-quiet = false
-verbose = false
+force                   = false
+quiet                   = false
+verbose                 = false
 
 [message]
 # Note: You can also add non-escape codes
-danger  = '\e[31;1m  '
-default = '\e[30;3m'
-message = '\e[36;1m'
-prompt  = '\e[35;1m'
-stderr  = '\e[31;3;1m'
-stdout  = '\e[30;3m'
-verbose = '\e[34;1m'
+danger                  = '\e[31;1m  '
+default                 = '\e[30;3m'
+message                 = '\e[36;1m'
+prompt                  = '\e[35;1m'
+stderr                  = '\e[31;3;1m'
+stdout                  = '\e[30;3m'
+verbose                 = '\e[34;1m'
 
 [removal]
-remove_sources = false
-remove_dist = true
-prune_logs = true
-prune_manifests = true
-prune_dist = true
+remove_sources          = false
+remove_dist             = true
+prune_logs              = true
+prune_manifests         = true
+prune_dist              = true
 
 [general]
 # Note: The prefix only works for installs. You still need dependencies installed to /
-prefix = "/dry" # the prefix to which packages are installed (/dry for dry runs/testing)
-clean_after_build = false
+prefix                  = "/dry" # where distribution tarballs are extractes to
+clean_after_build       = false
 show_bug_report_message = true
-show_failure_location = true
-check_hashes = false
-auto_ambiguity = true
-log_level = "info" # one of: trace, debug, info, warn, error
-alphabetize = true
+show_failure_location   = true
+check_hashes            = true
+auto_ambiguity          = true
+log_level               = "info" # one of: trace, debug, info, warn, error, off
+alphabetize             = true
 
 [upstream]
-max_threads = 256
-stack_size = 256 # in kilobytes
-retries = 3
+max_threads             = 256
+stack_size              = 256 # in kibibytes
+retries                 = 3
