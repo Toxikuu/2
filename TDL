@@ -3,13 +3,9 @@
 TODO
 
     Work on mdbook docs
-        Existing documentation probably needs updating too
-        Do this once I attempt to stabilize for 0.1.0
+        Just read through and polish some stuff
 
 WIP
-
-    Test install.sh
-        Seemed to work fine in chroot
 
     Complete 2lkit functionality
         # Add downgrade
@@ -19,7 +15,9 @@ WIP
         [-] The error handling isn't user friendly but it's fine
         [*] Add Package::from(MaintArg)
         [-] Add QA checks and basic linting
+        [-] Add `--new-repo` # this i should do before 0.1.0 since it's referenced in the documentation
         Won't make it into 0.1.0 most likely
+        Ultimately, this should become part of workspace with 2
 
     Expand the main & xorg repos
         Categorize more packages
@@ -57,7 +55,6 @@ DONEISH
             (possibly others) # i haven't found the others if they exist
 
     Move pkg.log to build.log and don't do any attach/detach shenanigans
-        Needs testing
 
     Consolidate all dotdir creation to be handled in a function called in package::parse
 
@@ -274,6 +271,9 @@ DONEISH
 
 DROPPED
 
+    Test install.sh
+        Focus on Makefile instead
+
     Make build.log only include the build logs
         Instead just used pkg.log
         (might have to undrop this ngl)
@@ -364,6 +364,12 @@ IDEAS
 
     Add a way to retain notes/warnings and display them upon request for a package
 
+    Add size information in stats
+        Consider using the size crate for easy size handling
+        Use sighs to find dir/file size
+
+    Use xshell
+
 ROADMAP
 
     Features for 2-0.1.0:
@@ -371,8 +377,8 @@ ROADMAP
         [*] build time tracking
         [*] install script
         [*] fair 2lkit functionality
-        [-] finalize feature additions
-        [-] reasonable amount of testing
+        [*] finalize feature additions
+        [*] reasonable amount of testing
         [-] solid documentation with mdbook
 
     Features for 2-0.2.0:
