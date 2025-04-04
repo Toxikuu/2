@@ -187,7 +187,7 @@ impl<T> Fail<T, ()> for Option<T> {
 }
 
 pub trait BoolFail {
-    fn and_fail(self, msg: &str);
+    // fn and_fail(self, msg: &str);
     fn or_fail(self, msg: &str);
 
     fn and_efail<F>(self, f: F)
@@ -200,13 +200,13 @@ pub trait BoolFail {
 }
 
 impl BoolFail for bool {
-    #[track_caller]
-    fn and_fail(self, msg: &str) {
-        if self {
-            let location = Location::caller();
-            report(msg, location);
-        }
-    }
+    // #[track_caller]
+    // fn and_fail(self, msg: &str) {
+    //     if self {
+    //         let location = Location::caller();
+    //         report(msg, location);
+    //     }
+    // }
 
     #[track_caller]
     fn or_fail(self, msg: &str) {
@@ -279,11 +279,11 @@ mod tests {
         condition.or_fail("shouldn't fail because condition was met");
     }
 
-    #[allow(clippy::should_panic_without_expect)]
-    #[should_panic]
-    #[test]
-    fn bool_fail() {
-        let condition = true;
-        condition.and_fail("should fail because condition was met");
-    }
+    // #[allow(clippy::should_panic_without_expect)]
+    // #[should_panic]
+    // #[test]
+    // fn bool_fail() {
+    //     let condition = true;
+    //     condition.and_fail("should fail because condition was met");
+    // }
 }
