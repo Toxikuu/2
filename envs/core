@@ -219,5 +219,6 @@ ii () {
 # get version
 gv () {
     export -f gv
+    # shellcheck disable=SC2312
     2 -l "$1" 2>/dev/null | tail -n1 | cut -d= -f2 | cut -d' ' -f1
 }
