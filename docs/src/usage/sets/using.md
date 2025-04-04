@@ -33,7 +33,7 @@ Packages:
   main/whois=5.5.23                        ~ Available
 ```
 
-There are only 4 available packages, and rust has already been built. Surely
+There are only 4 available packages, and rust has already been built[^1]. Surely
 llvm won't take hours to compile!
 ```
  $ 2 -b main/@a
@@ -49,10 +49,10 @@ Let's check for outdated packages across all repos:
 ```
  $ 2 -l //@o
 Packages:
-  main/kernel=6.13.2                       ~ Outdated (6.13.1)
+  tox/kernel=6.13.2                       ~ Outdated (6.13.1)
 ```
 But wait, what is the '//' syntax? This only mildly cursed syntax tells 2 to
-check across every repo when parsing sets.
+check across *every* repo when parsing sets.
 
 Okay, only one package is outdated. Let's fix that:
 ```
@@ -62,4 +62,6 @@ Okay, only one package is outdated. Let's fix that:
 󰐗  Installing 'kernel=6.13.2'...
 󰗠  Built and updated to 'kernel=6.13.2' in 8.444 s
 ```
-***Note:** I set the kernel speedrun world record here because the kernel build instructions reuse kernel sources whenever possible. Since I already built and installed tox/kernel, main/kernel reused those sources.*
+***Note:** I'm the humble kernel build speedrun world record holder.*
+
+[^1]: I pinky promise I'll eventually make listing show built packages.

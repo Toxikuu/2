@@ -57,5 +57,4 @@ almost half an hour.
 ```
 
 Now I can post this awesome screenshot!
-
 ![The awesome screenshot in question](../../assets/fetch.png)

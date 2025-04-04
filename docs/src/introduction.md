@@ -1,5 +1,8 @@
 # Introduction
 
+## Abstract
+This page serves as a lighthearted introduction to 2.
+
 ## Welcome
 Hi, welcome to the 2 documentation! I'm going to do my best to explain how 2
 works, and how to use it, all while trying not to bore you to death.

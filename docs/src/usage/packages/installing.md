@@ -6,8 +6,8 @@ This page covers installing packages and describes what that process entails.
 ### Explanation
 The install flag (``-i`` or ``--install``) installs a package from a
 distribution tarball. These distribution tarballs are stored in
-``/var/ports/<repo>/<name>/.dist/<name>=<version>.tar.zst``. If this tarball
-doesn't exist, 2 will build the package from source.
+``$PORT/.dist/$NAME=$VERS.tar.zst``. If this tarball doesn't exist, 2 will build
+the package from source.
 
 If a package is already installed and it's not outdated, 2 won't install it
 unless you pass the force flag (``-f`` or ``--force``).
@@ -15,7 +15,7 @@ unless you pass the force flag (``-f`` or ``--force``).
 ### Usage
 The syntax for a package install is as follows:
 ```
-2 -i, --install <PACKAGE1> <PACKAGE2> <...>
+2 --install <PACKAGE1> <PACKAGE2> <...>
 ```
 
 ### Usage

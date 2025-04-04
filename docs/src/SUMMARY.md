@@ -17,11 +17,6 @@
         - [Afterword](usage/flags/afterword.md)
     - [Packages](usage/packages/README.md)
         - [Using Packages](usage/packages/using.md)
-        - [How Packages Work](usage/packages/how.md)
-        <!-- - [Installing Packages](usage/packages/installing.md) -->
-        <!-- - [Updating Packages](usage/packages/updating.md) -->
-        <!-- - [Removing Packages](usage/packages/removing.md) -->
-        <!-- - [Listing Packages](usage/packages/listing.md) -->
     - [Sets](usage/sets/README.md)
         - [Using Sets](usage/sets/using.md)
         - [Adding Sets](usage/sets/adding.md)
@@ -39,18 +34,15 @@
         - [Deleting Repos](advanced/repos/deleting.md)
     - [Ports](advanced/ports/README.md)
         - [Anatomy](advanced/ports/anatomy/README.md)
-            - [Dotfiles](advanced/ports/anatomy/dotfiles.md)
             - [BUILD](advanced/ports/anatomy/build.md)
+            - [LOCK](advanced/ports/anatomy/lock.md)
             - [CHANGELOG](advanced/ports/anatomy/changelog.md)
-            - [LOCK](advanced/ports/anatomy/info.md)
         - [Creating Ports](advanced/ports/creating.md)
             - [Auxiliary Build Files](advanced/ports/auxiliary.md)
-        - [Revising Ports](advanced/ports/revising.md)
-        - [Updating Ports](advanced/ports/updating.md)
-            - [Upstream Version Checking](advanced/ports/upstream.md)
-        - [Moving Ports](advanced/ports/moving.md)
+        - [Maintaining Ports](advanced/ports/maintaining.md)
 
 # Tips & Tricks
 - [Tips & Tricks](tips/README.md)
     - [Listing & Less](tips/less.md)
     - [Repos as Tarballs](tips/repotarballs.md)
+    - [Building LFS](tips/lfs.md)

@@ -15,17 +15,20 @@ Special sets are any set that 2 generates. These sets are not defined in a
 file, but in 2's code.
 
 These are all the special sets:
-- @@, @all -> A set containing all packages in a repo
-- @a, @available -> A set containing all available packages in a repo
-- @i, @installed -> A set containing all installed packages in a repo
-- @o, @outdated -> A set containing all outdated packages in a repo
+```
+@@, @all       -> A set containing all packages in a repo
+@a, @available -> A set containing all available packages in a repo
+@i, @installed -> A set containing all installed packages in a repo
+@o, @outdated  -> A set containing all outdated packages in a repo
+```
 
 ### Syntax
 Sets are called with the '@set' syntax.
 
 #### Examples
 ##### @lfs
-This is the LFS set, composed of the packages that make up Linux From Scratch.
+This is the LFS set, (roughly) composed of the packages that make up Linux From
+Scratch.
 
 This is what it looks like:
 ```
@@ -43,5 +46,5 @@ readline
 m4
 ```
 
-##### @@
-This is the all set, a special set composed of every package in a repo.
+##### main/@@
+This is the all set, a special set composed of every package in the main repo.
