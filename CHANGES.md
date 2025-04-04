@@ -1,3 +1,15 @@
+# 2=0.0.96
+## Changes
+- Fixed build failures
+    - Fixed one in the documentation
+    - Fixed one for 2 involving existence of the main repo
+- Config changes
+    - Default prefix is now /
+    - Formatting
+- Updated documentation
+    - This is still a wip, but it's mostly done
+- Commented out some dead code
+
 # 2=0.0.95
 ## Changes
 - More formatting
