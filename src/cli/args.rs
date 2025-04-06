@@ -8,8 +8,7 @@ use clap::Parser;
 #[command(
     about = "Simple source-based LFS package manager",
     arg_required_else_help = true,
-    after_help = "Complete documentation WILL exist in the future™"
-    // TODO: update the above line once documentation DOES exist
+    after_help = "Documentation available at file:///usr/share/doc/2/index.html"
 )]
 /// ### Description
 /// Stores flags as a bunch of booleans
