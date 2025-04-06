@@ -2,10 +2,10 @@
 
 TODO
 
+WIP
+
     Work on mdbook docs
         Just read through and polish some stuff
-
-WIP
 
     Complete 2lkit functionality
         # Add downgrade
@@ -25,15 +25,12 @@ WIP
 DONEISH
 
     Add full output for --prune
-        Currently, this only shows the total removed files
-        It needs to also show which files are being removed, suppressable with -q
 
     Consolidate logging and vpr/msg/erm
         Would also probably be a good idea to transition to tracing
         Also improve logs
 
     Move /usr/ports to /var/ports
-        Nightmare! (maybe, its probably fine actually)
 
     Improve error messages by using with_context(|| format!(...))
         Ideally I'd have something like this but for Fail
@@ -271,6 +268,11 @@ DONEISH
 
 DROPPED
 
+    Use indicatif's pb.println() for building logs
+        Would be a collosal pain in the ass
+        But would look nice
+        This would just be too painful
+
     Test install.sh
         Focus on Makefile instead
 
@@ -302,9 +304,6 @@ IDEAS
         SHARE_SOURCE=("package1", "package2")
         KCFG=("NAMESPACES=*", "USER_NS=*/M") # example kernel config options required for steam
 
-    Drop log4rs in favor of another logger (maybe tracing)
-        log4rs flags cargo audit bc it relies on an unmaintained crate
-
     Build functions in LOCK
         This should be doable with declare -f, though I'm not certain it's desirable
         Imo this is not desirable
@@ -330,11 +329,12 @@ IDEAS
 
     Rayon everywhere
         There's a fair bit of overhead with doing this
-        Async might be the play but I lowkey hate async
+        Async might be the play
 
     Dependencies support with a flag '-d' or similar
         Implies dependency resolution as well
         Planned for 0.2.0
+        Should also have a way to break circular dependencies
 
     Check hashes for dist installs as well
         Would marginally increase security and more than marginally increase complexity
@@ -351,12 +351,9 @@ IDEAS
         I think this is better kept as a runtime dependency for now
         Maybe a future feature
 
-    use indicatif's pb.println() for building logs
-        would be a collosal pain in the ass
-        but would look nice
-
     consider allowing //package
         ex: //tree would be parsed into the tree package from *every* repo that contains it
+        I think this is worth implementing
 
     Add an API
         Would allow queries such as build (current/total_queued)
@@ -382,17 +379,17 @@ ROADMAP
         [-] solid documentation with mdbook
 
     Features for 2-0.2.0:
-        split a lot of stuff into their own libraries
+        split things into their own libraries
         improve code organization with workspaces
         licenses & dependencies in long about
+            implies dependency support
         Source-sharing for packages
-        vulnerability checks (GLSA-based)
-        dependency support
         .part downloads
         Add ignored.txt
             Used to ignore certain packages
+            Syntax should require <repo>/<name>, but allow //<name>
             These packages won't be recognized by 2
-        Take a glance at the ideas and consider what I wanna implement
+        Take another glance at the ideas and consider what I wanna implement
 
     Features for 2-0.3.0:
         Add a file that contains paths not to be removed
@@ -402,3 +399,4 @@ ROADMAP
         PackageStatus enum (Available, Built, Installed)
             Would also need to add @b ('built' special set)
         PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
+        vulnerability checks (GLSA-based)
