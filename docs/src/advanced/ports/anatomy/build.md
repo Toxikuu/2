@@ -19,15 +19,15 @@ EXTRA=()
 
 #### Explanations
 ```
-NAME - Package name             (required)
-VERS - Package version          (required)
-CATG - Package category         (optional)
-DESC - Package description      (recommended)
-UPST - Package upstream         (optional)
-VCMD - Package version command  (optional)
+NAME    - Package name              (required)
+VERS    - Package version           (required)
+CATG    - Package category          (optional)
+DESC    - Package description       (recommended)
+UPST    - Package upstream          (optional)
+VCMD    - Package version command   (optional)
 
-SOURCE - Package tarball URI    (optional)
-EXTRA - Extra sources           (optional)
+SOURCE  - Package tarball URI       (optional)
+EXTRA   - Extra sources             (optional)
 ```
 
 #### Notes
@@ -45,7 +45,8 @@ You generally want at least one of these, though there are some exceptions.
 You can only have one `SOURCE`, but you can have as many `EXTRA`s as you like.
 For example usage, see the BUILDs for `main/llvm`, `main/yajl`, and `main/rust`.
 
-***Note:** Git repos are currently not supported as sources, sorry.*
+***Note:** Git repos are currently not supported as sources, sorry. However, it
+is possible to hack their usage in, as is currently done with main/wezterm.*
 
 ##### CATG & DESC
 There is currently no defined list of categories. There will be a complete list

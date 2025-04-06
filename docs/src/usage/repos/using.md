@@ -37,4 +37,5 @@ Packages:
   tox/sudo=1.9.16p2                        ~ Installed 1.9.16p2
 ```
 
-[^1]: See [TODO] to learn how to make your own repos.
+[^1]: See [Chapter 3.2.1](../../advanced/repos/creating.md) to learn how to make
+    your own repos.

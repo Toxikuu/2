@@ -70,4 +70,4 @@ The upstream flag (``-U`` or ``--upstream``) checks against the upstream
 versions for packages. If no packages are provided, all packages are checked.
 
 ***Note:** The upstream flag is an optional feature which is enabled by
-default.***
+default.*

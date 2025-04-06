@@ -46,13 +46,15 @@ hash = "2RsW5WoibbYW1Ktu9cEThMEUON1vaq2TO7p06Sch3Vs"
 ```
 
 The fields should be fairly self-explanatory, excepting the hashes. The hashes
-are url-safe base64-encoded sha256sums. Though 2 handles these automatically and
-you *should* never have to deal with them, these hashes can be manually
+are url-safe base64-encoded sha256sums. Though 2 handles these automatically,
+and you *should* never have to deal with them, these hashes can be manually
 generated like so:
 ```
- $ openssl dgst -sha256 -binary 6fe59ca50dfd65bdb3d1c87a27245b2dd1a072f9.patch | openssl base64 | tr -d '=' | tr '/+' '_-'
+ $ openssl dgst -sha256 -binary 6fe59ca50dfd65bdb3d1c87a27245b2dd1a072f9.patch |
+   openssl base64 | tr -d '=' | tr '/+' '_-'
 2RsW5WoibbYW1Ktu9cEThMEUON1vaq2TO7p06Sch3Vs
 
- $ openssl dgst -sha256 -binary yajl-2.1.0-memory_leak.patch | openssl base64 | tr -d '=' | tr '/+' '_-'
+ $ openssl dgst -sha256 -binary yajl-2.1.0-memory_leak.patch |
+   openssl base64 | tr -d '=' | tr '/+' '_-'
 zTb39RUguqwr2EZ9e7sE8sbiYZaJgaHowQ_07XoK_2k
 ```

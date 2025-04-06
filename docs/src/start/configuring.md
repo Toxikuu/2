@@ -65,7 +65,7 @@ prune_dist              = true      # removes (old) distribution tarballs on pac
 The general section is used to control general/miscellaneous 2 behavior.
 ```toml
 [general]
-prefix                  = "/dry"    # where distribution tarballs are extracted to
+prefix                  = "/"       # where distribution tarballs are extracted to
 clean_after_build       = false     # whether to remove $PORT/.build after a package is built
 show_bug_report_message = true      # show a bug report message when 2 crashes
 show_failure_location   = true      # show where in the code 2 crashed
@@ -75,9 +75,7 @@ log_level               = "info"    # one of: trace, debug, info, warn, error
 alphabetize             = true      # whether to display sets in alphabetical order
 ```
 
-***Warning:** Currently, '/dry' is the default prefix since 2 is not stable.
-You can probably change this without incurring damage, but you should keep good
-backups anyway.*
+***Warning:** You should keep good backups as 2 is not battle tested.*
 
 #### Upstream
 The upstream section defines behavior for upstream version checking.

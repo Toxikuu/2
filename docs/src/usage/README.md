@@ -39,5 +39,5 @@ Options:
   -V, --version                  Displays the version
   -h, --help                     Print help (see more with '--help')
 
-Complete documentation WILL exist in the future™
+Documentation available at file:///usr/share/doc/2/index.html
 ```

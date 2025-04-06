@@ -28,7 +28,7 @@ You can view configuration options with by passing ``--help`` to
 ### Install Script
 If you hate Makefiles or something, 2 also provides an install script. However,
 I recommend against this as it's less actively maintained and may lead to
-breakage.
+breakage. So uh, here be dragons.
 
 Execute the following command to fetch and run the script:
 ```

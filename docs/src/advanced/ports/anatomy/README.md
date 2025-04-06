@@ -5,8 +5,8 @@ This page covers the anatomy of a port, explaining what the files and folders
 do.
 
 ### Anatomy
-Packages are defined and stored in `$PORT`, which is `/var/ports/$REPO/$NAME`.
-Below is the file hierarchy for main/tree:
+Packages are defined and stored in `$PORT`. Below is the file hierarchy for
+main/tree:
 ```
  /var/ports/main/tree/
 ├──  .build/
