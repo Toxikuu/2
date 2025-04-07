@@ -117,9 +117,9 @@ pub fn add(repo_url: &str) {
     let command =
         format!("git clone https://github.com/{author}/2-{repo_name}.git /var/ports/{repo_name}");
 
-    msg!("󰐗  Adding '{repo_name}/'...");
+    msg!("󱓊 Adding '{repo_name}/'...");
     exec(&command, None).fail("Failed to add repo");
-    msg!("󰗠  Added '{repo_name}/'");
+    msg!("󰄹 Added '{repo_name}/'");
 }
 
 /// # Description
@@ -128,7 +128,7 @@ pub fn add(repo_url: &str) {
 pub fn sync(repo: &str) {
     let command = format!("cd /var/ports/{repo} && git pull");
 
-    msg!("󱍸  Syncing '{repo}'...");
+    msg!("󱓎 Syncing '{repo}'...");
     exec(&command, None).fail("Failed to sync repo");
-    msg!("󰗠  Synced '{repo}'");
+    msg!("󰄹 Synced '{repo}'");
 }

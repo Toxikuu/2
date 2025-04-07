@@ -136,7 +136,7 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
     let pb = ProgressBar::new(length);
     pb.set_style(sty.clone());
     pb.set_length(length);
-    pb.set_prefix("󱑤 ");
+    pb.set_prefix("󰇚 ");
     pb.set_message(file_name.clone());
 
     let mut f = File::create(file_path)?;
@@ -165,7 +165,7 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
     }
 
     pb.set_position(length);
-    pb.set_prefix("󰗠 ");
+    pb.set_prefix("󰄹 ");
     pb.finish_with_message(file_name.clone());
 
     Ok(file_name)

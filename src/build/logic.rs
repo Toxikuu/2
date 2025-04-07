@@ -85,7 +85,7 @@ pub fn build(package: &Package, r#override: bool) -> (BuildStatus, Option<Packag
         debug!("Package '{package}' is already built");
         (BuildStatus::Already, None)
     } else {
-        msg!("󱠇  Building '{package}'...");
+        msg!("󰏗  Building '{package}'...");
         info!("Building '{package}'...");
         script::prep(package);
         script::build(package);
@@ -131,7 +131,7 @@ fn dist_install(package: &Package) {
         package.data.port_dir,
     );
 
-    msg!("󰐗  Installing '{package}'...");
+    msg!("󱧘  Installing '{package}'...");
     info!("Installing '{package}'...");
     exec(&command, None).fail("Failed to perform dist install");
     script::post(package);
@@ -164,7 +164,7 @@ pub fn update(package: &Package) -> UpdateStatus {
     }
 
     msg!(
-        "󱍷  Updating '{}': '{}' -> '{}'",
+        "󰚰  Updating '{}': '{}' -> '{}'",
         package.name,
         package.data.installed_version,
         package.version

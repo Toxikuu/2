@@ -123,17 +123,17 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::InstallStatus::Already => {
-                msg!("󰗠  Already installed '{p}'");
+                msg!("󰄹  Already installed '{p}'");
             },
             | bl::InstallStatus::Dist => {
-                msg!("󰗠  Installed '{p}' in {}", stopwatch.display());
+                msg!("󰄹  Installed '{p}' in {}", stopwatch.display());
             },
             | bl::InstallStatus::BuildFirst => {
                 PM::build(p);
                 PM::install(p);
             },
             | bl::InstallStatus::UpdateInstead => {
-                msg!("󱍷  Updating instead of installing '{p}'...");
+                msg!("󰚰  Updating instead of installing '{p}'...");
                 PM::update(p);
             },
         }
@@ -153,10 +153,10 @@ impl PM<'_> {
                 PM::update(p);
             },
             | bl::UpdateStatus::Dist => {
-                msg!("󰗠  Updated to '{p}' in {}", stopwatch.display());
+                msg!("󰄹  Updated to '{p}' in {}", stopwatch.display());
             },
             | bl::UpdateStatus::Latest => {
-                msg!("󰗠  Up-to-date: '{p}'");
+                msg!("󰄹  Up-to-date: '{p}'");
             },
             | bl::UpdateStatus::NotInstalled => {
                 erm!("Didn't update '{p}' as it's not installed");
@@ -172,7 +172,7 @@ impl PM<'_> {
 
         if rl::remove(p) {
             stopwatch.stop();
-            msg!("󰗠  Removed '{p}' in {}", stopwatch.display());
+            msg!("󰄹  Removed '{p}' in {}", stopwatch.display());
         }
     }
 
@@ -186,7 +186,7 @@ impl PM<'_> {
         stopwatch.stop();
         match status {
             | bl::BuildStatus::Source => {
-                msg!("󰗠  Built '{p}' in {}", stopwatch.display());
+                msg!("󰄹  Built '{p}' in {}", stopwatch.display());
 
                 let mut package_stats = package_stats
                     .efail(|| format!("[UNREACHABLE] Stats for '{p}' should be some but isn't?"));
@@ -194,7 +194,7 @@ impl PM<'_> {
                 stats::save(p, &package_stats).efail(|| format!("Failed to save stats for '{p}'"));
             },
             | bl::BuildStatus::Already => {
-                msg!("󰗠  Already built '{p}'");
+                msg!("󰄹  Already built '{p}'");
             },
         }
     }
@@ -232,7 +232,7 @@ impl PM<'_> {
 
         stopwatch.stop();
         msg!(
-            "󰗠  Pruned {total_count} files for {} packages in {}",
+            "󰄹  Pruned {total_count} files for {} packages in {}",
             self.packages.len(),
             stopwatch.display()
         );
@@ -253,7 +253,7 @@ impl PM<'_> {
         stopwatch.stop();
 
         msg!(
-            "󰗠  Cleaned {cleaned} files for {} packages in {}",
+            "󰄹  Cleaned {cleaned} files for {} packages in {}",
             self.packages.len(),
             stopwatch.display()
         );
