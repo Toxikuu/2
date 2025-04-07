@@ -325,7 +325,6 @@ impl PM<'_> {
                 vpr!("Checking upstream version for {p}...");
                 check_upstream(p);
             });
-            msg!("Checked upstream versions for all packages");
         }
 
         #[cfg(feature = "parallelism")]
@@ -336,8 +335,9 @@ impl PM<'_> {
                     check_upstream(p);
                 });
             });
-            msg!("Checked upstream versions for all packages");
         }
+        // TODO: Track time with stopwatch
+        msg!("Checked upstream versions for {len} packages");
     }
 
     fn history(p: &Package) { history::view(p); }
