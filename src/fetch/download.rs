@@ -22,7 +22,6 @@ use indicatif::{
 use ureq::{
     Error as UE,
     http::header::CONTENT_LENGTH,
-    // http::header::{CONTENT_LENGTH, CONTENT_TYPE},
 };
 
 use crate::{
