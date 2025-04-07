@@ -1,12 +1,14 @@
 # Creating Repos
 
 ## Abstract
-This page covers creating a new repo, both with and without 2lkit.
+This page covers creating a new repo, both with and without 2lkit. Repos must
+start with '2-' to be recognized by 2, but their directories should exclude
+'2-'.
 
 ### With 2lkit
-Let's create a new repo called 'my-awesome-creatively-named-repo'.
+Let's create a new repo called '2-my-awesome-creatively-named-repo'.
 ```
- $ 2lkit --new-repo <username>/my-awesome-creatively-named-repo
+ $ 2lkit --new-repo <username>/2-my-awesome-creatively-named-repo
 ```
 
 ### Manually
@@ -17,12 +19,17 @@ Then execute the following commands:
  $ cd /var/ports
  $ mkdir -pv my-awesome-creatively-named-repo
  $ cd my-awesome-creatively-named-repo
+
  $ git init
- $ git remote set-url origin https://github.com/<username>/my-awesome-creatively-named-repo.git
  $ echo '*/.*' > .gitignore
  $ echo '# my-awesome-creatively-named-repo' > README.md
- $ wget 'https://www.gnu.org/licenses/gpl-3.0.txt' -O LICENSE
- $ git push
+ $ curl -L 'https://www.gnu.org/licenses/gpl-3.0.txt' -o LICENSE
+
+ $ git add .
+ $ git commit -m "Initial commit"
+ $ git branch -M master
+ $ git remote add origin https://github.com/<username>/2-my-awesome-creatively-named-repo.git
+ $ git push -u origin master
 ```
 
-***Note:** Feel free to use ssh for your remote origin if you like.*
+***Note:** Feel free to use ssh for your remote if you like.*
