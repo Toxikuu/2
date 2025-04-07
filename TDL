@@ -17,7 +17,7 @@ WIP
         [-] Add QA checks and basic linting
         [-] Add `--new-repo` # this i should do before 0.1.0 since it's referenced in the documentation
         Won't make it into 0.1.0 most likely
-        Ultimately, this should become part of workspace with 2
+        Ultimately, this should become part of a workspace with 2
 
     Expand the main & xorg repos
         Categorize more packages
@@ -61,8 +61,8 @@ DONEISH
     Make master.log transient
         Now exists at /tmp/2/master.log to be wiped on reboot
 
-    Fix the weird upstream bug
-        ofc it was caused by string formatting
+    Fix the weird upstream OOM bug
+        Ofc it was caused by string formatting
 
     Use Option for upstream
 
@@ -71,10 +71,10 @@ DONEISH
     Add a qa check to ensure stuff was installed to $D when building
         Rewrite the qa checks in not bash
 
-    consider adding package categories
-        some of these categories will raise warnings
-            im thinking one for critical packages
-            would warn the user about removing glibc for instance
+    Consider adding package categories
+        Some of these categories will raise warnings
+            I'm thinking one for critical packages
+            Would warn the user about removing glibc for instance
 
     Add a qa check to ensure no 64bit libraries found their way into $D/usr/lib32
 
@@ -102,23 +102,22 @@ DONEISH
     Make -L show the master log if no arguments were passed
 
     Use an inherit-esque system instead of *-* scripts
-        add a script called 'with' which sources files in a specific directory
-        these files contain functions for a specific build system or task
-
-        finish writing the env files
+        Add a script called 'with' which sources files in a specific directory
+        These files contain functions for a specific build system or task
+        Finish writing the env files
 
     Make -U expand to //@@ if no arguments were passed
 
     Move flag explanations out of packages/ and into flags/
-        also covered all of the flags
+        Also covered all of the flags
 
     Add a configure option for whether dist tarballs should be deleted
-        ended up removing remove_dots as well
+        Ended up removing remove_dots as well
 
     Add an option to toggle alphebitization when listing
 
     Move the @all alias to @@
-        also add @available and alias it to @a
+        Also add @available and alias it to @a
 
     Add force pruning
 
@@ -148,8 +147,6 @@ DONEISH
         I'm thinking assume all repos unless repo/ is specified (for special sets)
             (I ended up just assuming the highest priority repo for special sets, opting for //@special instead)
         otherwise resolve ambiguity
-
-        probably not necessary yet
 
     Use more nf icons
 
@@ -203,9 +200,6 @@ DONEISH
     Make -l list all packages for all repos
 
     Use Arc instead of Vec
-        Maybe branch for this
-
-    Add a master package log
 
     Add logs
         Master log in /var/log/2/master.log
@@ -220,11 +214,11 @@ DONEISH
     Add repo priority and auto_ambiguity
 
     Fix sourceless package support
-        Done; needs testing though
 
     Make file size update dynamically for unknown sizes
 
-    make the scripts recognize $EDITOR
+    Make the scripts recognize $EDITOR
+        Scripts were migrated to 2lkit
 
     Check if the necessary dot dirs exist for the passed package, and create them
         Would ensure cleaning works properly on first builds
@@ -248,9 +242,9 @@ DONEISH
 
     Add an option to exclude paths from the extraction
 
-    actually implement pruning
+    Actually implement pruning
 
-    check source hashes during the setup stage
+    Check source hashes during the setup stage
 
     Migrate build to /usr/ports/<repo>/<package>/.build
 
@@ -276,10 +270,6 @@ DROPPED
     Test install.sh
         Focus on Makefile instead
 
-    Make build.log only include the build logs
-        Instead just used pkg.log
-        (might have to undrop this ngl)
-
     Add -! to reverse the behavior of (some) flags
         ~~For instance, -P shows what packages provide a file, but -!P might show what files a package provides~~
         Would be unintuitive and overly complex
@@ -293,9 +283,9 @@ DROPPED
 IDEAS
 
     Add a testing and unstable repo
-        testing should basically never be used by an end user, and will function as a testing ground for new packages
-        unstable should contain packages moved out of testing
-        packages from unstable should be moved to main or xorg
+        testing/ should basically never be used by an end user, and will function as a testing ground for new packages
+        unstable/ should contain packages moved out of testing
+        Packages from unstable/ should be moved to main/ or xorg/
 
     More API calls for BUILD files
         STRIP=<level> (symbols, debug, all)
@@ -340,11 +330,13 @@ IDEAS
         Would marginally increase security and more than marginally increase complexity
 
     Add git as a supported source format
-        syntax: source variable starts with git+
-        repo is cloned to /usr/ports/<repo>/<package>/.sources/git+name
-        if it exists, the repo is pulled instead
-        tags are checked out here
-        then, the build is done in .build as usual
+        Syntax: source variable starts with git+
+        Add PackageSource struct
+        Repo is cloned to .sources/<name>
+        If the sourcetype for a package is git, --clean should execute `git reset --hard`
+        If it exists, the repo is pulled instead
+        Optional syntactic sugar to check out to a specific tag
+        Build is done in .build as usual
 
     Do the zstd compression in-house
         would maybe allow for a progress bar :pray:
@@ -354,6 +346,7 @@ IDEAS
     consider allowing //package
         ex: //tree would be parsed into the tree package from *every* repo that contains it
         I think this is worth implementing
+        Planned for 0.2.0
 
     Add an API
         Would allow queries such as build (current/total_queued)
@@ -364,39 +357,71 @@ IDEAS
     Add size information in stats
         Consider using the size crate for easy size handling
         Use sighs to find dir/file size
+        Planned for 0.2.0
 
     Use xshell
+
+    # This function will be called whenever --get is called on a package
+    Add 2g() {}
+        Mock up for rust:
+        ```bash
+        tar xf "$SRC/package=0.0.0.tar.xz" $(tar tf "$SRC/package=0.0.0.tar.xz" | grep Cargo.{toml,lock})
+        (cd extracted/dir && cargo fetch --locked --target "$(rustc -vV | sed -n 's,host: ,,p')")
+        ```
+
+    Add a flag [-m|--machine] to make output easily parsable
+
+    Add a file that shows currently extracted package
+        Also should show its index in the queue
+
+    Could be used by another program to track progress
+
+    Change formatting of --list to be more like this:
+        [&grey;-] repo/name=0.0.0
+        [&blue;*] repo/name=0.0.0
+        [&red;o] repo/name=0.0.0
+
+        I'll have installed version covered in -a and -A for outdated packages
+        This should make the ui a lot cleaner
+        This should be fairly easy to implement and is planned for 0.2.0
 
 ROADMAP
 
     Features for 2-0.1.0:
-        [*] package summaries
-        [*] build time tracking
-        [*] install script
-        [*] fair 2lkit functionality
-        [*] finalize feature additions
-        [*] reasonable amount of testing
-        [-] solid documentation with mdbook
+        [*] Package summaries
+        [*] Build time tracking
+        [*] Install script
+        [*] Fair 2lkit functionality
+        [*] Finalize feature additions
+        [*] Reasonable amount of testing
+        [-] Solid documentation with mdbook
 
     Features for 2-0.2.0:
-        split things into their own libraries
-        improve code organization with workspaces
-        licenses & dependencies in long about
-            implies dependency support
-        Source-sharing for packages
-        .part downloads
-        Add ignored.txt
+        [-] Listing ui rework
+        [-] Make 2 give proper output if it can't find its config instead of hanging indefinitely
+        [-] Support //<name>
+        [-] Improve code organization with a workspace
+            Split things into their own libraries
+        [-] Licenses & dependencies in long about
+            Implies dependency support
+            Also size for distribution tarball and extracted space
+                Use my sighs library for this
+        [-] Source-sharing for packages
+            This will require some thought as to how I want to implement it
+        [-] .part downloads
+        [-] Add ignored.txt
             Used to ignore certain packages
             Syntax should require <repo>/<name>, but allow //<name>
             These packages won't be recognized by 2
+            Syntax should also support !<repo>/<name> to exempt a specific package, as is done in gitignores
         Take another glance at the ideas and consider what I wanna implement
 
     Features for 2-0.3.0:
         Add a file that contains paths not to be removed
             Should support wild cards
-        repo enabling/disabling
-        progress bars for pruning and cleaning
+        Repo enabling/disabling
+        Progress bars for pruning and cleaning
         PackageStatus enum (Available, Built, Installed)
             Would also need to add @b ('built' special set)
         PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
-        vulnerability checks (GLSA-based)
+        Vulnerability checks (GLSA-based)
