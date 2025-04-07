@@ -117,11 +117,12 @@ pub fn download_url(url: &str, out: &Path, force: bool, sty: &ProgressStyle) -> 
     }
 
     vpr!("Downloading '{url}'...");
+    #[rustfmt::skip]
     let r = match ureq::get(url).call() {
         | Ok(r) => r,
         | Err(UE::StatusCode(code)) => bail!("Received status code '{code}'"),
-        | Err(UE::HostNotFound) => bail!("Failed to resolve hostname"),
-        | Err(_) => bail!("An unexpected error occured"),
+        | Err(UE::HostNotFound)     => bail!("Failed to resolve hostname"),
+        | Err(_)                    => bail!("An unexpected error occured"),
     };
     vpr!("Response:\n{r:#?}");
 
@@ -188,14 +189,15 @@ pub fn normalize_tarball(package: &Package, tarball: &str) -> String {
         .map(|(_, ext)| format!(".t{ext}"))
         .efail(|| format!("[UNREACHABLE] Unsupported tarball format for tarball '{tarball}'"));
 
+    #[rustfmt::skip]
     let to = match ext.as_str() {
-        | ".tar.bz2" | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2"),
-        | ".tar.gz" | ".tgz" | ".taz" => format!("{package}.tar.gz"),
-        | ".tar.lz" => format!("{package}.tar.lz"),
-        | ".tar.lzma" | ".tlz" => format!("{package}.tar.lzma"),
-        | ".tar.lzo" => format!("{package}.tar.lzo"),
-        | ".tar.xz" | ".txz" => format!("{package}.tar.xz"),
-        | ".tar.zst" | ".tzst" => format!("{package}.tar.zst"),
+        | ".tar.bz2"  | ".tbz" | ".tb2" | ".tbz2" | ".tz2" => format!("{package}.tar.bz2"),
+        | ".tar.gz"   | ".tgz" | ".taz"                    => format!("{package}.tar.gz"),
+        | ".tar.lz"                                        => format!("{package}.tar.lz"),
+        | ".tar.lzma" | ".tlz"                             => format!("{package}.tar.lzma"),
+        | ".tar.lzo"                                       => format!("{package}.tar.lzo"),
+        | ".tar.xz"   | ".txz"                             => format!("{package}.tar.xz"),
+        | ".tar.zst"  | ".tzst"                            => format!("{package}.tar.zst"),
         | _ => unreachable!(
             "Unsupported tarball extension '{ext}' for tarball '{tarball}'.\nYour ass should not be seeing this error.\nWtf did you do?"
         ),
