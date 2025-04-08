@@ -8,7 +8,7 @@ start with '2-' to be recognized by 2, but their directories should exclude
 ### With 2lkit
 Let's create a new repo called '2-my-awesome-creatively-named-repo'.
 ```
- $ 2lkit --new-repo <username>/2-my-awesome-creatively-named-repo
+ $ 2lkit --new-repo https://github.com/<username>/2-my-awesome-creatively-named-repo.git
 ```
 
 ### Manually
