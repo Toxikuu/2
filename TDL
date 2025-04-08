@@ -385,6 +385,13 @@ IDEAS
         This should make the ui a lot cleaner
         This should be fairly easy to implement and is planned for 0.2.0
 
+    Package manifests into distribution tarballs
+        Would make forced package removal better
+        Would allow listing of package contents
+
+    Rewrite 2's argument parsing from the ground up
+        Ideally roll a custom parser as well
+
 ROADMAP
 
     Features for 2-0.1.0:
