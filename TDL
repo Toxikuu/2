@@ -4,9 +4,6 @@ TODO
 
 WIP
 
-    Work on mdbook docs
-        Just read through and polish some stuff
-
     Complete 2lkit functionality
         # Add downgrade
         #     restore's been added, but I might also add a simple downgrade
@@ -15,14 +12,19 @@ WIP
         [-] The error handling isn't user friendly but it's fine
         [*] Add Package::from(MaintArg)
         [-] Add QA checks and basic linting
-        [-] Add `--new-repo` # this i should do before 0.1.0 since it's referenced in the documentation
+        [*] Add `--new-repo` # this i should do before 0.1.0 since it's referenced in the documentation
         Won't make it into 0.1.0 most likely
         Ultimately, this should become part of a workspace with 2
 
     Expand the main & xorg repos
         Categorize more packages
+        Drop m32 support in the future
+            Once I get flatpak working and test steam with it
 
 DONEISH
+
+    Work on mdbook docs
+        Just read through and polish some stuff
 
     Add full output for --prune
 
