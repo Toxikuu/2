@@ -1,3 +1,15 @@
+# 2=0.1.0
+## Notes
+First minor version!!
+
+## Changes
+- Polished documentation
+- Tweaked icons
+- Tweaked the Makefile
+- Bugfixes
+- Minor refactoring, formatting, comment removal, lint satisfaction
+- Added `-b` to `du` to more accurately display sizes
+
 # 2=0.0.96
 ## Changes
 - Fixed build failures
