@@ -3,7 +3,6 @@
 #![doc = include_str!("../README.md")]
 #![feature(duration_millis_float)]
 #![deny(clippy::perf, clippy::todo, clippy::complexity)]
-#![allow(clippy::semicolon_if_nothing_returned)]
 #![warn(
     clippy::all,
     clippy::pedantic,
@@ -15,6 +14,7 @@
     missing_docs,
     clippy::cargo
 )]
+#![allow(clippy::semicolon_if_nothing_returned)]
 
 mod build;
 mod cli;
