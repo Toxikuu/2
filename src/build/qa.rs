@@ -34,15 +34,12 @@ pub fn envs_properly_initialized(p: &Package) -> bool {
     let contents = read_to_string(build_file).fail("Failed to read BUILD");
     let lines = contents.lines().collect::<Vec<_>>();
 
-    match check_env(&lines, "xorg", &["${XORG_CONFIG", "[@]}"]) {
-        | true => {
-            debug!("Passed QA check 'envs_properly_initialized'");
-            true
-        },
-        | false => {
-            warn!("Failed QA check 'envs_properly_initialized'");
-            false
-        },
+    if check_env(&lines, "xorg", &["${XORG_CONFIG", "[@]}"]) {
+        debug!("Passed QA check 'envs_properly_initialized'");
+        true
+    } else {
+        warn!("Failed QA check 'envs_properly_initialized'");
+        false
     }
 }
 

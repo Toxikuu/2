@@ -303,7 +303,7 @@ impl PM<'_> {
             );
 
             let package_info_len = package_info.len();
-            let width = if package_info_len > max_width { 0 } else { max_width - package_info_len };
+            let width = max_width.saturating_sub(package_info_len);
 
             pr!("{package_info} {:<width$} ~ {}", " ", p.data.status);
         }

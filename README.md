@@ -44,6 +44,6 @@ especially if you used the Makefile to install 2.
 
 ## Credits
 - Huge thanks to the maintainers and readers of the
-[*LFS books](https://www.linuxfromscratch.org/),
-both for inspiration and support.
+  [*LFS books](https://www.linuxfromscratch.org/),
+  both for inspiration and support.
 - Thanks to the authors of the various rust crates 2 depends on.
