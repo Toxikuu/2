@@ -22,6 +22,8 @@ Then execute the following commands:
 
  $ git init
  $ echo '*/.*' > .gitignore
+ $ echo 'shell=bash' > .shellcheckrc
+ $ echo 'disable=SC2034' >> .shellcheckrc
  $ echo '# my-awesome-creatively-named-repo' > README.md
  $ curl -L 'https://www.gnu.org/licenses/gpl-3.0.txt' -o LICENSE
 
