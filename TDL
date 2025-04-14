@@ -2,6 +2,9 @@
 
 TODO
 
+    Rework listing ui
+    Include dependencies in package struct and long about
+
 WIP
 
     Complete 2lkit functionality
@@ -403,9 +406,15 @@ ROADMAP
         [*] Fair 2lkit functionality
         [*] Finalize feature additions
         [*] Reasonable amount of testing
-        [-] Solid documentation with mdbook
+        [*] Solid documentation with mdbook
 
     Features for 2-0.2.0:
+        [-] Change BUILD function names to be more readable and add missing ones
+            2b -> 2build
+            2z -> 2postinstall
+            + 2preinstall
+            + 2preremove
+            + 2postremove
         [-] Listing ui rework
         [-] Make 2 give proper output if it can't find its config instead of hanging indefinitely
         [-] Support //<name>
@@ -423,14 +432,14 @@ ROADMAP
             Syntax should require <repo>/<name>, but allow //<name>
             These packages won't be recognized by 2
             Syntax should also support !<repo>/<name> to exempt a specific package, as is done in gitignores
-        Take another glance at the ideas and consider what I wanna implement
+        [-] Take another glance at the ideas and consider what I wanna implement
 
     Features for 2-0.3.0:
-        Add a file that contains paths not to be removed
+        [-] Add a file that contains paths not to be removed
             Should support wild cards
-        Repo enabling/disabling
-        Progress bars for pruning and cleaning
-        PackageStatus enum (Available, Built, Installed)
+        [-] Repo enabling/disabling
+        [-] Progress bars for pruning and cleaning
+        [-] PackageStatus enum (Available, Built, Installed)
             Would also need to add @b ('built' special set)
-        PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
-        Vulnerability checks (GLSA-based)
+        [-] PackageVersionStatus enum (Available, Outdated, Current) # might be unnecessary
+        [-] Vulnerability checks (GLSA-based)
