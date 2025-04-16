@@ -3,9 +3,18 @@
 TODO
 
     Rework listing ui
-    Include dependencies in package struct and long about
+
+    Support exempting packages from upstream version checks
+        via SKIP_FETCH_VERSION=1
+        Test with sgml-common
+
 
 WIP
+
+    Include dependencies in package struct and long about
+
+    Improve code organization with a workspace
+        Split things into their own libraries
 
     Complete 2lkit functionality
         # Add downgrade
@@ -415,11 +424,14 @@ ROADMAP
             + 2preinstall
             + 2preremove
             + 2postremove
+            + 2preupdate
+            + 2postupdate
+            + 2fetchversion # this is done because using a single variable is more limiting
+        [-] Support for exempting packages from upstream version checks
+            via SKIP_FETCH_VERSION=1
         [-] Listing ui rework
         [-] Make 2 give proper output if it can't find its config instead of hanging indefinitely
         [-] Support //<name>
-        [-] Improve code organization with a workspace
-            Split things into their own libraries
         [-] Licenses & dependencies in long about
             Implies dependency support
             Also size for distribution tarball and extracted space

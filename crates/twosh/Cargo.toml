@@ -1,0 +1,11 @@
+[package]
+name = "twosh"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tracing.workspace = true
+anyhow.workspace = true
+twoerror = { path = "../twoerror" }
+twocomms = { path = "../twocomms" }
+twoconfig = { path = "../twoconfig" }

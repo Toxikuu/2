@@ -1,0 +1,8 @@
+[package]
+name = "twocomms"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+twoconfig = { path = "../twoconfig" }
+tracing.workspace = true
