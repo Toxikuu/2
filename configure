@@ -39,7 +39,7 @@ while [ $# -gt 0 ]; do
     --bindir=*)      bindir="${1#*=}" ;;
     --docdir=*)      docdir="${1#*=}" ;;
     --disable-docs)  enable_docs=0 ;;
-    --disable-copm)  enable_comp=0 ;;
+    --disable-comp)  enable_comp=0 ;;
     --disable-conf)  enable_conf=0 ;;
     --disable-main)  enable_main=0 ;;
     --disable-tools) enable_tools=0 ;;
