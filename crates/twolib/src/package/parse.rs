@@ -88,15 +88,3 @@ pub fn expand_set(set: &str) -> Box<[Package]> {
     d!("Fully expanded set:", pkgs);
     pkgs
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_efibootmgr() {
-        let package = parse(&["testing/efibootmgr".to_string()]);
-        d!(format!("{package:#?}"));
-        panic!()
-    }
-}

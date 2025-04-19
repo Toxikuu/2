@@ -233,7 +233,7 @@ fn download_tarball(package: &Package, force: bool, sty: &ProgressStyle) -> bool
     if let Err(e) = download_url(url, &out, force, sty) {
         e.to_string()
             .contains("Exists: ")
-            .or_efail(|| format!("Failed to download tarball from '{url}' for '{package}'"));
+            .or_efail(|| format!("Failed to download tarball from '{url}' for '{package}': {e}"));
         return false;
     }
     true

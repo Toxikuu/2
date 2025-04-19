@@ -4,6 +4,7 @@ pub mod ambiguity;
 pub mod cli;
 pub mod hash;
 pub mod package;
+#[cfg(feature = "parallelism")]
 pub mod par;
 pub mod pm;
 pub mod repo;
