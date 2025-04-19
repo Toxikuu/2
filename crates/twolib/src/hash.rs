@@ -42,7 +42,11 @@ pub fn try_truncate_commit_hash(s: &str) -> &str { if is_commit_hash(s) { &s[..7
 mod tests {
     use std::path::PathBuf;
 
-    use super::twohash;
+    use super::{
+        is_commit_hash,
+        try_truncate_commit_hash,
+        twohash,
+    };
 
     #[test]
     fn license_hash() {
@@ -62,5 +66,20 @@ mod tests {
                 "Hash '{hash}' contains dangerous character '{c}'"
             );
         }
+    }
+
+    #[test]
+    fn commit_true() { assert!(is_commit_hash("bbb6d918cea757c537c5a516520f0b9771846a23")) }
+
+    #[test]
+    #[should_panic]
+    fn commit_false() { assert!(is_commit_hash("bbb6d918cea75c537c5a516520f0b771846a23")) }
+
+    #[test]
+    fn truncate_commit() {
+        assert_eq!(
+            try_truncate_commit_hash("59719211d3b67cf20737439a49e3ca2cf6f9fb03"),
+            "5971921"
+        )
     }
 }
