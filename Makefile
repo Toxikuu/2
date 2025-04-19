@@ -4,7 +4,11 @@ all: build
 
 build:
 	@echo "Building 2..."
-	cargo +nightly build --release
+	cargo +nightly build --release --bin two
+ifeq ($(ENABLE_TOOLS),1)
+	@echo "Building 2lkit..."
+	cargo +nightly build --release --bin twolkit
+endif
 ifeq ($(ENABLE_DOCS),1)
 	@echo "Building documentation..."
 	cd docs && mdbook build
@@ -21,6 +25,11 @@ install:
 	@echo "Installing executables..."
 	install -Dm755 target/release/two    $(DESTDIR)$(LIBEXECDIR)/two
 	install -Dm755 launch.sh             $(DESTDIR)$(BINDIR)/2
+
+ifeq ($(ENABLE_TOOLS),1)
+	@echo "Installing 2lkit"
+	install -Dm755 target/release/twolkit $(DESTDIR)$(BINDIR)/2lkit
+endif
 
 	@echo "Installing environment files..."
 	install -Dm644 envs/cmake            $(DESTDIR)/usr/share/2/envs/cmake
