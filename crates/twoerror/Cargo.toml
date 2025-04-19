@@ -7,3 +7,6 @@ edition = "2024"
 tracing.workspace = true
 twoconfig = { path = "../twoconfig" }
 twocomms = { path = "../twocomms" }
+
+[dev-dependencies]
+anyhow.workspace = true
