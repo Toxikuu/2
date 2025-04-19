@@ -9,9 +9,14 @@ macro_rules! a {
 
 #[macro_export]
 macro_rules! d {
-    ($($arg:expr),+ $(,)?) => {
+    ($arg:expr) => {
         if cfg!(debug_assertions) {
-            $(dbg!(&$arg);)+
+            dbg!(&$arg);
+        }
+    };
+    ($x:expr, $($y:expr),+) => {
+        if cfg!(debug_assertions) {
+            dbg!(&$x, d!(&$($y),+));
         }
     };
 }
