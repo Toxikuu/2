@@ -2,7 +2,10 @@
 
 use std::fs;
 
-use tracing::instrument;
+use tracing::{
+    debug,
+    instrument,
+};
 use twocomms::{
     erm,
     pr,
@@ -125,6 +128,7 @@ fn locate_set(set: &str) -> Vec<Set> {
 /// Prompts the user if multiple repositories contain the set
 #[instrument]
 pub fn resolve_set_ambiguity(set: &str) -> Repo {
+    debug!("Resolving ambiguity for set '{set}'");
     let mut matches: Vec<String> = if Set::is_special_set(set) {
         Repo::find_all()
             .iter()
@@ -133,6 +137,7 @@ pub fn resolve_set_ambiguity(set: &str) -> Repo {
     } else {
         locate_set(set).iter().map(|s| s.to_string()).collect()
     };
+    debug!("Found matches for '{set}': '{matches:#?}'");
     d!(matches);
 
     matches
@@ -140,7 +145,13 @@ pub fn resolve_set_ambiguity(set: &str) -> Repo {
         .and_efail(|| format!("Failed to find '{set}' in any repo"));
     if let [only] = matches.as_slice() {
         d!(only);
-        return Repo::new(only);
+        debug!("Matched '{set}' on only arm: '{only}'");
+        // BUG: locate_set() returns matches, consisting of Set, which contain `repo/@set`, leading
+        // to invalid sets of the format `repo/@set/@set`
+        // NOTE: The above bug is somewhat fixed by the below, but it's a cursed solution bc i cba
+        // to actually fix it rn
+        let (repo_part, _) = only.split_once('/').fail("[UNREACHABLE] Repo without /");
+        return Repo::new(repo_part);
     }
 
     d!("Before prioritization:", matches);

@@ -33,12 +33,11 @@ pub struct Repo {
 
 impl fmt::Display for Repo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        writeln!(f, "{}/", self.name)
+        write!(f, "{}/", self.name)
     }
 }
 
 impl Repo {
-    // The gross type tomfoolery here allows any stringish type to be used
     pub fn new(name: &str) -> Self {
         let name = name.trim_end_matches('/');
         Self {

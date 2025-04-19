@@ -74,26 +74,35 @@ impl Set {
             };
         }
 
-        if let Some((repo, set)) = str.split_once('/') {
-            // repo/@set case
-            Self {
-                repo: repo.to_string(),
-                set:  set.to_string(),
-            }
+        // merge repo/@set and @set cases
+        let set = if str.find('/').is_some() {
+            str
         } else {
-            // @set case
             let repo = resolve_set_ambiguity(str);
-            Self::new_from_repo_and_set(repo, str)
-        }
+            &format!("{repo}{str}")
+        };
+
+        let (repo, set) = set
+            .split_once('/')
+            .fail("[UNREACHABLE] Repo display elided /");
+        let set = Self {
+            repo: repo.to_string(),
+            set:  set.to_string(),
+        };
+
+        debug!("Formed set '{set:?}' from '{str}'");
+        set
     }
 
+    #[instrument]
     pub fn new_from_repo_and_set(repo: Repo, set: &str) -> Self {
         Self {
-            repo: repo.to_string(),
+            repo: repo.to_string().trim_end_matches('/').to_string(),
             set:  set.to_string(),
         }
     }
 
+    #[instrument]
     pub fn dirs(&self) -> Rc<[String]> {
         debug!("Determining directories for set '{self:#?}'");
         let repo = &self.repo;
@@ -176,7 +185,7 @@ impl Set {
     #[instrument]
     fn all(&self) -> Rc<[String]> {
         let dirs = self.dirs();
-        d!("Found dirs:", dirs);
+        d!(dirs);
         let entries = dirs
             .iter()
             .filter_map(|d| read_dir(d).ok()) // ignore missing repos lol
@@ -220,7 +229,6 @@ impl Set {
                     None
                 }
             })
-            .inspect(|hi| d!("Hi", hi))
             .collect()
     }
 
@@ -333,7 +341,7 @@ mod tests {
     }
 
     #[test]
-    fn unravel_main_lfs() {
+    fn unravel_ambiguous_lfs() {
         let set = Set::new("@lfs");
         let members = set.unravel();
         dbg!(&set);
