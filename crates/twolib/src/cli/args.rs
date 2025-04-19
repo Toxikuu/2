@@ -92,11 +92,6 @@ pub struct Args {
     #[arg(short = 's', long)]
     pub stats:      bool,
 
-    /// Retrieves upstream versions for packages
-    #[cfg(feature = "upstream")]
-    #[arg(short = 'U', long)]
-    pub upstream: bool,
-
     // Type: Special
     // Arguments that don't reference packages
     // Only one special argument may be passed, and upon executing their function, they exit 2

@@ -10,7 +10,6 @@ pub mod provides;
 pub mod remove;
 pub mod stats;
 mod traits;
-pub mod upstream;
 
 use std::{
     path::PathBuf,

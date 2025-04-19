@@ -4,7 +4,6 @@
 use indicatif::ProgressStyle;
 use once_cell::sync::Lazy;
 #[cfg(feature = "parallelism")]
-use rayon::prelude::*;
 use tracing::{
     debug,
     info,
@@ -21,7 +20,6 @@ use twosh::fs::mkdir;
 
 use super::PM;
 #[cfg(feature = "upstream")]
-use crate::package::upstream::core::check_upstream;
 use crate::package::{
     Package,
     dl::{
@@ -69,10 +67,6 @@ impl PM<'_> {
             self.packages.iter().for_each(Self::remove);
         }
 
-        #[cfg(feature = "upstream")]
-        if a.upstream {
-            self.upstream()
-        }
         if a.get {
             self.get()
         }
@@ -308,37 +302,6 @@ impl PM<'_> {
 
             pr!("{package_info} {:<width$} ~ {}", " ", p.data.status);
         }
-    }
-
-    /// # Description
-    /// Displays the upstream version for a package, as well as the local version based on
-    /// information from BUILD
-    #[cfg(feature = "upstream")]
-    fn upstream(&self) {
-        let pkgs = if self.packages.is_empty() { expand_set("//@@") } else { self.packages.into() };
-
-        let len = pkgs.len();
-        debug!("Checking upstream for {len} packages...");
-
-        #[cfg(not(feature = "parallelism"))]
-        {
-            pkgs.iter().for_each(|p| {
-                debug!("Checking upstream version for {p}...");
-                check_upstream(p);
-            });
-        }
-
-        #[cfg(feature = "parallelism")]
-        {
-            self.thread_pool.install(|| {
-                pkgs.into_par_iter().for_each(|p| {
-                    debug!("Checking upstream version for {p}...");
-                    check_upstream(p);
-                });
-            });
-        }
-        // TODO: Track time with stopwatch
-        msg!("Checked upstream versions for {len} packages");
     }
 
     fn history(p: &Package) { history::view(p); }
