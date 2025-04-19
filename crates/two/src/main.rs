@@ -91,7 +91,7 @@ fn init_logging() -> WorkerGuard {
     let file_appender = rolling::never("/tmp/2", "log");
     let (file_writer, guard) = tracing_appender::non_blocking(file_appender);
 
-    let level = LevelFilter::from_str(&CONFIG.general.log_level).unwrap_or(LevelFilter::INFO);
+    let level = LevelFilter::from_str(&CONFIG.general.log_level).unwrap_or(LevelFilter::DEBUG);
     let filter = EnvFilter::builder()
         .with_default_directive(level.into())
         .with_env_var("LOG_LEVEL")
@@ -101,6 +101,7 @@ fn init_logging() -> WorkerGuard {
         .with_env_filter(filter)
         .with_level(true)
         .with_target(true)
+        .with_line_number(true)
         .with_timer(fmt::time::uptime())
         .with_writer(file_writer)
         .compact()
