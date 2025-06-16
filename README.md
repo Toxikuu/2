@@ -1,5 +1,9 @@
 # 2
 
+## WARNING
+2 is unmaintained. It's also critically flawed[^1], and the simplest solution was a
+rewrite. I'm now working on [to](https://github.com/Toxikuu/to.git).
+
 ## Info
 2 is a source-based package manager for LFS. It packages packages into
 distribution tarballs, allowing for rapid reinstalls, while not compromising on
@@ -47,3 +51,7 @@ especially if you used the Makefile to install 2.
   [*LFS books](https://www.linuxfromscratch.org/),
   both for inspiration and support.
 - Thanks to the authors of the various rust crates 2 depends on.
+
+[^1]: The critical flaw in question is the lack of build isolation. Also the
+    codebase here is kind of a mess, but that's not a flaw that's really been
+    fixed by its successor.
